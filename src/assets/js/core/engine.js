@@ -99,7 +99,7 @@ function fieldHTML(fd) {
 function boxHTML(b) {
   const tg = (b.toggles || []).map(([k, l], i) =>
     `<label class="chk ${i === 0 ? 'font-bold text-white' : ''}"><input type="checkbox" data-t="${k}" class="rounded">${l}</label>`).join('');
-  return `<div class="box">${tg ? `<div class="flex justify-between gap-2">${tg}</div>` : ''}` +
+  return `<div class="box">${tg ? `<div class="flex flex-wrap justify-between gap-x-3 gap-y-1">${tg}</div>` : ''}` +
     `<div class="grid ${COLS[b.cols || 1]} gap-2">${b.fields.map(fieldHTML).join('')}</div></div>`;
 }
 

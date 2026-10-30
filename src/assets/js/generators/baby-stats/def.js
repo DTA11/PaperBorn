@@ -43,7 +43,7 @@ export default {
   defaultFormat: 'a4',
   photo: true,
   defaults: {
-    toggles: { name: true, monogram: true, date: true, time: true, weight: true, height: true, location: true, coords: true, parents: true, zodiac: true, moon: true, quote: true },
+    toggles: { name: true, monogram: true, date: true, time: true, weight: true, height: true, location: true, city: true, coords: true, parents: true, zodiac: true, moon: true, quote: true },
     data: { firstName: 'AURELIA', lastName: 'VALENTINE', monogram: 'AV', date: '2026-10-10', time: '08:42', weightG: '3450', heightCm: '51',
             location: 'City General Hospital', city: 'Your City, Country', coords: '45.0000° N, 15.0000° E', parents: 'EMMA & MARK', quote: 'Little miracle, endless love.' },
   },
@@ -61,7 +61,7 @@ export default {
       { toggles: [['weight', 'Weight'], ['height', 'Height']], cols: 2, fields: [
         { key: 'weightG', type: 'number', label: 'Weight (grams)', min: 300, max: 7000, step: 1, ph: '3450' },
         { key: 'heightCm', type: 'number', label: 'Height (cm)', min: 20, max: 70, step: 0.5, ph: '51' } ] },
-      { toggles: [['location', 'Hospital & city'], ['coords', 'Coordinates']], cols: 2, fields: [
+      { toggles: [['location', 'Hospital name'], ['city', 'City / address'], ['coords', 'Coordinates']], cols: 2, fields: [
         { type: 'placesearch', label: 'Find hospital address', span: 2, ph: 'Hospital name and city', keys: { name: 'location', city: 'city', coords: 'coords' } },
         { key: 'location', type: 'text', ph: 'Medical center', span: 2, maxlength: 60 },
         { key: 'city', type: 'text', ph: 'City, Country', maxlength: 60 },
@@ -80,6 +80,13 @@ export default {
     apply(state, id) { const th = THEMES[id]; state.theme = id; state.fontMode = th.font; state.photo.shape = th.shape; state.photo.filterMode = th.filter; },
   },
   derive: derived,
-  templates: TEMPLATES,
+  /* Hospital name and city are separate switches; the designs only know one "location" switch, so adapt here:
+     whichever of the two is switched on takes the place the design reserves for the hospital (Playful only has a city slot). */
+  templates: Object.fromEntries(Object.entries(TEMPLATES).map(([id, fn]) => [id, (e, t, f, dv, pg) => {
+    const hos = t.location ? e.location : '', city = t.city ? e.city : '';
+    const e2 = id === 'playful' ? { ...e, location: hos, city: city || hos }
+      : { ...e, location: hos || city, city: hos ? city : '' };
+    return fn(e2, { ...t, location: !!(hos || city) }, f, dv, pg);
+  }])),
   decor: DECOR,
 };
