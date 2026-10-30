@@ -6,7 +6,7 @@ import { svgLayer, sparkle, corners, starPath, heartPath } from '../../core/svg.
 const nm = (s, base, chars) => Math.round(base * Math.min(1, chars / Math.max(String(s).length, 1)));
 const statItems = (e, t) => [['Date', t.date && e.date], ['Weight', t.weight && e.weight], ['Height', t.height && e.height]].filter(r => r[1]);
 const factItems = (e, t) => t.facts ? [['Loves', e.loves], ['New skill', e.skill], ['Fun fact', e.fun]].filter(r => r[1]) : [];
-const brand = (t, cls, label = 'Paperborn · Milestone') => t.footer ? `<div class="text-center text-[8pt] tracking-[4px] uppercase pt-2 ${cls}">${label}</div>` : '';
+const brand = (t, cls, label = 'Baby Card Printables · Milestone') => t.footer ? `<div class="text-center text-[8pt] tracking-[4px] uppercase pt-2 ${cls}">${label}</div>` : '';
 const bigNum = (e, f, extra = '') => `<div class="font-black" style="font-size:${nm(e.big, f.num, 2)}px;line-height:1.05;${extra}">${e.big}</div>`;
 const hello = e => (e.big && e.big.length > 2); // words like "Hello" are set smaller
 

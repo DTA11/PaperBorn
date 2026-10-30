@@ -87,7 +87,7 @@ for (const file of walk(pagesDir)) {
       ? `<script defer data-domain="${cfg.analytics.plausibleDomain}" src="https://plausible.io/js/script.outbound-links.js"></script>\n<script>window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}</script>` : '',
     adsScript: cfg.ads.enabled && cfg.ads.adsenseClient
       ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${cfg.ads.adsenseClient}" crossorigin="anonymous"></script>` : '',
-    ogImage: cfg.siteUrl + (meta.ogImage || '/assets/img/og-default.svg'),
+    ogImage: cfg.siteUrl + (meta.ogImage || '/assets/img/og-default.png'),
   };
   // page content first (it may use {{h1}} etc.), then wrap in the layout
   vars.content = expand(src, { ...vars, content: '' });
@@ -100,7 +100,7 @@ for (const file of walk(pagesDir)) {
 }
 
 copyDir(path.join(SRC, 'assets'), path.join(DIST, 'assets'));
-for (const f of ['favicon.svg']) if (fs.existsSync(path.join(SRC, f))) fs.copyFileSync(path.join(SRC, f), path.join(DIST, f));
+for (const f of ['favicon.svg', 'favicon-32.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'site.webmanifest']) if (fs.existsSync(path.join(SRC, f))) fs.copyFileSync(path.join(SRC, f), path.join(DIST, f));
 
 fs.writeFileSync(path.join(DIST, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +

@@ -20,4 +20,4 @@ http.createServer((req, res) => {
   }
   res.writeHead(200, { 'Content-Type': TYPES[path.extname(f)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
   fs.createReadStream(f).pipe(res);
-}).listen(PORT, () => console.log(`Paperborn dev server: http://localhost:${PORT}`));
+}).listen(PORT, () => console.log(`Dev server: http://localhost:${PORT}`));

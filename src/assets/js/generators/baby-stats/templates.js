@@ -87,7 +87,7 @@ export const TEMPLATES = {
     </div>
     ${(t.location || t.parents) ? `<div class="bg-black text-white px-4 py-3 flex justify-between gap-3 text-[9pt] uppercase tracking-widest"><span>${t.location ? [e.location, e.city].filter(Boolean).join(' · ') : ''}</span><span>${t.parents ? e.parents : ''}</span></div>` : ''}
     ${show(t.quote, e.quote, `<div class="text-center italic text-sm mt-3 text-neutral-600">“${e.quote}”</div>`)}
-    ${footer(e, t, 'Paperborn Archival Studio', 'border-neutral-300 text-neutral-400 font-mono')}`,
+    ${footer(e, t, 'Baby Card Printables', 'border-neutral-300 text-neutral-400 font-mono')}`,
 
   playful: (e, t) => `
     <div class="text-center space-y-2">
@@ -106,7 +106,7 @@ export const TEMPLATES = {
     <div class="flex justify-between items-center gap-2 text-xs text-amber-900 font-semibold pt-3">
       <div>${show(t.location, e.city, `📍 ${e.city}`)}</div><div>${show(t.parents, e.parents, `❤️ ${e.parents}`)}</div><div>${show(t.zodiac, e.zodiac, `✨ ${e.zodiac}`)}</div>
     </div>
-    ${footer(e, t, 'Paperborn • Little details. Forever memories.', 'border-amber-200/60 text-amber-700/60 font-bold justify-center')}`,
+    ${footer(e, t, 'Baby Card Printables • Little details. Forever memories.', 'border-amber-200/60 text-amber-700/60 font-bold justify-center')}`,
 
   vintage: (e, t, f) => `
     <div class="text-center">
@@ -129,7 +129,7 @@ export const TEMPLATES = {
       </div>
     </div>
     ${show(t.quote, e.quote, `<div class="border-4 border-double border-current text-center italic py-2 px-4 text-sm">“${e.quote}”</div>`)}
-    ${footer(e, t, 'Paperborn Archival Gazette • All rights reserved', 'border-current opacity-70 font-mono')}`,
+    ${footer(e, t, 'Baby Card Printables • Archival Gazette', 'border-current opacity-70 font-mono')}`,
 
   luxury: (e, t, f) => `
     <div class="text-center">
@@ -147,7 +147,7 @@ export const TEMPLATES = {
         ${show(t.quote, e.quote, `<div class="italic text-zinc-400 mt-1">“${e.quote}”</div>`)}
       </div>
     </div>
-    ${footer(e, t, 'Paperborn Luxury Noir Edition', 'border-[#d4af37]/60 gold-text font-mono')}`,
+    ${footer(e, t, 'Baby Card Printables • Noir Edition', 'border-[#d4af37]/60 gold-text font-mono')}`,
 
   boho: (e, t, f) => `
     <div class="text-center">
@@ -165,14 +165,14 @@ export const TEMPLATES = {
       ${show(t.parents, e.parents, `<div class="text-base" style="color:#c2724f">With love, ${e.parents}</div>`)}
       ${show(t.quote, e.quote, `<div class="text-lg italic">“${e.quote}”</div>`)}
     </div>
-    ${footer(e, t, 'Paperborn • Boho Botanical Collection', 'border-[#c2724f]/40 text-[#c2724f]')}`,
+    ${footer(e, t, 'Baby Card Printables • Boho Botanical', 'border-[#c2724f]/40 text-[#c2724f]')}`,
 
   cyber: (e, t, f) => {
     const mp = t.moon ? moonPhase(e.dateISO) : null;
     const id = e.dateISO ? `ID-${e.dateISO.replace(/-/g, '')}-${(e.time || '0000').replace(':', '')}` : 'ID-UNKNOWN';
     return `
     <div class="flex justify-between items-start gap-3">
-      <div class="min-w-0"><span class="text-[8pt] text-cyan-500 block tracking-widest">[PAPERBORN//SUBJECT_RECORD]</span>
+      <div class="min-w-0"><span class="text-[8pt] text-cyan-500 block tracking-widest">[BABYCARD//SUBJECT_RECORD]</span>
         ${show(t.name, e.firstName || e.lastName, `<h1 class="uppercase text-white cyber-glow leading-none font-bold mt-1" style="font-size:${nm(e.firstName + ' ' + e.lastName, 44, 14, f)}px">${e.firstName} ${e.lastName}</h1>`)}</div>
       <div class="text-right text-[8pt] text-cyan-500 shrink-0 leading-relaxed">${id}<br><span style="color:#4ade80">● ONLINE</span></div>
     </div>
@@ -195,7 +195,7 @@ export const TEMPLATES = {
       ${show(t.parents, e.parents, `<div><span class="text-cyan-500 text-[9pt] block">GENETIC_ORIGIN</span><span class="text-white">${e.parents}</span></div>`)}
       ${show(t.quote, e.quote, `<div><span class="text-cyan-500 text-[9pt] block">LOG_NOTE</span><span class="text-white">${e.quote}</span></div>`)}
     </div>
-    ${t.footer ? `<div class="flex justify-between items-center text-[8pt] text-cyan-600 border-t border-cyan-500/30 pt-2 mt-4"><span>PAPERBORN_SYS_v3.0</span>${barcode(110, 20, '#0891b2')}</div>` : ''}`;
+    ${t.footer ? `<div class="flex justify-between items-center text-[8pt] text-cyan-600 border-t border-cyan-500/30 pt-2 mt-4"><span>BABYCARDPRINTABLES_v3.0</span>${barcode(110, 20, '#0891b2')}</div>` : ''}`;
   },
 
   editorial: (e, t, f) => {
@@ -224,7 +224,7 @@ export const TEMPLATES = {
       </div>
       <div class="shrink-0 text-center">${barcode(96, 34, '#0a0a0a')}<div class="text-[7pt] font-mono mt-0.5">${e.dateISO ? e.dateISO.replace(/-/g, '') : ''}</div></div>
     </div>
-    ${(t.footer || t.coords) ? `<div class="pt-2 mt-3 border-t border-neutral-300 flex justify-between gap-2 text-[8pt] text-neutral-400 uppercase tracking-widest"><span>${t.footer ? 'Paperborn Editorial Collection' : ''}</span><span>${t.coords ? e.coords : ''}</span></div>` : ''}`;
+    ${(t.footer || t.coords) ? `<div class="pt-2 mt-3 border-t border-neutral-300 flex justify-between gap-2 text-[8pt] text-neutral-400 uppercase tracking-widest"><span>${t.footer ? 'Baby Card Printables • Editorial' : ''}</span><span>${t.coords ? e.coords : ''}</span></div>` : ''}`;
   },
 
   celestial: (e, t, f) => {
@@ -248,7 +248,7 @@ export const TEMPLATES = {
         ${show(t.quote, e.quote, `<div class="italic">“${e.quote}”</div>`)}
       </div>
     </div>
-    ${footer(e, t, 'Paperborn • Celestial Edition', 'border-[#e8c872]/40 text-[#e8c872]')}`;
+    ${footer(e, t, 'Baby Card Printables • Celestial', 'border-[#e8c872]/40 text-[#e8c872]')}`;
   },
 
   certificate: (e, t, f) => {
@@ -279,7 +279,7 @@ export const TEMPLATES = {
       ${show(t.zodiac, e.zodiac, `<div class="text-center text-[8pt] tracking-widest uppercase mt-3 opacity-70">Born under the sign of ${e.zodiac}</div>`)}
       ${show(t.quote, e.quote, `<div class="text-center italic text-sm mt-2">“${e.quote}”</div>`)}
     </div>
-    ${footer(e, t, 'Registered • Paperborn Archival Studio', 'border-[#8a6a2a]/50 opacity-80')}`;
+    ${footer(e, t, 'Registered • Baby Card Printables', 'border-[#8a6a2a]/50 opacity-80')}`;
   },
 
   retro: (e, t, f) => {
@@ -302,7 +302,7 @@ export const TEMPLATES = {
       ${show(t.parents, e.parents, `<div class="text-sm font-bold" style="color:#e8742c">♥ ${e.parents} ♥</div>`)}
       ${show(t.quote, e.quote, `<div class="text-sm italic">“${e.quote}”</div>`)}
     </div>
-    ${footer(e, t, 'Paperborn • Retro Groove', 'border-[#5b2a14]/30 opacity-80')}
+    ${footer(e, t, 'Baby Card Printables • Retro Groove', 'border-[#5b2a14]/30 opacity-80')}
     ${t.border ? '<div style="height:26px"></div>' : ''}`;
   },
 
@@ -325,7 +325,7 @@ export const TEMPLATES = {
       <div class="min-w-0">${show(t.location, e.location, `<div class="uppercase tracking-wider">${e.location}${e.city ? `, ${e.city}` : ''}</div>`)}${show(t.quote, e.quote, `<div class="italic font-normal mt-0.5">“${e.quote}”</div>`)}</div>
       ${show(t.parents, e.parents, `<div class="text-right uppercase tracking-wider">${e.parents}</div>`)}
     </div>
-    ${footer(e, t, 'Paperborn • Colour Block', 'border-[#1d2a44]/40')}`;
+    ${footer(e, t, 'Baby Card Printables • Colour Block', 'border-[#1d2a44]/40')}`;
   },
 };
 

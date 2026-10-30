@@ -1,4 +1,4 @@
-/* Paperborn editor engine.
+/* Baby Card Printables editor engine.
    A generator is a plain definition object (see each generator def.js). The engine builds the sidebar from it,
    renders the live card, and provides undo/redo, saved looks, multi-page output, packs and PNG/PDF export. */
 import { $, esc, clone, track } from './util.js';
@@ -262,7 +262,7 @@ async function exportPDF() {
     if (!pdf) pdf = newPDF(pw, ph);
     addPageToPDF(pdf, c, pw, ph, i === 0);
   }
-  pdf.save(`paperborn-${slug()}.pdf`);
+  pdf.save(`babycardprintables-${slug()}.pdf`);
   track('export', { generator: def.slug, format: 'pdf', pages: n, theme: state.theme });
 }
 
@@ -270,7 +270,7 @@ async function exportPNG() {
   const c = await capturePage(state.page);
   const blob = await new Promise(res => c.toBlob(res, 'image/png'));
   const n = pageCount();
-  downloadBlob(blob, `paperborn-${slug()}${n > 1 ? '-' + (state.page + 1) : ''}.png`);
+  downloadBlob(blob, `babycardprintables-${slug()}${n > 1 ? '-' + (state.page + 1) : ''}.png`);
   track('export', { generator: def.slug, format: 'png', theme: state.theme });
 }
 
@@ -290,7 +290,7 @@ async function exportPack() {
         addPageToPDF(pdf, c, pw, ph, first); first = false;
       }
     }
-    pdf.save(`paperborn-${slug()}-pack.pdf`);
+    pdf.save(`babycardprintables-${slug()}-pack.pdf`);
     track('export', { generator: def.slug, format: 'pack', items: ids.length });
   } finally {
     Object.assign(state, JSON.parse(backup)); state.page = 0; syncForm(); syncPhotoURL();

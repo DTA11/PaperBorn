@@ -1,8 +1,8 @@
 {
-  "siteName": "Paperborn",
-  "tagline": "Little details. Forever memories.",
-  "siteUrl": "https://paperborn.netlify.app",
-  "contactEmail": "hello@example.com",
+  "siteName": "Baby Card Printables",
+  "tagline": "Free printable cards for little ones",
+  "siteUrl": "https://babycardprintables.com",
+  "contactEmail": "hello@babycardprintables.com",
   "analytics": { "plausibleDomain": "" },
   "ads": { "enabled": false, "adsenseClient": "", "slots": { "leaderboard": "", "sidebar": "", "inContent": "" } }
 }
