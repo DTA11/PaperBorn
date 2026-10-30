@@ -1,0 +1,51 @@
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+
+/* Editor stage */
+.preview-stage {
+  background-color: #0d0d11;
+  background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.scroll::-webkit-scrollbar { width: 5px; }
+.scroll::-webkit-scrollbar-track { background: #121215; }
+.scroll::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+input[type="range"] { accent-color: #6366f1; }
+input[type="date"], input[type="time"] { color-scheme: dark; }
+textarea.inp { resize: vertical; line-height: 1.4; }
+
+/* html2canvas measures font baselines with a tiny <img> appended to <body>.
+   Tailwind's preflight makes every img display:block, which pushes the measured baseline
+   ~0.3-0.45em too low and drops all exported text. Keep that probe inline. */
+body > div > img { display: inline !important; vertical-align: baseline !important; }
+
+/* Card effects used by templates */
+.gold-bg { background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%); }
+.gold-text { color: #d4af37; text-shadow: 0 1px 0 rgba(0,0,0,.4); }
+.cyber-glow { color: #00ffcc; text-shadow: 0 0 8px rgba(0,255,204,.6); }
+.crop-mark { position: absolute; width: 16px; height: 16px; pointer-events: none; z-index: 40; }
+.crop-tl { top: 10px; left: 10px; border-top: 1px solid currentColor; border-left: 1px solid currentColor; }
+.crop-tr { top: 10px; right: 10px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; }
+.crop-bl { bottom: 10px; left: 10px; border-bottom: 1px solid currentColor; border-left: 1px solid currentColor; }
+.crop-br { bottom: 10px; right: 10px; border-bottom: 1px solid currentColor; border-right: 1px solid currentColor; }
+
+/* Long-form text (guide, FAQ, legal) */
+.prose-pb { color: #d4d4d8; line-height: 1.7; font-size: 15px; }
+.prose-pb h2 { color: #fff; font-size: 1.35rem; font-weight: 800; margin: 2.2rem 0 .6rem; letter-spacing: -.01em; }
+.prose-pb h3 { color: #fff; font-size: 1.05rem; font-weight: 700; margin: 1.4rem 0 .4rem; }
+.prose-pb p { margin: .7rem 0; }
+.prose-pb ul, .prose-pb ol { margin: .7rem 0 .7rem 1.2rem; }
+.prose-pb ul { list-style: disc; } .prose-pb ol { list-style: decimal; }
+.prose-pb li { margin: .25rem 0; }
+.prose-pb a { color: #818cf8; text-decoration: underline; text-underline-offset: 3px; }
+.prose-pb a:hover { color: #a5b4fc; }
+.prose-pb details { border: 1px solid #27272a; border-radius: 8px; padding: .7rem 1rem; margin: .6rem 0; background: #0f0f12; }
+.prose-pb summary { cursor: pointer; font-weight: 600; color: #fff; }
+.prose-pb details[open] summary { margin-bottom: .4rem; }
+
+/* Ad slots (rendered only when ads are enabled in site.config.json). Heights are reserved: no layout shift. */
+.ad-slot { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 12px auto; background: #121215; border-radius: 6px; overflow: hidden; contain: layout; width: 100%; max-width: 970px; }
+.ad-label { font: 10px/1 system-ui; letter-spacing: .08em; text-transform: uppercase; color: #71717a; padding: 4px 0; }
+.ad-leaderboard { min-height: 100px; }
+.ad-inContent { min-height: 280px; max-width: 336px; }
+@media (min-width: 1024px) { .ad-leaderboard { min-height: 90px; } }

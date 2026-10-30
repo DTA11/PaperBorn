@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3f2"/><stop offset=".62" stop-color="#e9f4f7"/><stop offset="1" stop-color="#fbe3c8"/></linearGradient>
+<radialGradient id="sk" cx=".45" cy=".4" r=".7"><stop offset="0" stop-color="#ffe0cc"/><stop offset="1" stop-color="#f6bf9f"/></radialGradient></defs>
+<rect width="900" height="1200" fill="url(#bg)"/>
+<g fill="#fff" opacity=".9"><ellipse cx="200" cy="230" rx="130" ry="46"/><ellipse cx="280" cy="205" rx="80" ry="44"/><ellipse cx="700" cy="330" rx="120" ry="40"/><ellipse cx="770" cy="305" rx="70" ry="38"/></g>
+<path d="M0 930 Q450 820 900 930 V1200 H0Z" fill="#fdeacb"/><path d="M0 1010 Q450 930 900 1010 V1200 H0Z" fill="#f9d9a9"/>
+<ellipse cx="450" cy="800" rx="250" ry="210" fill="#fff"/><ellipse cx="450" cy="820" rx="250" ry="190" fill="#f3f7fb"/>
+<circle cx="450" cy="520" r="230" fill="url(#sk)"/>
+<path d="M240 470 Q450 250 660 470 Q620 330 450 310 Q280 330 240 470Z" fill="#7bb6d8"/><circle cx="450" cy="292" r="34" fill="#7bb6d8"/>
+<path d="M352 520 q34 -30 68 0" fill="none" stroke="#5b4636" stroke-width="12" stroke-linecap="round"/><path d="M480 520 q34 -30 68 0" fill="none" stroke="#5b4636" stroke-width="12" stroke-linecap="round"/>
+<ellipse cx="335" cy="590" rx="42" ry="28" fill="#f3a38d" opacity=".65"/><ellipse cx="565" cy="590" rx="42" ry="28" fill="#f3a38d" opacity=".65"/>
+<path d="M410 610 q40 36 80 0" fill="none" stroke="#c0594a" stroke-width="12" stroke-linecap="round"/><ellipse cx="450" cy="565" rx="13" ry="10" fill="#f0a98e"/>
+<g fill="#f6bf9f"><circle cx="300" cy="860" r="48"/><circle cx="600" cy="860" r="48"/></g>
+</svg>

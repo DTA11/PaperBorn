@@ -1,0 +1,35 @@
+<section id="editor" class="border-b border-zinc-800" aria-label="{{h1}}">
+  <div class="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-black border-b border-zinc-800">
+    <div class="min-w-0">
+      <h1 class="font-bold text-sm tracking-widest uppercase text-white leading-tight">{{h1}}</h1>
+      <p class="text-[11px] text-zinc-400 mt-0.5">{{lead}}</p>
+    </div>
+    <div class="flex items-center gap-1 sm:gap-2">
+      <button id="btn-undo" type="button" title="Undo (Ctrl+Z)" aria-label="Undo" disabled class="btn text-zinc-300 hover:text-white">&#8630;</button>
+      <button id="btn-redo" type="button" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled class="btn text-zinc-300 hover:text-white">&#8631;</button>
+      <button id="btn-reset" type="button" class="btn text-zinc-400 hover:text-white">Reset</button>
+      <button id="btn-png" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white">PNG</button>
+      <button id="btn-pdf" type="button" class="btn bg-indigo-600 hover:bg-indigo-500 text-white">Download PDF</button>
+    </div>
+  </div>
+  {{ad leaderboard}}
+  <div class="flex flex-col lg:flex-row lg:h-[calc(100vh-132px)] lg:min-h-[680px]">
+    <aside id="controls" class="order-2 lg:order-1 w-full lg:w-[420px] xl:w-[460px] shrink-0 bg-[#09090b] border-r border-zinc-800 lg:overflow-y-auto scroll text-xs">
+      <div id="controls-inner" class="p-5 space-y-6"><noscript>This generator needs JavaScript.</noscript></div>
+    </aside>
+    <div class="order-1 lg:order-2 flex-1 min-w-0 flex flex-col">
+      <div id="pager" class="hidden items-center justify-center gap-3 bg-black border-b border-zinc-800 py-2 text-xs text-zinc-300">
+        <button id="pager-prev" type="button" class="btn !py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white">&#9664;</button>
+        <span id="pager-label" class="font-mono">Page 1 of 1</span>
+        <button id="pager-next" type="button" class="btn !py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white">&#9654;</button>
+      </div>
+      <div id="stage" class="flex-1 min-h-[300px] preview-stage p-4 flex items-center justify-center overflow-auto">
+        <div id="sizer" class="shrink-0">
+          <div id="card-scale" style="transform-origin: top left;">
+            <div id="card-target" class="relative overflow-hidden shadow-2xl select-none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

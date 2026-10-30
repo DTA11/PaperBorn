@@ -1,0 +1,8 @@
+{
+  "siteName": "Paperborn",
+  "tagline": "Little details. Forever memories.",
+  "siteUrl": "https://paperborn.netlify.app",
+  "contactEmail": "hello@example.com",
+  "analytics": { "plausibleDomain": "" },
+  "ads": { "enabled": false, "adsenseClient": "", "slots": { "leaderboard": "", "sidebar": "", "inContent": "" } }
+}
