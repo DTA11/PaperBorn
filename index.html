@@ -40,6 +40,7 @@
   .crop-bl { bottom: 10px; left: 10px; border-bottom: 1px solid currentColor; border-left: 1px solid currentColor; }
   .crop-br { bottom: 10px; right: 10px; border-bottom: 1px solid currentColor; border-right: 1px solid currentColor; }
   input[type="range"] { accent-color: #6366f1; }
+  input[type="date"], input[type="time"] { color-scheme: dark; }
   .scroll::-webkit-scrollbar { width: 5px; }
   .scroll::-webkit-scrollbar-track { background: #121215; }
   .scroll::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
@@ -57,6 +58,8 @@
     </div>
   </div>
   <div class="flex items-center gap-2">
+    <button id="btn-undo" type="button" title="Undo (Ctrl+Z)" disabled class="btn text-zinc-300 hover:text-white">↶</button>
+    <button id="btn-redo" type="button" title="Redo (Ctrl+Shift+Z)" disabled class="btn text-zinc-300 hover:text-white">↷</button>
     <button id="btn-reset" type="button" class="btn text-zinc-400 hover:text-white">Reset</button>
     <button id="btn-png" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white">PNG</button>
     <button id="btn-pdf" type="button" class="btn bg-indigo-600 hover:bg-indigo-500 text-white">Download PDF</button>
@@ -143,8 +146,8 @@
             <label class="chk"><input type="checkbox" data-t="time" class="rounded">Time</label>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input class="inp" data-f="date" placeholder="10 OCTOBER 2026" maxlength="30">
-            <input class="inp" data-f="time" placeholder="08:42 CEST" maxlength="20">
+            <div><label class="lbl" for="in-date">Date of birth</label><input id="in-date" type="date" class="inp" data-f="date" min="1900-01-01"></div>
+            <div><label class="lbl" for="in-time">Time (24 h)</label><input id="in-time" type="time" class="inp" data-f="time"></div>
           </div>
         </div>
 
@@ -154,8 +157,8 @@
             <label class="chk"><input type="checkbox" data-t="height" class="rounded">Height</label>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <div class="space-y-1"><input class="inp" data-f="weight" placeholder="3450 G" maxlength="20"><input class="inp text-zinc-400" data-f="weightSub" placeholder="3.45 kg" maxlength="20"></div>
-            <div class="space-y-1"><input class="inp" data-f="height" placeholder="51 CM" maxlength="20"><input class="inp text-zinc-400" data-f="heightSub" placeholder="510 mm" maxlength="20"></div>
+            <div><label class="lbl" for="in-w">Weight (grams)</label><input id="in-w" type="number" inputmode="numeric" min="300" max="7000" step="1" class="inp" data-f="weightG" placeholder="3450"></div>
+            <div><label class="lbl" for="in-h">Height (cm)</label><input id="in-h" type="number" inputmode="decimal" min="20" max="70" step="0.5" class="inp" data-f="heightCm" placeholder="51"></div>
           </div>
         </div>
 
@@ -177,8 +180,8 @@
             <label class="chk"><input type="checkbox" data-t="zodiac" class="rounded">Zodiac</label>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input class="inp" data-f="parents" placeholder="EMMA & MARK" maxlength="50">
-            <input class="inp" data-f="zodiac" placeholder="LIBRA ♎" maxlength="30">
+            <div><label class="lbl" for="in-parents">Parents</label><input id="in-parents" class="inp" data-f="parents" placeholder="EMMA & MARK" maxlength="50"></div>
+            <div><span class="lbl">Zodiac (automatic)</span><div id="zodiac-out" class="inp text-zinc-300">—</div></div>
           </div>
           <div class="pt-2 border-t border-zinc-800 space-y-1">
             <label class="chk font-bold text-white"><input type="checkbox" data-t="quote" class="rounded">Dedication / quote</label>
@@ -187,13 +190,28 @@
         </div>
       </section>
 
+      <section class="sec">
+        <h2 class="h2">5. My Templates</h2>
+        <p class="text-zinc-500">Saves the look (style, size, font, photo settings, toggles) — not the baby's details.</p>
+        <div class="flex gap-2"><input id="tpl-name" class="inp" placeholder="Template name" maxlength="30"><button id="btn-tpl-save" type="button" class="btn bg-indigo-600 hover:bg-indigo-500 text-white shrink-0">Save</button></div>
+        <div id="tpl-list" class="space-y-2"></div>
+      </section>
+
+      <section class="sec">
+        <h2 class="h2">6. Card Pack</h2>
+        <p class="text-zinc-500">One multi-page PDF in the selected styles, using the details above and the current paper size.</p>
+        <div id="pack-grid" class="grid grid-cols-2 gap-2"></div>
+        <button id="btn-pack" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white w-full">Download pack PDF</button>
+      </section>
+
       <section class="space-y-3 pb-5">
-        <h2 class="h2">5. Ornaments &amp; Cutting Marks</h2>
+        <h2 class="h2">7. Ornaments &amp; Print</h2>
         <div class="grid grid-cols-2 gap-2">
           <label class="chk box !space-y-0"><input type="checkbox" data-t="accents" class="rounded">Accents / icons</label>
           <label class="chk box !space-y-0"><input type="checkbox" data-t="border" class="rounded">Frame border</label>
           <label class="chk box !space-y-0"><input type="checkbox" data-t="crop" class="rounded">Crop marks</label>
           <label class="chk box !space-y-0"><input type="checkbox" data-t="footer" class="rounded">Archival stamp</label>
+          <label class="chk box !space-y-0 col-span-2"><input type="checkbox" data-o="bleed" class="rounded">Add 3 mm print bleed (extends the background on export)</label>
         </div>
       </section>
     </div>
@@ -214,7 +232,7 @@
 
 /* ---------- Config ---------- */
 const SAMPLE_IMG = 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=1200&q=80';
-const STORE_KEY = 'paperborn:v2';
+const STORE_KEY = 'paperborn:v3';
 
 const FORMATS = {
   a4:        { w: 794, h: 1123, mm: [210, 297],     photoH: 360 },
@@ -246,13 +264,13 @@ const SHAPES = { // ratio = width/height, radius = CSS border-radius (percentage
 };
 
 const DEFAULTS = () => ({
-  style: 'minimalist', format: 'a4', fontMode: 'sans',
+  style: 'minimalist', format: 'a4', fontMode: 'sans', bleed: false,
   photo: { shape: 'rectangle', filterMode: 'grayscale', brightness: 100, contrast: 110, zoom: 100, offsetX: 0, offsetY: 0 },
   toggles: { photo: true, name: true, monogram: true, date: true, time: true, weight: true, height: true, location: true,
              coords: true, parents: true, zodiac: true, quote: true, accents: true, border: true, crop: false, footer: true },
-  data: { firstName: 'AURELIA', lastName: 'VALENTINE', monogram: 'AV', date: '10 OCTOBER 2026', time: '08:42 CEST',
-          weight: '3450 G', weightSub: '3.45 kg', height: '51 CM', heightSub: '510 mm', location: 'Ljubljana Medical Center',
-          city: 'Ljubljana, Slovenia', coords: '46.0569° N, 14.5058° E', parents: 'EMMA & MARK', zodiac: 'LIBRA ♎',
+  data: { firstName: 'AURELIA', lastName: 'VALENTINE', monogram: 'AV', date: '2026-10-10', time: '08:42',
+          weightG: '3450', heightCm: '51', location: 'Ljubljana Medical Center',
+          city: 'Ljubljana, Slovenia', coords: '46.0569° N, 14.5058° E', parents: 'EMMA & MARK',
           quote: 'Little miracle, endless love.' },
 });
 
@@ -267,7 +285,7 @@ let state = DEFAULTS();
 
 /* ---------- Persistence (settings only, never the photo) ---------- */
 let saveTimer;
-const scheduleSave = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => {
+const scheduleSave = () => { commit(); clearTimeout(saveTimer); saveTimer = setTimeout(() => {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (_) {} }, 300); };
 function loadSaved() {
   try {
@@ -537,7 +555,9 @@ const queueRender = () => { cancelAnimationFrame(rafId); rafId = requestAnimatio
 
 function renderCard() {
   const f = FORMATS[state.format], th = THEMES[state.style], t = state.toggles;
-  const e = Object.fromEntries(Object.entries(state.data).map(([k, v]) => [k, esc(v).trim()]));
+  const dv = derived(state.data);
+  const e = Object.fromEntries(Object.entries(dv).map(([k, v]) => [k, esc(v).trim()]));
+  const zo = $('zodiac-out'); if (zo) zo.textContent = dv.zodiac || 'Pick a birth date';
   const el = $('card-target');
   el.style.cssText = `width:${f.w}px;height:${f.h}px;padding:40px;background:${th.bg};color:${th.fg};font-family:${FONTS[state.fontMode]};`;
   const crop = t.crop ? '<div class="crop-mark crop-tl"></div><div class="crop-mark crop-tr"></div><div class="crop-mark crop-bl"></div><div class="crop-mark crop-br"></div>' : '';
@@ -563,6 +583,7 @@ function syncForm() {
   document.querySelectorAll('[data-t]').forEach(el => el.checked = !!state.toggles[el.dataset.t]);
   document.querySelectorAll('[data-p]').forEach(el => el.value = state.photo[el.dataset.p]);
   document.querySelectorAll('[data-a]').forEach(el => el.value = state[el.dataset.a]);
+  document.querySelectorAll('[data-o]').forEach(el => el.checked = !!state[el.dataset.o]);
   document.querySelectorAll('[data-out]').forEach(el => el.textContent = state.photo[el.dataset.out] + (PCT.has(el.dataset.out) ? '%' : ''));
   document.querySelectorAll('.style-btn').forEach(b => {
     const on = b.dataset.style === state.style;
@@ -592,6 +613,7 @@ document.addEventListener('input', ev => {
     if (out) out.textContent = state.photo[ds.p] + (PCT.has(ds.p) ? '%' : '');
     refreshPhoto();
   } else if (ds.a !== undefined) { state[ds.a] = el.value; queueRender(); }
+  else if (ds.o !== undefined) { state[ds.o] = el.checked; }
   else return;
   scheduleSave();
 });
@@ -607,7 +629,7 @@ new ResizeObserver(fitStage).observe($('stage'));
 
 /* ---------- Export ---------- */
 async function renderToCanvas() {
-  await document.fonts.ready;
+  await loadFonts(state.fontMode);
   const f = FORMATS[state.format];
   const scale = Math.min(3, Math.sqrt(16e6 / (f.w * f.h))); // stay under mobile canvas-size limits
   return html2canvas($('card-target'), {
@@ -625,30 +647,166 @@ async function withBusy(btn, label, fn) {
 }
 
 $('btn-pdf').addEventListener('click', e => withBusy(e.currentTarget, 'Generating…', async () => {
-  const canvas = await renderToCanvas();
-  const [pw, ph] = FORMATS[state.format].mm;
-  const pdf = new window.jspdf.jsPDF({ orientation: pw > ph ? 'landscape' : 'portrait', unit: 'mm', format: [pw, ph] });
+  const canvas = await exportCanvas();
+  const [pw, ph] = pageMM();
+  const pdf = newPDF(pw, ph);
   pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
   pdf.save(`paperborn-${slug()}.pdf`);
 }));
 
 $('btn-png').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', async () => {
-  const canvas = await renderToCanvas();
+  const canvas = await exportCanvas();
   const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
   const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `paperborn-${slug()}.png` });
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }));
 
+/* ---------- Derived values: calendar date, grams, cm, zodiac ---------- */
+function fmtDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  if (!m) return '';
+  return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]))
+    .toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).toUpperCase();
+}
+function zodiacOf(iso) {
+  const m = /^\d{4}-(\d{2})-(\d{2})$/.exec(iso || '');
+  if (!m) return '';
+  const mo = +m[1], da = +m[2];
+  const starts = [[1, 20, 'AQUARIUS', '♒'], [2, 19, 'PISCES', '♓'], [3, 21, 'ARIES', '♈'], [4, 20, 'TAURUS', '♉'],
+    [5, 21, 'GEMINI', '♊'], [6, 21, 'CANCER', '♋'], [7, 23, 'LEO', '♌'], [8, 23, 'VIRGO', '♍'],
+    [9, 23, 'LIBRA', '♎'], [10, 23, 'SCORPIO', '♏'], [11, 22, 'SAGITTARIUS', '♐'], [12, 22, 'CAPRICORN', '♑']];
+  let sign = ['CAPRICORN', '♑'];               // Dec 22 – Jan 19
+  for (const [sm, sd, name, sym] of starts) if (mo > sm || (mo === sm && da >= sd)) sign = [name, sym];
+  return `${sign[0]} ${sign[1]}︎`;
+}
+function derived(d) {
+  const g = parseFloat(d.weightG), c = parseFloat(d.heightCm);
+  return { ...d, date: fmtDate(d.date), time: d.time || '', zodiac: zodiacOf(d.date),
+    weight: g > 0 ? `${Math.round(g)} G` : '', weightSub: '',
+    height: c > 0 ? `${+c.toFixed(1)} CM` : '', heightSub: '' };
+}
+
+/* ---------- Undo / redo ---------- */
+const pick = s => ({ style: s.style, format: s.format, fontMode: s.fontMode, photo: s.photo, toggles: s.toggles, data: s.data });
+const hist = { past: [], future: [], last: '', timer: 0 };
+function updateHistBtns() {
+  $('btn-undo').disabled = !(hist.past.length || hist.timer);
+  $('btn-redo').disabled = !hist.future.length;
+}
+function commit(now) {
+  clearTimeout(hist.timer);
+  const run = () => {
+    hist.timer = 0;
+    const s = JSON.stringify(pick(state));
+    if (s !== hist.last) {
+      hist.past.push(hist.last); if (hist.past.length > 100) hist.past.shift();
+      hist.last = s; hist.future = [];
+    }
+    updateHistBtns();
+  };
+  if (now) run(); else { hist.timer = setTimeout(run, 500); updateHistBtns(); }
+}
+function restore(s) { Object.assign(state, JSON.parse(s)); syncForm(); refreshPhoto(); scheduleSave(); }
+function undo() { commit(true); if (!hist.past.length) return; hist.future.push(hist.last); hist.last = hist.past.pop(); restore(hist.last); updateHistBtns(); }
+function redo() { commit(true); if (!hist.future.length) return; hist.past.push(hist.last); hist.last = hist.future.pop(); restore(hist.last); updateHistBtns(); }
+$('btn-undo').addEventListener('click', undo);
+$('btn-redo').addEventListener('click', redo);
+document.addEventListener('keydown', ev => {
+  if (!(ev.ctrlKey || ev.metaKey)) return;
+  const tag = ev.target.tagName, type = ev.target.type;
+  if (tag === 'TEXTAREA' || (tag === 'INPUT' && ['text', 'number', 'date', 'time'].includes(type))) return; // keep native field undo
+  const k = ev.key.toLowerCase();
+  if (k === 'z') { ev.preventDefault(); ev.shiftKey ? redo() : undo(); }
+  else if (k === 'y') { ev.preventDefault(); redo(); }
+});
+
+/* ---------- Saved templates (look only, not baby data) ---------- */
+const TPL_KEY = 'paperborn:templates';
+const getTpls = () => { try { return JSON.parse(localStorage.getItem(TPL_KEY) || '[]'); } catch (_) { return []; } };
+const setTpls = a => { try { localStorage.setItem(TPL_KEY, JSON.stringify(a)); } catch (_) { alert('Could not save the template (browser storage is full or blocked).'); } };
+function renderTemplates() {
+  const list = getTpls();
+  $('tpl-list').innerHTML = list.length ? list.map((t, i) =>
+    `<div class="flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-800 rounded p-2"><span class="truncate text-zinc-200">${esc(t.name)}</span>
+     <span class="flex gap-1 shrink-0"><button type="button" data-tpl-load="${i}" class="btn !py-1 !px-2 bg-zinc-800 text-white">Load</button><button type="button" data-tpl-del="${i}" class="btn !py-1 !px-2 text-zinc-400 hover:text-white">✕</button></span></div>`).join('')
+    : '<p class="text-zinc-500">No saved templates yet.</p>';
+}
+$('btn-tpl-save').addEventListener('click', () => {
+  const name = $('tpl-name').value.trim();
+  if (!name) { $('tpl-name').focus(); return; }
+  const list = getTpls().filter(t => t.name !== name);
+  list.push({ name, style: state.style, format: state.format, fontMode: state.fontMode, photo: clone(state.photo), toggles: clone(state.toggles) });
+  setTpls(list); $('tpl-name').value = ''; renderTemplates();
+});
+document.addEventListener('click', ev => {
+  const load = ev.target.closest('[data-tpl-load]'), del = ev.target.closest('[data-tpl-del]');
+  if (load) {
+    const t = getTpls()[+load.dataset.tplLoad];
+    if (!t || !THEMES[t.style] || !FORMATS[t.format]) return;
+    Object.assign(state, { style: t.style, format: t.format, fontMode: FONTS[t.fontMode] ? t.fontMode : 'sans',
+      photo: { ...DEFAULTS().photo, ...t.photo }, toggles: { ...DEFAULTS().toggles, ...t.toggles } });
+    syncForm(); refreshPhoto(); scheduleSave();
+  } else if (del) {
+    const list = getTpls(), t = list[+del.dataset.tplDel];
+    if (t && confirm(`Delete template “${t.name}”?`)) { list.splice(+del.dataset.tplDel, 1); setTpls(list); renderTemplates(); }
+  }
+});
+
+/* ---------- Export helpers: fonts, bleed, multi-card pack ---------- */
+async function loadFonts(mode) {
+  const fam = FONTS[mode];
+  try { await Promise.all([...['400', '700', '900'].map(w => document.fonts.load(`${w} 16px ${fam}`)), document.fonts.load(`italic 400 16px ${fam}`)]); } catch (_) {}
+  await document.fonts.ready;
+}
+const BLEED_MM = 3;
+const pageMM = () => { const [w, h] = FORMATS[state.format].mm, b = state.bleed ? BLEED_MM * 2 : 0; return [w + b, h + b]; };
+function addBleed(c) {
+  const b = Math.round(BLEED_MM * c.width / FORMATS[state.format].mm[0]);
+  const o = document.createElement('canvas'); o.width = c.width + 2 * b; o.height = c.height + 2 * b;
+  const x = o.getContext('2d'); x.fillStyle = THEMES[state.style].bg; x.fillRect(0, 0, o.width, o.height); x.drawImage(c, b, b);
+  return o;
+}
+async function exportCanvas() { const c = await renderToCanvas(); return state.bleed ? addBleed(c) : c; }
+const newPDF = (pw, ph) => new window.jspdf.jsPDF({ orientation: pw > ph ? 'landscape' : 'portrait', unit: 'mm', format: [pw, ph] });
+
+function buildPackGrid() {
+  $('pack-grid').innerHTML = Object.entries(THEMES).map(([id, th]) =>
+    `<label class="chk box !space-y-0"><input type="checkbox" data-pack="${id}" checked class="rounded">${th.name}</label>`).join('');
+}
+$('btn-pack').addEventListener('click', e => withBusy(e.currentTarget, 'Building pack…', async () => {
+  const ids = [...document.querySelectorAll('[data-pack]:checked')].map(c => c.dataset.pack);
+  if (!ids.length) { alert('Select at least one style.'); return; }
+  const backup = JSON.stringify(pick(state)), [pw, ph] = pageMM();
+  let pdf;
+  try {
+    for (const id of ids) {
+      const th = THEMES[id];
+      state.style = id; state.fontMode = th.font; state.photo.shape = th.shape;
+      refreshPhoto(); await loadFonts(state.fontMode); renderCard();
+      const canvas = await exportCanvas();
+      if (!pdf) pdf = newPDF(pw, ph); else pdf.addPage([pw, ph], pw > ph ? 'landscape' : 'portrait');
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
+    }
+    pdf.save(`paperborn-${slug()}-pack.pdf`);
+  } finally {
+    Object.assign(state, JSON.parse(backup)); syncForm(); refreshPhoto(); renderCard();
+  }
+}));
+
 $('btn-reset').addEventListener('click', () => {
   state = DEFAULTS(); try { localStorage.removeItem(STORE_KEY); } catch (_) {}
-  $('photo-file').value = ''; syncForm(); setPhotoSource(SAMPLE_IMG);
+  $('photo-file').value = ''; syncForm(); setPhotoSource(SAMPLE_IMG); commit(true);
 });
 
 /* ---------- Init ---------- */
 loadSaved();
 buildStyleGrid();
+buildPackGrid();
 syncForm();
 renderCard();
+renderTemplates();
+hist.last = JSON.stringify(pick(state));
+updateHistBtns();
 setPhotoSource(SAMPLE_IMG);
 document.fonts.ready.then(queueRender);
 </script>
