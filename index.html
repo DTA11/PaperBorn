@@ -1,1109 +1,656 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Birth Stats Studio - Multi-Aesthetic Card Generator</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        studio: {
-                            50: '#f8f8f8',
-                            100: '#f0f0f0',
-                            800: '#18181b',
-                            900: '#09090b',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Playfair Display', 'Georgia', 'serif'],
-                        playful: ['Fredoka', 'Quicksand', 'sans-serif'],
-                        handwritten: ['Caveat', 'cursive'],
-                        vintage: ['Cinzel Decorative', 'Cinzel', 'serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Google Fonts for Diverse Styles -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Fredoka:wght@400;600;700&family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        /* Print Rules */
-        @media print {
-            body {
-                background: white !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .print-area-wrapper {
-                padding: 0 !important;
-                margin: 0 !important;
-                background: white !important;
-                box-shadow: none !important;
-            }
-            .card-page {
-                border: none !important;
-                box-shadow: none !important;
-                margin: 0 !important;
-                width: 100% !important;
-                height: 100vh !important;
-                page-break-after: always;
-            }
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paperborn — Little details. Forever memories.</title>
 
-        /* Dark Stage Background for Editor Workspace */
-        .preview-stage {
-            background-color: #0d0d11;
-            background-image: 
-                radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-                linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 24px 24px, 48px 48px, 48px 48px;
-        }
+<!-- NOTE: Tailwind Play CDN is fine for a single-file tool. For a public production site, compile Tailwind instead. -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-        /* Dimension Standard Definitions */
-        .dim-a4 { width: 210mm; height: 297mm; }
-        .dim-a5 { width: 148mm; height: 210mm; }
-        .dim-usletter { width: 8.5in; height: 11in; }
-        .dim-frame8x10 { width: 8in; height: 10in; }
-        .dim-square { width: 210mm; height: 210mm; }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@400;700&family=Fredoka:wght@400;600;700&family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
 
-        /* Typography Mode Overrides */
-        .font-mode-sans { font-family: 'Inter', sans-serif !important; }
-        .font-mode-serif { font-family: 'Playfair Display', serif !important; }
-        .font-mode-playful { font-family: 'Fredoka', sans-serif !important; }
-        .font-mode-handwritten { font-family: 'Caveat', cursive !important; }
-        .font-mode-vintage { font-family: 'Cinzel', serif !important; }
-        .font-mode-mono { font-family: 'JetBrains Mono', monospace !important; }
-
-        /* Gold Gradient Effect */
-        .gold-metallic-text {
-            background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .gold-metallic-bg {
-            background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
-        }
-
-        .gold-border {
-            border-color: #d4af37 !important;
-        }
-
-        /* Cyber Glow Effect */
-        .cyber-glow-text {
-            color: #00ffcc;
-            text-shadow: 0 0 8px rgba(0,255,204,0.6);
-        }
-
-        .cyber-border {
-            border-color: #00ffcc !important;
-            box-shadow: inset 0 0 10px rgba(0,255,204,0.2), 0 0 10px rgba(0,255,204,0.3);
-        }
-
-        /* Crop Marks Styling */
-        .crop-mark {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            pointer-events: none;
-            z-index: 40;
-        }
-        .crop-tl { top: 10px; left: 10px; border-top: 1px solid currentColor; border-left: 1px solid currentColor; }
-        .crop-tr { top: 10px; right: 10px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; }
-        .crop-bl { bottom: 10px; left: 10px; border-bottom: 1px solid currentColor; border-left: 1px solid currentColor; }
-        .crop-br { bottom: 10px; right: 10px; border-bottom: 1px solid currentColor; border-right: 1px solid currentColor; }
-
-        input[type="range"] {
-            accent-color: #6366f1;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 5px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #121215;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #27272a;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #3f3f46;
-        }
-    </style>
+<style type="text/tailwindcss">
+  @layer components {
+    .lbl  { @apply block text-zinc-400 mb-1 font-medium; }
+    .inp  { @apply w-full bg-black border border-zinc-700 rounded p-1.5 text-white text-xs; }
+    .box  { @apply space-y-2 bg-zinc-900 p-3 rounded-md border border-zinc-800; }
+    .chk  { @apply flex items-center gap-2 text-zinc-300; }
+    .sec  { @apply space-y-3 pb-5 border-b border-zinc-800; }
+    .h2   { @apply font-black uppercase tracking-widest text-indigo-400 text-[11px]; }
+    .btn  { @apply text-xs font-bold uppercase tracking-widest px-4 py-2.5 rounded-md transition disabled:opacity-50; }
+  }
+</style>
+<style>
+  .preview-stage {
+    background-color: #0d0d11;
+    background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .gold-bg { background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%); }
+  .gold-text { color: #d4af37; text-shadow: 0 1px 0 rgba(0,0,0,.4); }
+  .cyber-glow { color: #00ffcc; text-shadow: 0 0 8px rgba(0,255,204,.6); }
+  .crop-mark { position: absolute; width: 16px; height: 16px; pointer-events: none; z-index: 40; }
+  .crop-tl { top: 10px; left: 10px; border-top: 1px solid currentColor; border-left: 1px solid currentColor; }
+  .crop-tr { top: 10px; right: 10px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; }
+  .crop-bl { bottom: 10px; left: 10px; border-bottom: 1px solid currentColor; border-left: 1px solid currentColor; }
+  .crop-br { bottom: 10px; right: 10px; border-bottom: 1px solid currentColor; border-right: 1px solid currentColor; }
+  input[type="range"] { accent-color: #6366f1; }
+  .scroll::-webkit-scrollbar { width: 5px; }
+  .scroll::-webkit-scrollbar-track { background: #121215; }
+  .scroll::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+</style>
 </head>
-<body class="bg-studio-900 font-sans text-gray-100 antialiased min-h-screen flex flex-col">
 
-    <!-- Header Navigation -->
-    <header class="no-print bg-black border-b border-zinc-800 px-6 py-3.5 flex flex-wrap justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-indigo-600 text-white font-black flex items-center justify-center text-sm tracking-tighter rounded-md shadow-lg shadow-indigo-500/30">
-                BSS
-            </div>
-            <div>
-                <h1 class="font-bold text-xs tracking-widest uppercase text-white leading-none">Birth Stats Studio</h1>
-                <p class="text-[10px] text-zinc-400 mt-0.5">Multi-Aesthetic Design &amp; Print System</p>
-            </div>
-        </div>
+<body class="bg-[#09090b] font-sans text-gray-100 antialiased min-h-screen lg:h-screen lg:overflow-hidden flex flex-col">
 
-        <div class="flex items-center space-x-3 mt-2 sm:mt-0">
-            <button onclick="resetDefaults()" class="text-xs text-zinc-400 hover:text-white px-3 py-1.5 rounded transition">
-                Reset Sample
-            </button>
-            <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase tracking-widest px-5 py-2.5 rounded-md shadow-lg shadow-indigo-600/20 flex items-center space-x-2 transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                </svg>
-                <span>Export / Print PDF</span>
-            </button>
-        </div>
-    </header>
-
-    <!-- Main Workspace -->
-    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        
-        <!-- Controls Studio Sidebar -->
-        <aside class="no-print w-full lg:w-[460px] xl:w-[500px] bg-studio-900 border-r border-zinc-800 flex flex-col h-auto lg:h-[calc(100vh-57px)] custom-scrollbar overflow-y-auto text-xs">
-            
-            <div class="p-5 space-y-6">
-
-                <!-- 1. Aesthetics & Style Presets -->
-                <div class="space-y-3 pb-5 border-b border-zinc-800">
-                    <div class="flex justify-between items-center">
-                        <h2 class="font-black uppercase tracking-widest text-indigo-400 text-[11px]">1. Aesthetic Theme</h2>
-                        <span class="text-[10px] text-zinc-500 font-mono">7 STYLES</span>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="setStyle('minimalist')" id="btn-minimalist" class="style-btn p-3 border rounded-md text-left transition border-indigo-500 bg-indigo-950/40 text-white font-bold">
-                            <span class="block text-xs">1) Minimalist Gallery</span>
-                            <span class="block text-[9px] text-zinc-400 mt-0.5">Monochrome &amp; clean geometry</span>
-                        </button>
-                        <button type="button" onclick="setStyle('playful')" id="btn-playful" class="style-btn p-3 border rounded-md text-left transition border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700">
-                            <span class="block text-xs">2) Playful &amp; Whimsical</span>
-                            <span class="block text-[9px] text-zinc-500 mt-0.5">Soft pastels &amp; storybook icons</span>
-                        </button>
-                        <button type="button" onclick="setStyle('vintage')" id="btn-vintage" class="style-btn p-3 border rounded-md text-left transition border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700">
-                            <span class="block text-xs">3) Victorian Gazette</span>
-                            <span class="block text-[9px] text-zinc-500 mt-0.5">Aged parchment &amp; news rules</span>
-                        </button>
-                        <button type="button" onclick="setStyle('luxury')" id="btn-luxury" class="style-btn p-3 border rounded-md text-left transition border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700">
-                            <span class="block text-xs">4) Gold &amp; Midnight Noir</span>
-                            <span class="block text-[9px] text-zinc-500 mt-0.5">Luxury charcoal &amp; metallic foil</span>
-                        </button>
-                        <button type="button" onclick="setStyle('boho')" id="btn-boho" class="style-btn p-3 border rounded-md text-left transition border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700">
-                            <span class="block text-xs">5) Boho Botanical</span>
-                            <span class="block text-[9px] text-zinc-500 mt-0.5">Terracotta, sage &amp; line art</span>
-                        </button>
-                        <button type="button" onclick="setStyle('cyber')" id="btn-cyber" class="style-btn p-3 border rounded-md text-left transition border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700">
-                            <span class="block text-xs">6) Cyber Tech Sheet</span>
-                            <span class="block text-[9px] text-zinc-500 mt-0.5">Neon accents &amp; HUD geometry</span>
-                        </button>
-                        <button type="button" onclick="setStyle('editorial')" id="btn-editorial" class="style-btn p-3 border rounded-md text-left transition border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700 col-span-2">
-                            <span class="block text-xs">7) Editorial High Fashion</span>
-                            <span class="block text-[9px] text-zinc-500 mt-0.5">Vogue headline layouts &amp; high-contrast serif framing</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 2. Photo Processing & Filter Engine -->
-                <div class="space-y-4 pb-5 border-b border-zinc-800">
-                    <div class="flex justify-between items-center">
-                        <h2 class="font-black uppercase tracking-widest text-indigo-400 text-[11px]">2. Photo Studio &amp; Filters</h2>
-                        <label class="flex items-center space-x-1.5 cursor-pointer text-zinc-300">
-                            <input type="checkbox" id="tog-photo" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700 text-indigo-600">
-                            <span class="text-[10px] uppercase tracking-wider font-bold">Include Photo</span>
-                        </label>
-                    </div>
-
-                    <div id="photo-controls-group" class="space-y-3 bg-zinc-900 p-3 rounded-md border border-zinc-800">
-                        <div>
-                            <label class="block text-zinc-400 mb-1 font-medium">Upload Image</label>
-                            <input type="file" id="photo-file" accept="image/*" onchange="handleImageUpload(event)" class="w-full text-zinc-300 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 cursor-pointer">
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3 pt-1">
-                            <div>
-                                <label class="block text-zinc-400 mb-1">Frame Shape</label>
-                                <select id="photo-shape" onchange="renderCard()" class="w-full bg-black border border-zinc-700 rounded p-1.5 text-white">
-                                    <option value="rectangle" selected>Rectangle</option>
-                                    <option value="circle">Circle Vignette</option>
-                                    <option value="oval">Oval Classic</option>
-                                    <option value="arch">Architectural Arch</option>
-                                    <option value="hexagon">Hexagon Tech</option>
-                                    <option value="rounded">Soft Rounded</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-zinc-400 mb-1">Color Filter Mode</label>
-                                <select id="photo-filterMode" onchange="renderCard()" class="w-full bg-black border border-zinc-700 rounded p-1.5 text-white">
-                                    <option value="none">Full Natural Color</option>
-                                    <option value="grayscale" selected>High Contrast B&amp;W</option>
-                                    <option value="sepia">Soft Sepia Vintage</option>
-                                    <option value="warm">Warm Sunlight</option>
-                                    <option value="cool">Cool Midnight</option>
-                                    <option value="dither">Vintage Dither</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Sliders -->
-                        <div class="space-y-2 pt-2 border-t border-zinc-800">
-                            <div>
-                                <div class="flex justify-between text-[10px] text-zinc-400 mb-0.5">
-                                    <span>Brightness</span>
-                                    <span id="val-brightness">100%</span>
-                                </div>
-                                <input type="range" id="photo-brightness" min="50" max="150" value="100" oninput="updatePhotoSlider('brightness')" class="w-full">
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-[10px] text-zinc-400 mb-0.5">
-                                    <span>Contrast</span>
-                                    <span id="val-contrast">110%</span>
-                                </div>
-                                <input type="range" id="photo-contrast" min="50" max="200" value="110" oninput="updatePhotoSlider('contrast')" class="w-full">
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-[10px] text-zinc-400 mb-0.5">
-                                    <span>Zoom / Scale</span>
-                                    <span id="val-zoom">100%</span>
-                                </div>
-                                <input type="range" id="photo-zoom" min="80" max="200" value="100" oninput="updatePhotoSlider('zoom')" class="w-full">
-                            </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <div class="flex justify-between text-[10px] text-zinc-400 mb-0.5">
-                                        <span>Offset X</span>
-                                        <span id="val-offsetX">0px</span>
-                                    </div>
-                                    <input type="range" id="photo-offsetX" min="-100" max="100" value="0" oninput="updatePhotoSlider('offsetX')" class="w-full">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-[10px] text-zinc-400 mb-0.5">
-                                        <span>Offset Y</span>
-                                        <span id="val-offsetY">0px</span>
-                                    </div>
-                                    <input type="range" id="photo-offsetY" min="-100" max="100" value="0" oninput="updatePhotoSlider('offsetY')" class="w-full">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. Typography & Canvas Sizes -->
-                <div class="space-y-3 pb-5 border-b border-zinc-800">
-                    <h2 class="font-black uppercase tracking-widest text-indigo-400 text-[11px]">3. Paper Format &amp; Typography</h2>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-zinc-400 mb-1">Canvas Size</label>
-                            <select id="input-format" onchange="updateFormat()" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-white">
-                                <option value="a4" selected>A4 Poster (210×297 mm)</option>
-                                <option value="a5">A5 Card (148×210 mm)</option>
-                                <option value="usletter">US Letter (8.5×11 in)</option>
-                                <option value="frame8x10">8×10 Frame (203×254 mm)</option>
-                                <option value="square">Square Frame (210×210 mm)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-zinc-400 mb-1">Font Pair Preset</label>
-                            <select id="input-font" onchange="updateFont()" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-white">
-                                <option value="serif" selected>Playfair Serif (Editorial)</option>
-                                <option value="sans">Inter Modern (Architectural)</option>
-                                <option value="playful">Fredoka (Playful)</option>
-                                <option value="handwritten">Caveat (Script/Boho)</option>
-                                <option value="vintage">Cinzel (Vintage Gazette)</option>
-                                <option value="mono">JetBrains Mono (Tech Sheet)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4. Metric Fields & Custom Text Data Entry -->
-                <div class="space-y-4 pb-5 border-b border-zinc-800">
-                    <h2 class="font-black uppercase tracking-widest text-indigo-400 text-[11px]">4. Metric Vitals &amp; Granular Toggles</h2>
-
-                    <!-- Baby Name -->
-                    <div class="space-y-2 bg-zinc-900 p-3 rounded-md border border-zinc-800">
-                        <div class="flex justify-between items-center">
-                            <label class="flex items-center space-x-2 text-white font-bold">
-                                <input type="checkbox" id="tog-name" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                                <span>Baby Name</span>
-                            </label>
-                            <label class="flex items-center space-x-1.5 text-zinc-400">
-                                <input type="checkbox" id="tog-monogram" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                                <span>Monogram</span>
-                            </label>
-                        </div>
-                        <div class="grid grid-cols-3 gap-2 pt-1">
-                            <input type="text" id="input-firstName" placeholder="First Name" oninput="renderCard()" class="col-span-2 bg-black border border-zinc-700 rounded p-1.5 text-white">
-                            <input type="text" id="input-monogram" placeholder="AV" maxlength="3" oninput="renderCard()" class="bg-black border border-zinc-700 rounded p-1.5 text-white text-center uppercase font-bold">
-                        </div>
-                        <input type="text" id="input-lastName" placeholder="Last Name" oninput="renderCard()" class="w-full bg-black border border-zinc-700 rounded p-1.5 text-white">
-                    </div>
-
-                    <!-- Date & Time -->
-                    <div class="space-y-2 bg-zinc-900 p-3 rounded-md border border-zinc-800">
-                        <div class="flex justify-between items-center">
-                            <label class="flex items-center space-x-2 text-white font-bold">
-                                <input type="checkbox" id="tog-date" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                                <span>Birth Date</span>
-                            </label>
-                            <label class="flex items-center space-x-1.5 text-zinc-400">
-                                <input type="checkbox" id="tog-time" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                                <span>Time</span>
-                            </label>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 pt-1">
-                            <input type="text" id="input-date" placeholder="10 OCTOBER 2026" oninput="renderCard()" class="bg-black border border-zinc-700 rounded p-1.5 text-white">
-                            <input type="text" id="input-time" placeholder="08:42 CEST" oninput="renderCard()" class="bg-black border border-zinc-700 rounded p-1.5 text-white">
-                        </div>
-                    </div>
-
-                    <!-- Metric Stats -->
-                    <div class="space-y-2 bg-zinc-900 p-3 rounded-md border border-zinc-800">
-                        <div class="flex justify-between items-center">
-                            <label class="flex items-center space-x-2 text-white font-bold">
-                                <input type="checkbox" id="tog-weight" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                                <span>Weight (Metric)</span>
-                            </label>
-                            <label class="flex items-center space-x-1.5 text-zinc-400">
-                                <input type="checkbox" id="tog-height" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                                <span>Height (Metric)</span>
-                            </label>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 pt-1">
-                            <div>
-                                <input type="text" id="input-weight" placeholder="3450 G" oninput="renderCard()" class="w-full bg-black border border-zinc-700 rounded p-1.5 text-white">
-                                <input type="text" id="input-weightSub" placeholder="3.45 kg" oninput="renderCard()" class="w-full bg-black border border-zinc-800 rounded p-1 text-zinc-400 text-[10px] mt-1">
-                            </div>
-                            <div>
-                                <input type="text" id="input-height" placeholder="51 CM" oninput="renderCard()" class="w-full bg-black border border-zinc-700 rounded p-1.5 text-white">
-                                <input type="text" id="input-heightSub" placeholder="510 mm" oninput="renderCard()" class="w-full bg-black border border-zinc-800 rounded p-1 text-zinc-400 text-[10px] mt-1">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Hospital, City & Coordinates -->
-                    <div class="space-y-2 bg-zinc-900 p-3 rounded-md border border-zinc-800">
-                        <div class="flex justify-between items-center">
-                            <label class="flex items-center space-x-2 text-white font-bold">
-                                <input type="checkbox" id="tog-location" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                                <span>Hospital &amp; City</span>
-                            </label>
-                            <label class="flex items-center space-x-1.5 text-zinc-400">
-                                <input type="checkbox" id="tog-coords" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                                <span>Coordinates</span>
-                            </label>
-                        </div>
-                        <input type="text" id="input-location" placeholder="Medical Center Name" oninput="renderCard()" class="w-full bg-black border border-zinc-700 rounded p-1.5 text-white">
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="input-city" placeholder="Ljubljana, Slovenia" oninput="renderCard()" class="bg-black border border-zinc-700 rounded p-1.5 text-white">
-                            <input type="text" id="input-coords" placeholder="46.0569° N, 14.5058° E" oninput="renderCard()" class="bg-black border border-zinc-700 rounded p-1.5 text-white">
-                        </div>
-                    </div>
-
-                    <!-- Parents, Zodiac & Custom Quote -->
-                    <div class="space-y-2 bg-zinc-900 p-3 rounded-md border border-zinc-800">
-                        <div class="flex justify-between items-center">
-                            <label class="flex items-center space-x-2 text-white font-bold">
-                                <input type="checkbox" id="tog-parents" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                                <span>Parents</span>
-                            </label>
-                            <label class="flex items-center space-x-1.5 text-zinc-400">
-                                <input type="checkbox" id="tog-zodiac" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                                <span>Zodiac Sign</span>
-                            </label>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 pt-1">
-                            <input type="text" id="input-parents" placeholder="EMMA & MARK" oninput="renderCard()" class="bg-black border border-zinc-700 rounded p-1.5 text-white">
-                            <input type="text" id="input-zodiac" placeholder="LIBRA ♎" oninput="renderCard()" class="bg-black border border-zinc-700 rounded p-1.5 text-white">
-                        </div>
-                        <div class="pt-2 border-t border-zinc-800">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="flex items-center space-x-2 text-white font-bold">
-                                    <input type="checkbox" id="tog-quote" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                                    <span>Custom Dedication / Quote</span>
-                                </label>
-                            </div>
-                            <input type="text" id="input-quote" placeholder="Little miracle, endless love." oninput="renderCard()" class="w-full bg-black border border-zinc-700 rounded p-1.5 text-white">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 5. Decorative Graphic & Border Toggles -->
-                <div class="space-y-3 pb-5">
-                    <h2 class="font-black uppercase tracking-widest text-indigo-400 text-[11px]">5. Ornaments &amp; Cutting Marks</h2>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="flex items-center space-x-2 bg-zinc-900 p-2.5 rounded-md border border-zinc-800 text-zinc-300">
-                            <input type="checkbox" id="tog-accents" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                            <span>Artistic Accents / Icons</span>
-                        </label>
-                        <label class="flex items-center space-x-2 bg-zinc-900 p-2.5 rounded-md border border-zinc-800 text-zinc-300">
-                            <input type="checkbox" id="tog-border" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                            <span>Decorative Frame Border</span>
-                        </label>
-                        <label class="flex items-center space-x-2 bg-zinc-900 p-2.5 rounded-md border border-zinc-800 text-zinc-300">
-                            <input type="checkbox" id="tog-crop" onchange="renderCard()" class="rounded bg-zinc-800 border-zinc-700">
-                            <span>Corner Crop Marks</span>
-                        </label>
-                        <label class="flex items-center space-x-2 bg-zinc-900 p-2.5 rounded-md border border-zinc-800 text-zinc-300">
-                            <input type="checkbox" id="tog-footer" onchange="renderCard()" checked class="rounded bg-zinc-800 border-zinc-700">
-                            <span>Archival Stamp Text</span>
-                        </label>
-                    </div>
-                </div>
-
-            </div>
-        </aside>
-
-        <!-- Main Live Canvas Stage -->
-        <main class="flex-1 preview-stage p-4 sm:p-8 flex items-center justify-center overflow-auto">
-            <div id="card-scale-wrapper" class="print-area-wrapper transition-all duration-300 ease-out">
-                
-                <!-- Print Document Canvas Target -->
-                <div id="card-target" class="card-page dim-a4 font-mode-serif bg-white text-black p-10 flex flex-col justify-between shadow-2xl relative overflow-hidden select-none">
-                    <!-- HTML Render Target -->
-                </div>
-
-            </div>
-        </main>
-
+<header class="bg-black border-b border-zinc-800 px-4 sm:px-6 py-3 flex flex-wrap gap-2 justify-between items-center z-50">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 bg-indigo-600 text-white font-black flex items-center justify-center text-sm rounded-md">PB</div>
+    <div>
+      <h1 class="font-bold text-xs tracking-widest uppercase text-white leading-none">Paperborn Studio</h1>
+      <p class="text-[10px] text-zinc-400 mt-0.5">Little details. Forever memories.</p>
     </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <button id="btn-reset" type="button" class="btn text-zinc-400 hover:text-white">Reset</button>
+    <button id="btn-png" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white">PNG</button>
+    <button id="btn-pdf" type="button" class="btn bg-indigo-600 hover:bg-indigo-500 text-white">Download PDF</button>
+  </div>
+</header>
 
-    <!-- Application Script Logic -->
-    <script>
-        const sampleImageURL = 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80';
+<div class="flex-1 min-h-0 flex flex-col lg:flex-row">
 
-        // Application State
-        const state = {
-            style: 'minimalist', // minimalist, playful, vintage, luxury, boho, cyber, editorial
-            format: 'a4',
-            fontMode: 'serif',
-            
-            photo: {
-                src: sampleImageURL,
-                shape: 'rectangle',      // rectangle, circle, oval, arch, hexagon, rounded
-                filterMode: 'grayscale', // none, grayscale, sepia, warm, cool, dither
-                brightness: 100,
-                contrast: 110,
-                zoom: 100,
-                offsetX: 0,
-                offsetY: 0,
-            },
+  <!-- Controls -->
+  <aside id="controls" class="order-2 lg:order-1 w-full lg:w-[460px] xl:w-[500px] bg-[#09090b] border-r border-zinc-800 lg:overflow-y-auto scroll text-xs">
+    <div class="p-5 space-y-6">
 
-            toggles: {
-                photo: true,
-                name: true,
-                monogram: true,
-                date: true,
-                time: true,
-                weight: true,
-                height: true,
-                location: true,
-                coords: true,
-                parents: true,
-                zodiac: true,
-                quote: true,
-                accents: true,
-                border: true,
-                crop: false,
-                footer: true
-            },
+      <section class="sec">
+        <div class="flex justify-between items-center"><h2 class="h2">1. Aesthetic Theme</h2><span class="text-[10px] text-zinc-500 font-mono">7 STYLES</span></div>
+        <div id="style-grid" class="grid grid-cols-2 gap-2"></div>
+      </section>
 
-            data: {
-                firstName: 'AURELIA',
-                lastName: 'VALENTINE',
-                monogram: 'AV',
-                date: '10 OCTOBER 2026',
-                time: '08:42 CEST',
-                weight: '3450 G',
-                weightSub: '3.45 kg',
-                height: '51 CM',
-                heightSub: '510 mm',
-                location: 'Ljubljana Medical Center',
-                city: 'Ljubljana, Slovenia',
-                coords: '46.0569° N, 14.5058° E',
-                parents: 'EMMA & MARK',
-                zodiac: 'LIBRA ♎',
-                quote: 'Little miracle, endless love.'
-            }
-        };
+      <section class="sec">
+        <div class="flex justify-between items-center">
+          <h2 class="h2">2. Photo Studio</h2>
+          <label class="chk"><input type="checkbox" data-t="photo" checked class="rounded"><span class="text-[10px] uppercase tracking-wider font-bold">Include</span></label>
+        </div>
+        <div class="box">
+          <div><label class="lbl" for="photo-file">Upload image</label>
+            <input type="file" id="photo-file" accept="image/*" class="w-full text-zinc-300 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white cursor-pointer"></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="lbl">Frame shape</label>
+              <select data-p="shape" class="inp">
+                <option value="rectangle">Rectangle</option><option value="circle">Circle</option><option value="oval">Oval</option>
+                <option value="arch">Arch</option><option value="hexagon">Hexagon</option><option value="rounded">Soft rounded</option>
+              </select></div>
+            <div><label class="lbl">Colour filter</label>
+              <select data-p="filterMode" class="inp">
+                <option value="none">Natural colour</option><option value="grayscale">High-contrast B&amp;W</option><option value="sepia">Soft sepia</option>
+                <option value="warm">Warm sunlight</option><option value="cool">Cool midnight</option><option value="dither">Vintage dither</option>
+              </select></div>
+          </div>
+          <div class="space-y-2 pt-2 border-t border-zinc-800">
+            <div><div class="flex justify-between text-[10px] text-zinc-400"><span>Brightness</span><span data-out="brightness"></span></div><input type="range" data-p="brightness" min="50" max="150" class="w-full"></div>
+            <div><div class="flex justify-between text-[10px] text-zinc-400"><span>Contrast</span><span data-out="contrast"></span></div><input type="range" data-p="contrast" min="50" max="200" class="w-full"></div>
+            <div><div class="flex justify-between text-[10px] text-zinc-400"><span>Zoom</span><span data-out="zoom"></span></div><input type="range" data-p="zoom" min="100" max="250" class="w-full"></div>
+            <div class="grid grid-cols-2 gap-2">
+              <div><div class="flex justify-between text-[10px] text-zinc-400"><span>Offset X</span><span data-out="offsetX"></span></div><input type="range" data-p="offsetX" min="-40" max="40" class="w-full"></div>
+              <div><div class="flex justify-between text-[10px] text-zinc-400"><span>Offset Y</span><span data-out="offsetY"></span></div><input type="range" data-p="offsetY" min="-40" max="40" class="w-full"></div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        function initForm() {
-            document.getElementById('input-firstName').value = state.data.firstName;
-            document.getElementById('input-lastName').value = state.data.lastName;
-            document.getElementById('input-monogram').value = state.data.monogram;
-            document.getElementById('input-date').value = state.data.date;
-            document.getElementById('input-time').value = state.data.time;
-            document.getElementById('input-weight').value = state.data.weight;
-            document.getElementById('input-weightSub').value = state.data.weightSub;
-            document.getElementById('input-height').value = state.data.height;
-            document.getElementById('input-heightSub').value = state.data.heightSub;
-            document.getElementById('input-location').value = state.data.location;
-            document.getElementById('input-city').value = state.data.city;
-            document.getElementById('input-coords').value = state.data.coords;
-            document.getElementById('input-parents').value = state.data.parents;
-            document.getElementById('input-zodiac').value = state.data.zodiac;
-            document.getElementById('input-quote').value = state.data.quote;
+      <section class="sec">
+        <h2 class="h2">3. Paper &amp; Typography</h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="lbl">Canvas size</label>
+            <select data-a="format" class="inp">
+              <option value="a4">A4 Poster (210×297 mm)</option><option value="a5">A5 Card (148×210 mm)</option>
+              <option value="usletter">US Letter (8.5×11 in)</option><option value="frame8x10">8×10 Frame</option><option value="square">Square (210×210 mm)</option>
+            </select></div>
+          <div><label class="lbl">Font</label>
+            <select data-a="fontMode" class="inp">
+              <option value="serif">Playfair Serif</option><option value="sans">Inter Modern</option><option value="playful">Fredoka Playful</option>
+              <option value="handwritten">Caveat Script</option><option value="vintage">Cinzel Vintage</option><option value="mono">JetBrains Mono</option>
+            </select></div>
+        </div>
+      </section>
 
-            for (let key in state.toggles) {
-                const el = document.getElementById(`tog-${key}`);
-                if (el) el.checked = state.toggles[key];
-            }
-        }
+      <section class="sec">
+        <h2 class="h2">4. Details</h2>
 
-        function handleImageUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    state.photo.src = event.target.result;
-                    renderCard();
-                };
-                reader.readAsDataURL(file);
-            }
-        }
+        <div class="box">
+          <div class="flex justify-between">
+            <label class="chk font-bold text-white"><input type="checkbox" data-t="name" class="rounded">Baby name</label>
+            <label class="chk"><input type="checkbox" data-t="monogram" class="rounded">Monogram</label>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <input class="inp col-span-2" data-f="firstName" placeholder="First name" maxlength="40">
+            <input class="inp text-center uppercase font-bold" data-f="monogram" placeholder="AV" maxlength="3">
+          </div>
+          <input class="inp" data-f="lastName" placeholder="Last name" maxlength="40">
+        </div>
 
-        function updatePhotoSlider(key) {
-            const val = document.getElementById(`photo-${key}`).value;
-            state.photo[key] = parseInt(val);
-            
-            let unit = '%';
-            if (key === 'offsetX' || key === 'offsetY') unit = 'px';
-            document.getElementById(`val-${key}`).textContent = `${val}${unit}`;
-            
-            renderCard();
-        }
+        <div class="box">
+          <div class="flex justify-between">
+            <label class="chk font-bold text-white"><input type="checkbox" data-t="date" class="rounded">Birth date</label>
+            <label class="chk"><input type="checkbox" data-t="time" class="rounded">Time</label>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input class="inp" data-f="date" placeholder="10 OCTOBER 2026" maxlength="30">
+            <input class="inp" data-f="time" placeholder="08:42 CEST" maxlength="20">
+          </div>
+        </div>
 
-        function readFormInputs() {
-            state.data.firstName = document.getElementById('input-firstName').value || 'AURELIA';
-            state.data.lastName = document.getElementById('input-lastName').value || 'VALENTINE';
-            state.data.monogram = document.getElementById('input-monogram').value || 'AV';
-            state.data.date = document.getElementById('input-date').value || '10 OCTOBER 2026';
-            state.data.time = document.getElementById('input-time').value || '08:42 CEST';
-            state.data.weight = document.getElementById('input-weight').value || '3450 G';
-            state.data.weightSub = document.getElementById('input-weightSub').value || '3.45 kg';
-            state.data.height = document.getElementById('input-height').value || '51 CM';
-            state.data.heightSub = document.getElementById('input-heightSub').value || '510 mm';
-            state.data.location = document.getElementById('input-location').value || 'Medical Center';
-            state.data.city = document.getElementById('input-city').value || 'Ljubljana, Slovenia';
-            state.data.coords = document.getElementById('input-coords').value || '46.0569° N, 14.5058° E';
-            state.data.parents = document.getElementById('input-parents').value || 'EMMA & MARK';
-            state.data.zodiac = document.getElementById('input-zodiac').value || 'LIBRA ♎';
-            state.data.quote = document.getElementById('input-quote').value || 'Little miracle, endless love.';
+        <div class="box">
+          <div class="flex justify-between">
+            <label class="chk font-bold text-white"><input type="checkbox" data-t="weight" class="rounded">Weight</label>
+            <label class="chk"><input type="checkbox" data-t="height" class="rounded">Height</label>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="space-y-1"><input class="inp" data-f="weight" placeholder="3450 G" maxlength="20"><input class="inp text-zinc-400" data-f="weightSub" placeholder="3.45 kg" maxlength="20"></div>
+            <div class="space-y-1"><input class="inp" data-f="height" placeholder="51 CM" maxlength="20"><input class="inp text-zinc-400" data-f="heightSub" placeholder="510 mm" maxlength="20"></div>
+          </div>
+        </div>
 
-            state.photo.shape = document.getElementById('photo-shape').value;
-            state.photo.filterMode = document.getElementById('photo-filterMode').value;
+        <div class="box">
+          <div class="flex justify-between">
+            <label class="chk font-bold text-white"><input type="checkbox" data-t="location" class="rounded">Hospital &amp; city</label>
+            <label class="chk"><input type="checkbox" data-t="coords" class="rounded">Coordinates</label>
+          </div>
+          <input class="inp" data-f="location" placeholder="Medical center" maxlength="60">
+          <div class="grid grid-cols-2 gap-2">
+            <input class="inp" data-f="city" placeholder="Ljubljana, Slovenia" maxlength="60">
+            <input class="inp" data-f="coords" placeholder="46.0569° N, 14.5058° E" maxlength="40">
+          </div>
+        </div>
 
-            for (let key in state.toggles) {
-                const el = document.getElementById(`tog-${key}`);
-                if (el) state.toggles[key] = el.checked;
-            }
-        }
+        <div class="box">
+          <div class="flex justify-between">
+            <label class="chk font-bold text-white"><input type="checkbox" data-t="parents" class="rounded">Parents</label>
+            <label class="chk"><input type="checkbox" data-t="zodiac" class="rounded">Zodiac</label>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input class="inp" data-f="parents" placeholder="EMMA & MARK" maxlength="50">
+            <input class="inp" data-f="zodiac" placeholder="LIBRA ♎" maxlength="30">
+          </div>
+          <div class="pt-2 border-t border-zinc-800 space-y-1">
+            <label class="chk font-bold text-white"><input type="checkbox" data-t="quote" class="rounded">Dedication / quote</label>
+            <input class="inp" data-f="quote" placeholder="Little miracle, endless love." maxlength="90">
+          </div>
+        </div>
+      </section>
 
-        function setStyle(styleName) {
-            state.style = styleName;
-            document.querySelectorAll('.style-btn').forEach(btn => {
-                btn.classList.remove('border-indigo-500', 'bg-indigo-950/40', 'text-white', 'font-bold');
-                btn.classList.add('border-zinc-800', 'bg-zinc-900', 'text-zinc-300');
-            });
-            const activeBtn = document.getElementById(`btn-${styleName}`);
-            if (activeBtn) {
-                activeBtn.classList.remove('border-zinc-800', 'bg-zinc-900', 'text-zinc-300');
-                activeBtn.classList.add('border-indigo-500', 'bg-indigo-950/40', 'text-white', 'font-bold');
-            }
+      <section class="space-y-3 pb-5">
+        <h2 class="h2">5. Ornaments &amp; Cutting Marks</h2>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="chk box !space-y-0"><input type="checkbox" data-t="accents" class="rounded">Accents / icons</label>
+          <label class="chk box !space-y-0"><input type="checkbox" data-t="border" class="rounded">Frame border</label>
+          <label class="chk box !space-y-0"><input type="checkbox" data-t="crop" class="rounded">Crop marks</label>
+          <label class="chk box !space-y-0"><input type="checkbox" data-t="footer" class="rounded">Archival stamp</label>
+        </div>
+      </section>
+    </div>
+  </aside>
 
-            // Sync font mode defaults per style
-            const fontSelect = document.getElementById('input-font');
-            if (styleName === 'playful') fontSelect.value = 'playful';
-            else if (styleName === 'vintage') fontSelect.value = 'vintage';
-            else if (styleName === 'boho') fontSelect.value = 'handwritten';
-            else if (styleName === 'cyber') fontSelect.value = 'mono';
-            else if (styleName === 'editorial' || styleName === 'luxury') fontSelect.value = 'serif';
-            else fontSelect.value = 'sans';
+  <!-- Live preview -->
+  <main id="stage" class="order-1 lg:order-2 flex-1 min-h-[300px] preview-stage p-4 flex items-center justify-center overflow-auto">
+    <div id="sizer" class="shrink-0">
+      <div id="card-scale" style="transform-origin: top left;">
+        <div id="card-target" class="relative overflow-hidden shadow-2xl select-none"></div>
+      </div>
+    </div>
+  </main>
+</div>
 
-            updateFont();
-        }
+<script>
+'use strict';
 
-        function updateFormat() {
-            state.format = document.getElementById('input-format').value;
-            const target = document.getElementById('card-target');
-            target.classList.remove('dim-a4', 'dim-a5', 'dim-usletter', 'dim-frame8x10', 'dim-square');
-            target.classList.add(`dim-${state.format}`);
-            renderCard();
-        }
+/* ---------- Config ---------- */
+const SAMPLE_IMG = 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=1200&q=80';
+const STORE_KEY = 'paperborn:v2';
 
-        function updateFont() {
-            state.fontMode = document.getElementById('input-font').value;
-            const target = document.getElementById('card-target');
-            target.classList.remove('font-mode-sans', 'font-mode-serif', 'font-mode-playful', 'font-mode-handwritten', 'font-mode-vintage', 'font-mode-mono');
-            target.classList.add(`font-mode-${state.fontMode}`);
-            renderCard();
-        }
+const FORMATS = {
+  a4:        { w: 794, h: 1123, mm: [210, 297],     photoH: 360 },
+  a5:        { w: 559, h: 794,  mm: [148, 210],     photoH: 270 },
+  usletter:  { w: 816, h: 1056, mm: [215.9, 279.4], photoH: 340 },
+  frame8x10: { w: 768, h: 960,  mm: [203.2, 254],   photoH: 320 },
+  square:    { w: 800, h: 800,  mm: [210, 210],     photoH: 240 },
+};
+const FONTS = {
+  sans: "'Inter', sans-serif", serif: "'Playfair Display', Georgia, serif", playful: "'Fredoka', sans-serif",
+  handwritten: "'Caveat', cursive", vintage: "'Cinzel', serif", mono: "'JetBrains Mono', monospace",
+};
+const THEMES = {
+  minimalist: { name: 'Minimalist Gallery', desc: 'Monochrome & clean geometry', bg: '#ffffff', fg: '#000000', font: 'sans',        shape: 'rectangle', frame: '1px solid #000' },
+  playful:    { name: 'Playful & Whimsical', desc: 'Soft pastels & storybook icons', bg: '#fffdf7', fg: '#451a03', font: 'playful',     shape: 'rounded',   frame: '4px dashed #fcd34d' },
+  vintage:    { name: 'Victorian Gazette', desc: 'Aged parchment & news rules', bg: '#fbf7ee', fg: '#1c1917', font: 'vintage',        shape: 'rectangle', frame: '4px double #292524' },
+  luxury:     { name: 'Gold & Midnight Noir', desc: 'Luxury charcoal & gold foil', bg: '#0b0b0e', fg: '#f4f4f5', font: 'serif',       shape: 'circle',    frame: '2px solid #d4af37' },
+  boho:       { name: 'Boho Botanical', desc: 'Terracotta, sage & line art', bg: '#f7f2ec', fg: '#451a03', font: 'handwritten',     shape: 'arch',      frame: '1px solid rgba(146,64,14,.45)' },
+  cyber:      { name: 'Cyber Tech Sheet', desc: 'Neon accents & HUD geometry', bg: '#050811', fg: '#67e8f9', font: 'mono',          shape: 'hexagon',   frame: '1px solid #00ffcc; box-shadow: 0 0 10px rgba(0,255,204,.35)' },
+  editorial:  { name: 'Editorial High Fashion', desc: 'Headline layouts & high-contrast serif', bg: '#ffffff', fg: '#000000', font: 'serif', shape: 'rectangle', frame: '2px solid #000' },
+};
+const SHAPES = { // ratio = width/height, radius = CSS border-radius (percentages only: safe for html2canvas)
+  rectangle: { ratio: null, radius: '0' },
+  circle:    { ratio: 1,    radius: '50%' },
+  oval:      { ratio: 0.75, radius: '50%' },
+  arch:      { ratio: 0.75, radius: '50% 50% 0 0 / 37.5% 37.5% 0 0' },
+  hexagon:   { ratio: 1,    radius: '0' },           // clipped inside the canvas (html2canvas ignores clip-path)
+  rounded:   { ratio: 0.75, radius: '16px' },
+};
 
-        function resetDefaults() {
-            state.data = {
-                firstName: 'AURELIA',
-                lastName: 'VALENTINE',
-                monogram: 'AV',
-                date: '10 OCTOBER 2026',
-                time: '08:42 CEST',
-                weight: '3450 G',
-                weightSub: '3.45 kg',
-                height: '51 CM',
-                heightSub: '510 mm',
-                location: 'Ljubljana Medical Center',
-                city: 'Ljubljana, Slovenia',
-                coords: '46.0569° N, 14.5058° E',
-                parents: 'EMMA & MARK',
-                zodiac: 'LIBRA ♎',
-                quote: 'Little miracle, endless love.'
-            };
-            state.photo.src = sampleImageURL;
-            state.photo.brightness = 100;
-            state.photo.contrast = 110;
-            state.photo.zoom = 100;
-            state.photo.offsetX = 0;
-            state.photo.offsetY = 0;
-            initForm();
-            renderCard();
-        }
+const DEFAULTS = () => ({
+  style: 'minimalist', format: 'a4', fontMode: 'sans',
+  photo: { shape: 'rectangle', filterMode: 'grayscale', brightness: 100, contrast: 110, zoom: 100, offsetX: 0, offsetY: 0 },
+  toggles: { photo: true, name: true, monogram: true, date: true, time: true, weight: true, height: true, location: true,
+             coords: true, parents: true, zodiac: true, quote: true, accents: true, border: true, crop: false, footer: true },
+  data: { firstName: 'AURELIA', lastName: 'VALENTINE', monogram: 'AV', date: '10 OCTOBER 2026', time: '08:42 CEST',
+          weight: '3450 G', weightSub: '3.45 kg', height: '51 CM', heightSub: '510 mm', location: 'Ljubljana Medical Center',
+          city: 'Ljubljana, Slovenia', coords: '46.0569° N, 14.5058° E', parents: 'EMMA & MARK', zodiac: 'LIBRA ♎',
+          quote: 'Little miracle, endless love.' },
+});
 
-        function generatePhotoHTML(additionalClasses = '') {
-            if (!state.toggles.photo || !state.photo.src) return '';
+/* ---------- Helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const show = (flag, val, html) => (flag && val ? html : '');
+const clone = o => JSON.parse(JSON.stringify(o));
+const PCT = new Set(['brightness', 'contrast', 'zoom', 'offsetX', 'offsetY']);
 
-            const p = state.photo;
-            
-            let shapeClass = 'rounded-none';
-            if (p.shape === 'circle') shapeClass = 'rounded-full aspect-square';
-            if (p.shape === 'oval') shapeClass = 'rounded-[50%] aspect-[3/4]';
-            if (p.shape === 'arch') shapeClass = 'rounded-t-full aspect-[3/4]';
-            if (p.shape === 'hexagon') shapeClass = '[clip-path:polygon(25%_0%,75%_0%,100%_50%,75%_100%,25%_100%,0%_50%)] aspect-square';
-            if (p.shape === 'rounded') shapeClass = 'rounded-2xl aspect-[3/4]';
+let state = DEFAULTS();
 
-            let filterCss = `brightness(${p.brightness}%) contrast(${p.contrast}%)`;
-            if (p.filterMode === 'grayscale') filterCss += ' grayscale(100%)';
-            if (p.filterMode === 'sepia') filterCss += ' sepia(60%)';
-            if (p.filterMode === 'warm') filterCss += ' sepia(20%) saturate(140%)';
-            if (p.filterMode === 'cool') filterCss += ' hue-rotate(180deg) saturate(120%)';
-            if (p.filterMode === 'dither') filterCss += ' grayscale(100%) contrast(250%)';
+/* ---------- Persistence (settings only, never the photo) ---------- */
+let saveTimer;
+const scheduleSave = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (_) {} }, 300); };
+function loadSaved() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+    if (!s) return;
+    const d = DEFAULTS();
+    state = { ...d, ...s, photo: { ...d.photo, ...s.photo }, toggles: { ...d.toggles, ...s.toggles }, data: { ...d.data, ...s.data } };
+    if (!THEMES[state.style]) state.style = d.style;
+    if (!FORMATS[state.format]) state.format = d.format;
+    if (!FONTS[state.fontMode]) state.fontMode = d.fontMode;
+  } catch (_) {}
+}
 
-            const transformCss = `scale(${p.zoom / 100}) translate(${p.offsetX}px, ${p.offsetY}px)`;
+/* ---------- Photo pipeline ----------
+   html2canvas ignores CSS filter and clip-path, so filters are baked into pixels
+   (preview === export) and the hexagon mask is drawn on a canvas. */
+const photo = { source: null, srcId: 0, url: '', key: '' };
 
-            return `
-                <div class="relative overflow-hidden ${shapeClass} ${additionalClasses}">
-                    <img src="${p.src}" alt="Baby Portrait" class="w-full h-full object-cover transition-transform duration-75" style="filter: ${filterCss}; transform: ${transformCss};">
-                </div>
-            `;
-        }
+async function loadSource(src) {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = src;
+  await img.decode();
+  const max = 1600, s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); // browsers apply EXIF orientation here
+  return c;
+}
 
-        function renderCropMarks() {
-            if (!state.toggles.crop) return '';
-            return `
-                <div class="crop-mark crop-tl"></div>
-                <div class="crop-mark crop-tr"></div>
-                <div class="crop-mark crop-bl"></div>
-                <div class="crop-mark crop-br"></div>
-            `;
-        }
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+function applyFilters(src, p) {
+  const c = document.createElement('canvas'); c.width = src.width; c.height = src.height;
+  const ctx = c.getContext('2d'); ctx.drawImage(src, 0, 0);
+  const im = ctx.getImageData(0, 0, c.width, c.height), d = im.data;
+  const b = p.brightness / 100, k = p.contrast / 100, mode = p.filterMode, W = c.width;
+  for (let i = 0; i < d.length; i += 4) {
+    let r = (d[i] * b - 128) * k + 128, g = (d[i + 1] * b - 128) * k + 128, bl = (d[i + 2] * b - 128) * k + 128;
+    if (mode === 'grayscale' || mode === 'dither') {
+      let y = .299 * r + .587 * g + .114 * bl;
+      if (mode === 'grayscale') y = (y - 128) * 1.15 + 128;
+      else { const px = (i / 4) % W, py = ((i / 4) / W) | 0; y = y > (BAYER[(py & 3) * 4 + (px & 3)] + .5) * 16 ? 255 : 0; }
+      r = g = bl = y;
+    } else if (mode === 'sepia') {
+      const tr = .393 * r + .769 * g + .189 * bl, tg = .349 * r + .686 * g + .168 * bl, tb = .272 * r + .534 * g + .131 * bl;
+      r += (tr - r) * .6; g += (tg - g) * .6; bl += (tb - bl) * .6;
+    } else if (mode === 'warm') { r = r * 1.08 + 6; bl = bl * .88; }
+    else if (mode === 'cool')   { r *= .88; g *= .98; bl = bl * 1.1 + 6; }
+    d[i] = r; d[i + 1] = g; d[i + 2] = bl; // Uint8ClampedArray clamps
+  }
+  ctx.putImageData(im, 0, 0);
+  return c;
+}
 
-        function renderCard() {
-            readFormInputs();
-            const d = state.data;
-            const t = state.toggles;
-            const container = document.getElementById('card-target');
+function buildPhotoURL() {
+  const p = state.photo;
+  const filtered = applyFilters(photo.source, p);
+  if (p.shape !== 'hexagon') return filtered.toDataURL('image/jpeg', 0.92);
+  // Hexagon: bake cover-crop + zoom + offset + mask into a square PNG
+  const S = 1000, c = document.createElement('canvas'); c.width = c.height = S;
+  const ctx = c.getContext('2d');
+  ctx.beginPath();
+  [[.25, 0], [.75, 0], [1, .5], [.75, 1], [.25, 1], [0, .5]].forEach(([x, y], i) => ctx[i ? 'lineTo' : 'moveTo'](x * S, y * S));
+  ctx.closePath(); ctx.clip();
+  const cover = Math.max(S / filtered.width, S / filtered.height), z = p.zoom / 100;
+  ctx.translate(S / 2, S / 2); ctx.scale(z, z); ctx.translate(p.offsetX / 100 * S, p.offsetY / 100 * S);
+  ctx.drawImage(filtered, -filtered.width * cover / 2, -filtered.height * cover / 2, filtered.width * cover, filtered.height * cover);
+  return c.toDataURL('image/png');
+}
 
-            // Reset background and base colors
-            container.style.backgroundColor = '';
-            container.style.color = '';
-            container.className = `card-page dim-${state.format} font-mode-${state.fontMode} p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden select-none`;
+function refreshPhoto() {
+  if (!photo.source) { photo.url = ''; photo.key = ''; return queueRender(); }
+  const p = state.photo;
+  const key = [photo.srcId, p.brightness, p.contrast, p.filterMode, p.shape === 'hexagon' ? [p.zoom, p.offsetX, p.offsetY] : ''].join('|');
+  if (key !== photo.key) { photo.url = buildPhotoURL(); photo.key = key; }
+  queueRender();
+}
 
-            let html = '';
-            switch(state.style) {
-                case 'minimalist': html = renderMinimalistStyle(d, t); break;
-                case 'playful': html = renderPlayfulStyle(d, t); break;
-                case 'vintage': html = renderVintageStyle(d, t); break;
-                case 'luxury': html = renderLuxuryStyle(d, t); break;
-                case 'boho': html = renderBohoStyle(d, t); break;
-                case 'cyber': html = renderCyberStyle(d, t); break;
-                case 'editorial': html = renderEditorialStyle(d, t); break;
-                default: html = renderMinimalistStyle(d, t);
-            }
+async function setPhotoSource(src) {
+  try { photo.source = await loadSource(src); photo.srcId++; }
+  catch (err) { console.warn('Photo failed to load:', err); photo.source = null; }
+  refreshPhoto();
+}
 
-            container.innerHTML = renderCropMarks() + html;
-        }
+function photoHTML(extraStyle = '', hMul = 1) {
+  if (!state.toggles.photo) return '';
+  const f = FORMATS[state.format], sh = SHAPES[state.photo.shape], p = state.photo;
+  const H = Math.round(f.photoH * hMul);
+  const size = sh.ratio ? `width:${Math.round(H * sh.ratio)}px;height:${H}px;max-width:100%;` : `width:100%;height:${H}px;`;
+  const base = `${size}margin-inline:auto;position:relative;overflow:hidden;border-radius:${sh.radius};${extraStyle}`;
+  if (!photo.url) return `<div style="${base}display:flex;align-items:center;justify-content:center;border:1px dashed currentColor;opacity:.5;font-size:11px;text-align:center;padding:8px">Upload a photo</div>`;
+  const tf = p.shape === 'hexagon' ? '' : `transform:scale(${p.zoom / 100}) translate(${p.offsetX}%, ${p.offsetY}%);`;
+  return `<div style="${base}"><img src="${photo.url}" alt="Baby portrait" style="width:100%;height:100%;object-fit:cover;display:block;${tf}"></div>`;
+}
 
-        // 1. Minimalist Gallery Style
-        function renderMinimalistStyle(d, t) {
-            return `
-                <div class="h-full flex flex-col justify-between relative z-10 text-black">
-                    <div class="flex justify-between items-start border-b border-black pb-4">
-                        <div>
-                            ${t.name ? `<h1 class="text-3xl sm:text-4xl font-normal uppercase tracking-tight leading-none">${d.firstName} <strong class="font-black block">${d.lastName}</strong></h1>` : ''}
-                        </div>
-                        <div class="text-right">
-                            ${t.date ? `<div class="text-lg font-bold">${d.date}</div>` : ''}
-                            ${t.time ? `<div class="text-xs uppercase tracking-widest text-neutral-500">${d.time}</div>` : ''}
-                        </div>
-                    </div>
+/* ---------- Template helpers ---------- */
+const stat = (label, val, sub, o = {}) => !val ? '' :
+  `<div><span class="block text-[9pt] uppercase tracking-widest font-bold ${o.l || ''}">${label}</span>` +
+  `<span class="${o.v || 'text-2xl font-bold uppercase'}">${val}</span>${sub ? `<span class="block text-xs ${o.s || ''}">${sub}</span>` : ''}</div>`;
+const mono = (e, t, cls) => show(t.monogram, e.monogram,
+  `<div class="w-12 h-12 shrink-0 rounded-full border flex items-center justify-center font-black tracking-tight ${cls}">${e.monogram}</div>`);
+const footer = (e, t, label, cls = '') => (t.footer || (t.coords && e.coords))
+  ? `<div class="flex justify-between gap-2 text-[8pt] tracking-widest uppercase pt-2 mt-4 border-t ${cls}"><span>${t.footer ? label : ''}</span><span>${t.coords ? e.coords : ''}</span></div>` : '';
 
-                    <div class="my-auto py-6 grid grid-cols-12 gap-6 items-center">
-                        <div class="col-span-7">
-                            ${generatePhotoHTML('w-full max-h-[320px] border border-black shadow-sm')}
-                        </div>
-                        <div class="col-span-5 space-y-4 text-left border-l border-black pl-6">
-                            ${t.weight ? `
-                                <div>
-                                    <span class="block text-[8pt] uppercase tracking-widest text-neutral-400 font-bold">MASS / WEIGHT</span>
-                                    <span class="text-2xl font-bold uppercase">${d.weight}</span>
-                                    <span class="block text-xs text-neutral-500">${d.weightSub}</span>
-                                </div>
-                            ` : ''}
-                            ${t.height ? `
-                                <div>
-                                    <span class="block text-[8pt] uppercase tracking-widest text-neutral-400 font-bold">HEIGHT / LENGTH</span>
-                                    <span class="text-2xl font-bold uppercase">${d.height}</span>
-                                    <span class="block text-xs text-neutral-500">${d.heightSub}</span>
-                                </div>
-                            ` : ''}
-                            ${t.zodiac ? `
-                                <div>
-                                    <span class="block text-[8pt] uppercase tracking-widest text-neutral-400 font-bold">ASTRONOMY</span>
-                                    <span class="text-sm font-semibold uppercase">${d.zodiac}</span>
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
+/* ---------- Templates (return the content blocks of the card) ---------- */
+const TEMPLATES = {
+  minimalist: (e, t) => `
+    <div class="flex justify-between items-start border-b border-black pb-4">
+      <div class="flex items-start gap-3">${mono(e, t, 'border-black')}
+        ${show(t.name, e.firstName || e.lastName, `<h1 class="text-4xl font-normal uppercase tracking-tight leading-none">${e.firstName} <strong class="font-black block">${e.lastName}</strong></h1>`)}</div>
+      <div class="text-right">${show(t.date, e.date, `<div class="text-lg font-bold">${e.date}</div>`)}
+        ${show(t.time, e.time, `<div class="text-xs uppercase tracking-widest text-neutral-500">${e.time}</div>`)}</div>
+    </div>
+    <div class="my-auto py-6 grid grid-cols-12 gap-6 items-center">
+      <div class="col-span-7">${photoHTML('border:1px solid #000;')}</div>
+      <div class="col-span-5 space-y-4 border-l border-black pl-6">
+        ${stat('Mass / Weight', t.weight && e.weight, t.weight && e.weightSub, { l: 'text-neutral-400', s: 'text-neutral-500' })}
+        ${stat('Height / Length', t.height && e.height, t.height && e.heightSub, { l: 'text-neutral-400', s: 'text-neutral-500' })}
+        ${stat('Astronomy', t.zodiac && e.zodiac, '', { l: 'text-neutral-400', v: 'text-sm font-semibold uppercase' })}
+      </div>
+    </div>
+    <div class="border-t border-black pt-4 grid grid-cols-2 gap-4 text-xs">
+      <div>${show(t.location, e.location, `<div class="font-bold uppercase">${e.location}</div>`)}${show(t.location, e.city, `<div class="text-neutral-500">${e.city}</div>`)}</div>
+      <div class="text-right">${show(t.parents, e.parents, `<div class="font-bold uppercase">Parents: ${e.parents}</div>`)}${show(t.quote, e.quote, `<div class="italic text-neutral-600 mt-0.5">“${e.quote}”</div>`)}</div>
+    </div>
+    ${footer(e, t, 'Paperborn Archival Studio', 'border-neutral-200 text-neutral-400 font-mono')}`,
 
-                    <div class="border-t border-black pt-4 grid grid-cols-2 gap-4 text-xs">
-                        <div>
-                            ${t.location ? `<div class="font-bold uppercase">${d.location}</div>` : ''}
-                            ${t.location ? `<div class="text-neutral-500">${d.city}</div>` : ''}
-                        </div>
-                        <div class="text-right">
-                            ${t.parents ? `<div class="font-bold uppercase">PARENTS: ${d.parents}</div>` : ''}
-                            ${t.quote ? `<div class="italic text-neutral-600 mt-0.5">"${d.quote}"</div>` : ''}
-                        </div>
-                    </div>
+  playful: (e, t) => `
+    <div class="text-center space-y-2">
+      ${show(t.accents, 1, `<div class="flex justify-center gap-3 text-amber-400 text-xl"><span>★</span><span>☁</span><span>🧸</span><span>★</span></div>`)}
+      ${mono(e, t, 'border-amber-300 text-amber-800 mx-auto bg-amber-50')}
+      ${show(t.name, e.firstName || e.lastName, `<h1 class="text-5xl font-bold text-amber-900 tracking-wide">${e.firstName} ${e.lastName}</h1>`)}
+      ${show(t.quote, e.quote, `<p class="text-sm text-amber-700/80 font-medium italic">“${e.quote}”</p>`)}
+    </div>
+    <div class="my-auto py-3"><div class="p-3 bg-white rounded-3xl shadow-xl border-4 border-amber-200/60 mx-auto" style="width:fit-content;max-width:100%">${photoHTML('', .85)}</div></div>
+    <div class="grid grid-cols-2 gap-3 bg-amber-50/80 p-4 rounded-2xl border-2 border-dashed border-amber-200 text-center">
+      <div>${show(t.date, e.date, `<span class="block text-[9pt] font-bold text-amber-800 uppercase tracking-wider">Birth date</span><span class="text-base font-bold">${e.date}</span>`)}
+           ${show(t.time, e.time, `<span class="block text-xs text-amber-700">${e.time}</span>`)}</div>
+      <div>${(t.weight || t.height) ? `<span class="block text-[9pt] font-bold text-amber-800 uppercase tracking-wider">Weight &amp; height</span>` : ''}
+           <span class="text-base font-bold">${[t.weight && e.weight, t.height && e.height].filter(Boolean).join(' • ')}</span>
+           <span class="block text-xs text-amber-700">${[t.weight && e.weightSub, t.height && e.heightSub].filter(Boolean).join(' / ')}</span></div>
+    </div>
+    <div class="flex justify-between items-center gap-2 text-xs text-amber-900 font-semibold pt-3">
+      <div>${show(t.location, e.city, `📍 ${e.city}`)}</div><div>${show(t.parents, e.parents, `❤️ ${e.parents}`)}</div><div>${show(t.zodiac, e.zodiac, `✨ ${e.zodiac}`)}</div>
+    </div>
+    ${footer(e, t, 'Paperborn • Little details. Forever memories.', 'border-amber-200/60 text-amber-700/60 font-bold justify-center')}`,
 
-                    ${t.footer ? `
-                        <div class="mt-4 pt-2 border-t border-neutral-200 flex justify-between text-[7pt] tracking-widest uppercase text-neutral-400 font-mono">
-                            <span>GALLERY MINIMAL EDITION</span>
-                            <span>${d.coords}</span>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
+  vintage: (e, t) => `
+    <div class="text-center border-b-2 border-stone-900 pb-3">
+      <div class="flex justify-between text-[8pt] font-bold uppercase tracking-widest border-b border-stone-800 pb-1 mb-2"><span>Vol. I … No. 1</span><span>Paperborn Gazette</span><span>Price: Priceless</span></div>
+      ${show(t.name, e.firstName || e.lastName, `<h1 class="text-5xl font-black uppercase tracking-tight">${e.firstName} ${e.lastName}</h1>`)}
+      <div class="text-xs italic mt-1">Special Edition Announcement${show(t.date, e.date, ` • Published ${e.date}`)}</div>
+    </div>
+    <div class="my-auto py-3 grid grid-cols-12 gap-4 items-center">
+      <div class="col-span-6">${photoHTML('border:2px solid #1c1917;', .95)}<span class="block text-[8pt] italic text-center text-stone-600 mt-1">Portrait of the Newborn</span></div>
+      <div class="col-span-6 space-y-4 border-l border-stone-800 pl-4">
+        ${[['Hour of arrival', t.time && e.time], ['Official weight', t.weight && e.weight && `${e.weight}${e.weightSub ? ` (${e.weightSub})` : ''}`], ['Measured length', t.height && e.height && `${e.height}${e.heightSub ? ` (${e.heightSub})` : ''}`]]
+          .filter(r => r[1]).map(([l, v]) => `<div><h4 class="text-[9pt] font-bold uppercase border-b border-stone-400">${l}</h4><p class="text-base font-bold">${v}</p></div>`).join('')}
+      </div>
+    </div>
+    <div class="border-t-2 border-b-2 border-stone-900 py-3 grid grid-cols-2 gap-2 text-xs">
+      ${show(t.location, e.location, `<div><strong>LOCATION:</strong> ${e.location}${e.city ? `, ${e.city}` : ''}</div>`)}
+      ${show(t.parents, e.parents, `<div><strong>PARENTS:</strong> ${e.parents}</div>`)}
+      ${show(t.zodiac, e.zodiac, `<div><strong>ASTROLOGY:</strong> ${e.zodiac}</div>`)}
+      ${show(t.quote, e.quote, `<div><strong>DEDICATION:</strong> “${e.quote}”</div>`)}
+    </div>
+    ${footer(e, t, 'Paperborn Archival Gazette • All rights reserved', 'border-transparent text-stone-600 font-mono')}`,
 
-        // 2. Playful & Whimsical Style
-        function renderPlayfulStyle(d, t) {
-            const container = document.getElementById('card-target');
-            container.style.backgroundColor = '#fffdf7';
-            
-            return `
-                <div class="h-full flex flex-col justify-between relative z-10 text-amber-950">
-                    <!-- Soft Background Pastel Accents -->
-                    ${t.accents ? `
-                        <div class="absolute -top-10 -left-10 w-40 h-40 bg-pink-100 rounded-full blur-2xl opacity-70 pointer-events-none"></div>
-                        <div class="absolute -bottom-10 -right-10 w-48 h-48 bg-sky-100 rounded-full blur-2xl opacity-70 pointer-events-none"></div>
-                    ` : ''}
+  luxury: (e, t) => `
+    <div class="text-center space-y-2 border-b border-[#d4af37] pb-4">
+      ${show(t.accents, 1, `<div class="gold-text text-2xl tracking-widest">❖ ❖ ❖</div>`)}
+      ${mono(e, t, 'border-[#d4af37] gold-text mx-auto')}
+      ${show(t.name, e.firstName || e.lastName, `<h1 class="text-5xl tracking-wider uppercase gold-text font-bold">${e.firstName} ${e.lastName}</h1>`)}
+      ${show(t.date, e.date, `<div class="text-xs uppercase tracking-[4px] text-amber-200/80 font-light">${e.date}</div>`)}
+    </div>
+    <div class="my-auto py-4">${state.toggles.photo ? `<div class="gold-bg mx-auto p-1 shadow-2xl" style="width:fit-content;max-width:100%;border-radius:${SHAPES[state.photo.shape].radius}">${photoHTML('', .75)}</div>` : ''}</div>
+    <div class="space-y-4">
+      <div class="grid grid-cols-3 gap-2 text-center border-t border-b border-[#d4af37] py-3">
+        ${[['Time', t.time && e.time], ['Weight', t.weight && e.weight], ['Length', t.height && e.height]].filter(r => r[1])
+          .map(([l, v]) => `<div><span class="block text-[8pt] uppercase tracking-widest text-amber-300/60">${l}</span><span class="text-base font-bold text-amber-100">${v}</span></div>`).join('')}
+      </div>
+      <div class="text-center text-xs text-amber-200/80 space-y-1">
+        ${show(t.location, e.location, `<div>${e.location}${e.city ? ` • ${e.city}` : ''}</div>`)}
+        ${show(t.parents, e.parents, `<div class="text-amber-100 font-semibold">PARENTS: ${e.parents}</div>`)}
+        ${show(t.zodiac, e.zodiac, `<div>${e.zodiac}</div>`)}
+        ${show(t.quote, e.quote, `<div class="italic text-zinc-400 mt-1">“${e.quote}”</div>`)}
+      </div>
+    </div>
+    ${footer(e, t, 'Paperborn Luxury Noir Edition', 'border-[#d4af37] gold-text font-mono')}`,
 
-                    <div class="text-center space-y-2 relative">
-                        ${t.accents ? `
-                            <div class="flex justify-center space-x-3 text-amber-400 text-xl">
-                                <span>★</span><span>☁</span><span>🧸</span><span>★</span>
-                            </div>
-                        ` : ''}
-                        ${t.name ? `<h1 class="text-4xl sm:text-5xl font-black text-amber-900 tracking-wide">${d.firstName} ${d.lastName}</h1>` : ''}
-                        ${t.quote ? `<p class="text-sm text-amber-700/80 font-medium italic">"${d.quote}"</p>` : ''}
-                    </div>
+  boho: (e, t) => `
+    <div class="text-center space-y-1">
+      ${show(t.accents, 1, `<div class="text-amber-700 text-lg">🌿</div>`)}
+      ${mono(e, t, 'border-amber-800/50 text-amber-900 mx-auto')}
+      ${show(t.name, e.firstName || e.lastName, `<h1 class="text-6xl italic text-amber-900 leading-none">${e.firstName} ${e.lastName}</h1>`)}
+      ${show(t.date, e.date, `<div class="text-sm tracking-widest uppercase text-amber-800 font-semibold">${e.date}</div>`)}
+    </div>
+    <div class="my-auto py-3"><div class="mx-auto p-2 border-2 border-amber-800/40" style="width:fit-content;max-width:100%;border-radius:${SHAPES[state.photo.shape].radius}">${photoHTML('', .85)}</div></div>
+    <div class="space-y-3">
+      <div class="grid grid-cols-2 gap-4 border-t border-b border-amber-800/30 py-3 text-center">
+        ${stat('Weight', t.weight && e.weight, '', { l: 'text-amber-800/60', v: 'text-xl font-bold' })}${stat('Length', t.height && e.height, '', { l: 'text-amber-800/60', v: 'text-xl font-bold' })}
+      </div>
+      <div class="text-center text-sm text-amber-900/80 space-y-0.5">
+        ${show(t.location, e.location, `<div>${e.location}${e.city ? `, ${e.city}` : ''}</div>`)}
+        ${show(t.parents, e.parents, `<div>With love: <strong>${e.parents}</strong></div>`)}
+        ${show(t.zodiac, e.zodiac, `<div>Zodiac: ${e.zodiac}</div>`)}
+        ${show(t.quote, e.quote, `<div class="italic">“${e.quote}”</div>`)}
+      </div>
+    </div>
+    ${footer(e, t, 'Paperborn • Boho Botanical Collection', 'border-amber-800/20 text-amber-800/60')}`,
 
-                    <div class="my-auto py-3 flex flex-col items-center">
-                        <div class="p-3 bg-white rounded-3xl shadow-xl border-4 border-amber-200/60 max-w-xs">
-                            ${generatePhotoHTML('rounded-2xl max-h-[260px]')}
-                        </div>
-                    </div>
+  cyber: (e, t) => `
+    <div class="border-b border-cyan-500/40 pb-2 flex justify-between items-start gap-3">
+      <div><span class="text-[8pt] text-cyan-500 block">[PAPERBORN_SUBJECT_RECORD]</span>
+        ${show(t.name, e.firstName || e.lastName, `<h1 class="text-4xl font-bold uppercase text-white cyber-glow leading-none">${e.firstName} ${e.lastName}</h1>`)}</div>
+      <div class="text-right text-xs">${show(t.date, e.date, `<span class="text-cyan-500 block">TIME_STAMP</span><span class="text-white font-bold">${e.date}</span>`)}</div>
+    </div>
+    <div class="my-auto py-3 grid grid-cols-12 gap-4 items-center">
+      <div class="col-span-6">${photoHTML('', .95)}</div>
+      <div class="col-span-6 space-y-3 text-xs">
+        ${[['TIME', t.time && e.time], ['MASS', t.weight && e.weight && `${e.weight}${e.weightSub ? ` (${e.weightSub})` : ''}`], ['LENGTH', t.height && e.height && `${e.height}${e.heightSub ? ` (${e.heightSub})` : ''}`], ['SIGN', t.zodiac && e.zodiac]]
+          .filter(r => r[1]).map(([l, v]) => `<div><span class="text-cyan-500 text-[9pt] block">${l}:</span><span class="text-white font-bold text-sm">${v}</span></div>`).join('')}
+      </div>
+    </div>
+    <div class="border-t border-cyan-500/40 pt-2 space-y-2 text-xs">
+      <div class="grid grid-cols-2 gap-2">
+        ${show(t.location, e.location, `<div><span class="text-cyan-500 text-[9pt] block">FACILITY</span><span class="text-white">${e.location}</span></div>`)}
+        ${show(t.coords, e.coords, `<div><span class="text-cyan-500 text-[9pt] block">COORDINATES</span><span class="text-white">${e.coords}</span></div>`)}
+      </div>
+      ${show(t.parents, e.parents, `<div><span class="text-cyan-500 text-[9pt] block">GENETIC_ORIGIN</span><span class="text-white">${e.parents}</span></div>`)}
+      ${show(t.quote, e.quote, `<div><span class="text-cyan-500 text-[9pt] block">LOG_NOTE</span><span class="text-white">${e.quote}</span></div>`)}
+    </div>
+    ${t.footer ? `<div class="flex justify-between text-[8pt] text-cyan-600 border-t border-cyan-500/30 pt-1 mt-4"><span>PAPERBORN_SYS_v2.6</span><span>||||| | |||| |||</span></div>` : ''}`,
 
-                    <div class="grid grid-cols-2 gap-3 bg-amber-50/80 p-4 rounded-2xl border-2 border-dashed border-amber-200">
-                        ${t.date ? `
-                            <div class="text-center">
-                                <span class="block text-[8pt] font-bold text-amber-800 uppercase tracking-wider">BIRTH DATE</span>
-                                <span class="text-base font-black text-amber-950">${d.date}</span>
-                                ${t.time ? `<span class="block text-xs text-amber-700">${d.time}</span>` : ''}
-                            </div>
-                        ` : ''}
-                        ${t.weight ? `
-                            <div class="text-center">
-                                <span class="block text-[8pt] font-bold text-amber-800 uppercase tracking-wider">WEIGHT &amp; HEIGHT</span>
-                                <span class="text-base font-black text-amber-950">${d.weight} • ${d.height}</span>
-                                <span class="block text-xs text-amber-700">${d.weightSub} / ${d.heightSub}</span>
-                            </div>
-                        ` : ''}
-                    </div>
+  editorial: (e, t) => `
+    <div class="border-b-2 border-black pb-3 text-center">
+      <div class="text-[9pt] font-black tracking-[6px] uppercase mb-1">Paperborn Editorial</div>
+      ${mono(e, t, 'border-black mx-auto my-1')}
+      ${show(t.name, e.firstName, `<h1 class="text-6xl font-black uppercase tracking-tight leading-none">${e.firstName}</h1>`)}
+      ${show(t.name, e.lastName, `<div class="text-3xl font-light uppercase tracking-widest text-neutral-700">${e.lastName}</div>`)}
+    </div>
+    <div class="my-auto py-2">${photoHTML('border:1px solid #000;', .95)}</div>
+    <div class="space-y-3">
+      <div class="grid grid-cols-3 gap-2 border-t-2 border-b-2 border-black py-3 text-center">
+        ${[['Date', t.date && e.date], ['Weight', t.weight && e.weight], ['Length', t.height && e.height]].filter(r => r[1])
+          .map(([l, v]) => `<div><span class="block text-[8pt] text-neutral-400 font-bold uppercase">${l}</span><span class="text-sm font-bold">${v}</span></div>`).join('')}
+      </div>
+      <div class="flex justify-between gap-2 text-xs">
+        <div>${show(t.location, e.location, `${e.location}${e.city ? `, ${e.city}` : ''}`)}</div>
+        <div>${show(t.parents, e.parents, `Parents: <strong>${e.parents}</strong>`)}</div>
+      </div>
+      ${show(t.quote, e.quote, `<div class="italic text-center text-sm text-neutral-600">“${e.quote}”</div>`)}
+    </div>
+    ${(t.footer || t.zodiac || t.coords) ? `<div class="pt-2 mt-4 border-t border-neutral-300 flex justify-between gap-2 text-[8pt] text-neutral-400 uppercase tracking-widest">
+      <span>${t.footer ? 'Paperborn Editorial Collection' : ''}</span><span>${[t.zodiac && e.zodiac, t.coords && e.coords].filter(Boolean).join(' · ')}</span></div>` : ''}`,
+};
 
-                    <div class="flex justify-between items-center text-xs text-amber-900 font-semibold pt-2">
-                        ${t.location ? `<div>📍 ${d.city}</div>` : '<div></div>'}
-                        ${t.parents ? `<div>❤️ ${d.parents}</div>` : ''}
-                        ${t.zodiac ? `<div>✨ ${d.zodiac}</div>` : ''}
-                    </div>
+const DECOR = { // background ornaments rendered at card level (gradients instead of blur: html2canvas can't blur)
+  playful: t => !t.accents ? '' :
+    `<div style="position:absolute;top:-80px;left:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(251,207,232,.85),rgba(251,207,232,0) 70%)"></div>
+     <div style="position:absolute;bottom:-90px;right:-90px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(186,230,253,.85),rgba(186,230,253,0) 70%)"></div>`,
+};
 
-                    ${t.footer ? `
-                        <div class="text-center text-[8pt] font-bold text-amber-700/60 tracking-widest uppercase pt-2 border-t border-amber-200/50">
-                            WELCOME TO THE WORLD • LITTLE STAR
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
+/* ---------- Rendering ---------- */
+let rafId = 0;
+const queueRender = () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(renderCard); };
 
-        // 3. Vintage Newspaper Gazette Style
-        function renderVintageStyle(d, t) {
-            const container = document.getElementById('card-target');
-            container.style.backgroundColor = '#fbf7ee';
-            
-            return `
-                <div class="h-full flex flex-col justify-between relative z-10 text-stone-900 border-4 border-double border-stone-800 p-4">
-                    <div class="text-center border-b-2 border-stone-900 pb-2">
-                        <div class="flex justify-between items-center text-[7pt] font-bold uppercase tracking-widest border-b border-stone-800 pb-1 mb-1">
-                            <span>VOL. I ... NO. 1</span>
-                            <span>THE DAILY BIRTH GAZETTE</span>
-                            <span>PRICE: PRICELESS</span>
-                        </div>
-                        ${t.name ? `<h1 class="text-4xl sm:text-5xl font-serif font-black uppercase tracking-tight">${d.firstName} ${d.lastName}</h1>` : ''}
-                        <div class="text-xs italic font-serif mt-1">Special Edition Announcement • Published ${d.date}</div>
-                    </div>
+function renderCard() {
+  const f = FORMATS[state.format], th = THEMES[state.style], t = state.toggles;
+  const e = Object.fromEntries(Object.entries(state.data).map(([k, v]) => [k, esc(v).trim()]));
+  const el = $('card-target');
+  el.style.cssText = `width:${f.w}px;height:${f.h}px;padding:40px;background:${th.bg};color:${th.fg};font-family:${FONTS[state.fontMode]};`;
+  const crop = t.crop ? '<div class="crop-mark crop-tl"></div><div class="crop-mark crop-tr"></div><div class="crop-mark crop-bl"></div><div class="crop-mark crop-br"></div>' : '';
+  const frame = t.border ? `<div style="position:absolute;inset:16px;border:${th.frame};pointer-events:none;z-index:5"></div>` : '';
+  const decor = (DECOR[state.style] || (() => ''))(t);
+  el.innerHTML = `${decor}${crop}${frame}<div class="relative z-10 h-full flex flex-col justify-between" style="padding:${t.border ? 12 : 0}px">${TEMPLATES[state.style](e, t)}</div>`;
+  fitStage();
+}
 
-                    <div class="my-auto py-3 grid grid-cols-12 gap-4 items-center">
-                        <div class="col-span-6">
-                            ${generatePhotoHTML('border-2 border-stone-900 shadow-md')}
-                            <span class="block text-[7pt] italic text-center text-stone-600 mt-1">Portrait of the Newborn</span>
-                        </div>
-                        <div class="col-span-6 space-y-3 font-serif border-l border-stone-800 pl-3">
-                            ${t.time ? `
-                                <div>
-                                    <h4 class="text-[8pt] font-bold uppercase border-b border-stone-400">HOUR OF ARRIVAL</h4>
-                                    <p class="text-sm font-bold">${d.time}</p>
-                                </div>
-                            ` : ''}
-                            ${t.weight ? `
-                                <div>
-                                    <h4 class="text-[8pt] font-bold uppercase border-b border-stone-400">OFFICIAL WEIGHT</h4>
-                                    <p class="text-sm font-bold">${d.weight} (${d.weightSub})</p>
-                                </div>
-                            ` : ''}
-                            ${t.height ? `
-                                <div>
-                                    <h4 class="text-[8pt] font-bold uppercase border-b border-stone-400">MEASURED LENGTH</h4>
-                                    <p class="text-sm font-bold">${d.height} (${d.heightSub})</p>
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
+function fitStage() {
+  const f = FORMATS[state.format], main = $('stage');
+  let s = (main.clientWidth - 32) / f.w;
+  if (matchMedia('(min-width:1024px)').matches) s = Math.min(s, (main.clientHeight - 32) / f.h);
+  s = Math.max(0.25, Math.min(1, s));
+  $('sizer').style.width = f.w * s + 'px';
+  $('sizer').style.height = f.h * s + 'px';
+  $('card-scale').style.transform = `scale(${s})`;
+}
 
-                    <div class="border-t-2 border-b-2 border-stone-900 py-2 grid grid-cols-2 gap-2 text-xs font-serif">
-                        ${t.location ? `<div><strong>LOCATION:</strong> ${d.location}, ${d.city}</div>` : ''}
-                        ${t.parents ? `<div><strong>PARENTS:</strong> ${d.parents}</div>` : ''}
-                        ${t.zodiac ? `<div><strong>ASTROLOGY:</strong> ${d.zodiac}</div>` : ''}
-                        ${t.quote ? `<div><strong>DEDICATION:</strong> "${d.quote}"</div>` : ''}
-                    </div>
+/* ---------- Form <-> state ---------- */
+function syncForm() {
+  document.querySelectorAll('[data-f]').forEach(el => el.value = state.data[el.dataset.f] ?? '');
+  document.querySelectorAll('[data-t]').forEach(el => el.checked = !!state.toggles[el.dataset.t]);
+  document.querySelectorAll('[data-p]').forEach(el => el.value = state.photo[el.dataset.p]);
+  document.querySelectorAll('[data-a]').forEach(el => el.value = state[el.dataset.a]);
+  document.querySelectorAll('[data-out]').forEach(el => el.textContent = state.photo[el.dataset.out] + (PCT.has(el.dataset.out) ? '%' : ''));
+  document.querySelectorAll('.style-btn').forEach(b => {
+    const on = b.dataset.style === state.style;
+    b.className = `style-btn p-3 border rounded-md text-left transition ${on ? 'border-indigo-500 bg-indigo-950/40 text-white font-bold' : 'border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700'}` + (b.dataset.style === 'editorial' ? ' col-span-2' : '');
+  });
+}
 
-                    ${t.footer ? `
-                        <div class="text-center text-[7pt] uppercase tracking-widest font-mono text-stone-600 pt-1">
-                            ARCHIVAL GAZETTE RECORD • ALL RIGHTS RESERVED
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
+function setStyle(id) {
+  const th = THEMES[id];
+  state.style = id; state.fontMode = th.font; state.photo.shape = th.shape;
+  syncForm(); refreshPhoto(); scheduleSave();
+}
 
-        // 4. Luxury Gold & Midnight Noir Style
-        function renderLuxuryStyle(d, t) {
-            const container = document.getElementById('card-target');
-            container.style.backgroundColor = '#0b0b0e';
-            
-            return `
-                <div class="h-full flex flex-col justify-between relative z-10 text-zinc-100 border-2 gold-border p-4">
-                    <div class="text-center space-y-2 border-b gold-border pb-4">
-                        ${t.accents ? `<div class="text-amber-400 text-2xl tracking-widest">❖ ❖ ❖</div>` : ''}
-                        ${t.name ? `<h1 class="text-4xl sm:text-5xl font-serif tracking-wider uppercase gold-metallic-text font-bold">${d.firstName} ${d.lastName}</h1>` : ''}
-                        ${t.date ? `<div class="text-xs uppercase tracking-[4px] text-amber-200/80 font-light">${d.date}</div>` : ''}
-                    </div>
+function buildStyleGrid() {
+  $('style-grid').innerHTML = Object.entries(THEMES).map(([id, th], i) =>
+    `<button type="button" data-style="${id}" class="style-btn"><span class="block text-xs">${i + 1}) ${th.name}</span><span class="block text-[9px] text-zinc-500 mt-0.5">${th.desc}</span></button>`).join('');
+  $('style-grid').addEventListener('click', ev => { const b = ev.target.closest('[data-style]'); if (b) setStyle(b.dataset.style); });
+}
 
-                    <div class="my-auto py-4 flex flex-col items-center">
-                        <div class="p-1 gold-metallic-bg rounded-full shadow-2xl max-w-[200px]">
-                            ${generatePhotoHTML('rounded-full shadow-inner')}
-                        </div>
-                    </div>
+document.addEventListener('input', ev => {
+  const el = ev.target, ds = el.dataset;
+  if (ds.f !== undefined) { state.data[ds.f] = el.value; queueRender(); }
+  else if (ds.t !== undefined) { state.toggles[ds.t] = el.checked; queueRender(); }
+  else if (ds.p !== undefined) {
+    state.photo[ds.p] = el.type === 'range' ? +el.value : el.value;
+    const out = document.querySelector(`[data-out="${ds.p}"]`);
+    if (out) out.textContent = state.photo[ds.p] + (PCT.has(ds.p) ? '%' : '');
+    refreshPhoto();
+  } else if (ds.a !== undefined) { state[ds.a] = el.value; queueRender(); }
+  else return;
+  scheduleSave();
+});
 
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-3 gap-2 text-center border-t border-b gold-border py-3">
-                            ${t.time ? `<div><span class="block text-[7pt] uppercase tracking-widest text-amber-300/60">TIME</span><span class="text-sm font-bold text-amber-100">${d.time}</span></div>` : ''}
-                            ${t.weight ? `<div><span class="block text-[7pt] uppercase tracking-widest text-amber-300/60">WEIGHT</span><span class="text-sm font-bold text-amber-100">${d.weight}</span></div>` : ''}
-                            ${t.height ? `<div><span class="block text-[7pt] uppercase tracking-widest text-amber-300/60">LENGTH</span><span class="text-sm font-bold text-amber-100">${d.height}</span></div>` : ''}
-                        </div>
+$('photo-file').addEventListener('change', async ev => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  try { await setPhotoSource(url); } finally { URL.revokeObjectURL(url); }
+});
 
-                        <div class="text-center text-xs text-amber-200/80 space-y-1">
-                            ${t.location ? `<div>${d.location} • ${d.city}</div>` : ''}
-                            ${t.parents ? `<div class="text-amber-100 font-semibold">PARENTS: ${d.parents}</div>` : ''}
-                            ${t.quote ? `<div class="italic text-zinc-400 text-[11px] mt-1">"${d.quote}"</div>` : ''}
-                        </div>
-                    </div>
+new ResizeObserver(fitStage).observe($('stage'));
 
-                    ${t.footer ? `
-                        <div class="text-center text-[7pt] uppercase tracking-[3px] gold-metallic-text font-mono pt-2 border-t gold-border">
-                            LUXURY NOIR EDITION • ARCHIVAL ISSUE
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
+/* ---------- Export ---------- */
+async function renderToCanvas() {
+  await document.fonts.ready;
+  const f = FORMATS[state.format];
+  const scale = Math.min(3, Math.sqrt(16e6 / (f.w * f.h))); // stay under mobile canvas-size limits
+  return html2canvas($('card-target'), {
+    scale, useCORS: true, logging: false, backgroundColor: THEMES[state.style].bg,
+    width: f.w, height: f.h, windowWidth: Math.max(f.w, innerWidth),
+    onclone: doc => { doc.getElementById('card-scale').style.transform = 'none'; },
+  });
+}
+const slug = () => (state.data.firstName || 'card').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'card';
 
-        // 5. Boho Botanical Style
-        function renderBohoStyle(d, t) {
-            const container = document.getElementById('card-target');
-            container.style.backgroundColor = '#f7f2ec';
-            
-            return `
-                <div class="h-full flex flex-col justify-between relative z-10 text-amber-950">
-                    <div class="text-center space-y-1">
-                        ${t.accents ? `
-                            <div class="text-amber-700 text-lg">🌿</div>
-                        ` : ''}
-                        ${t.name ? `<h1 class="text-4xl sm:text-5xl font-serif italic text-amber-900">${d.firstName} ${d.lastName}</h1>` : ''}
-                        ${t.date ? `<div class="text-xs tracking-widest uppercase text-amber-800 font-semibold">${d.date}</div>` : ''}
-                    </div>
+async function withBusy(btn, label, fn) {
+  const orig = btn.textContent; btn.disabled = true; btn.textContent = label;
+  try { await fn(); } catch (err) { console.error(err); alert('Export failed. If you used a remote photo, try uploading it from your device instead.'); }
+  finally { btn.disabled = false; btn.textContent = orig; }
+}
 
-                    <div class="my-auto py-3 flex flex-col items-center">
-                        <div class="w-48 h-64 border-2 border-amber-800/40 p-2 rounded-t-full">
-                            ${generatePhotoHTML('w-full h-full rounded-t-full shadow-md')}
-                        </div>
-                    </div>
+$('btn-pdf').addEventListener('click', e => withBusy(e.currentTarget, 'Generating…', async () => {
+  const canvas = await renderToCanvas();
+  const [pw, ph] = FORMATS[state.format].mm;
+  const pdf = new window.jspdf.jsPDF({ orientation: pw > ph ? 'landscape' : 'portrait', unit: 'mm', format: [pw, ph] });
+  pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
+  pdf.save(`paperborn-${slug()}.pdf`);
+}));
 
-                    <div class="space-y-3">
-                        <div class="grid grid-cols-2 gap-4 border-t border-b border-amber-800/30 py-3 text-center">
-                            ${t.weight ? `<div><span class="block text-[8pt] text-amber-800/60 uppercase font-bold">WEIGHT</span><span class="text-base font-bold">${d.weight}</span></div>` : ''}
-                            ${t.height ? `<div><span class="block text-[8pt] text-amber-800/60 uppercase font-bold">LENGTH</span><span class="text-base font-bold">${d.height}</span></div>` : ''}
-                        </div>
+$('btn-png').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', async () => {
+  const canvas = await renderToCanvas();
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `paperborn-${slug()}.png` });
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}));
 
-                        <div class="text-center text-xs text-amber-900/80 space-y-1">
-                            ${t.location ? `<div>${d.location}, ${d.city}</div>` : ''}
-                            ${t.parents ? `<div>With love: <strong>${d.parents}</strong></div>` : ''}
-                            ${t.zodiac ? `<div>Zodiac: ${d.zodiac}</div>` : ''}
-                        </div>
-                    </div>
+$('btn-reset').addEventListener('click', () => {
+  state = DEFAULTS(); try { localStorage.removeItem(STORE_KEY); } catch (_) {}
+  $('photo-file').value = ''; syncForm(); setPhotoSource(SAMPLE_IMG);
+});
 
-                    ${t.footer ? `
-                        <div class="text-center text-[8pt] tracking-widest uppercase text-amber-800/50 pt-2 border-t border-amber-800/20">
-                            BOHO BOTANICAL COLLECTION
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        // 6. Cyber Tech Sheet Style
-        function renderCyberStyle(d, t) {
-            const container = document.getElementById('card-target');
-            container.style.backgroundColor = '#050811';
-            
-            return `
-                <div class="h-full flex flex-col justify-between relative z-10 text-cyan-300 font-mono cyber-border p-4">
-                    <div class="border-b border-cyan-500/40 pb-2 flex justify-between items-start">
-                        <div>
-                            <span class="text-[7pt] text-cyan-500 block">[SUBJECT_RECORD]</span>
-                            ${t.name ? `<h1 class="text-3xl font-black uppercase text-white cyber-glow-text leading-none">${d.firstName} ${d.lastName}</h1>` : ''}
-                        </div>
-                        <div class="text-right text-[8pt]">
-                            <span class="text-cyan-500 block">TIME_STAMP</span>
-                            <span class="text-white font-bold">${d.date}</span>
-                        </div>
-                    </div>
-
-                    <div class="my-auto py-3 grid grid-cols-12 gap-4 items-center">
-                        <div class="col-span-6">
-                            ${generatePhotoHTML('border border-cyan-400 shadow-[0_0_15px_rgba(0,255,204,0.3)]')}
-                        </div>
-                        <div class="col-span-6 space-y-2 text-xs">
-                            ${t.time ? `<div><span class="text-cyan-500 text-[8pt] block">TIME:</span><span class="text-white font-bold">${d.time}</span></div>` : ''}
-                            ${t.weight ? `<div><span class="text-cyan-500 text-[8pt] block">MASS:</span><span class="text-white font-bold">${d.weight} (${d.weightSub})</span></div>` : ''}
-                            ${t.height ? `<div><span class="text-cyan-500 text-[8pt] block">LENGTH:</span><span class="text-white font-bold">${d.height} (${d.heightSub})</span></div>` : ''}
-                        </div>
-                    </div>
-
-                    <div class="border-t border-cyan-500/40 pt-2 space-y-2 text-xs">
-                        <div class="grid grid-cols-2 gap-2">
-                            ${t.location ? `<div><span class="text-cyan-500 text-[8pt] block">FACILITY</span><span class="text-white">${d.location}</span></div>` : ''}
-                            ${t.coords ? `<div><span class="text-cyan-500 text-[8pt] block">COORDINATES</span><span class="text-white">${d.coords}</span></div>` : ''}
-                        </div>
-                        ${t.parents ? `<div><span class="text-cyan-500 text-[8pt] block">GENETIC_ORIGIN</span><span class="text-white">${d.parents}</span></div>` : ''}
-                    </div>
-
-                    ${t.footer ? `
-                        <div class="flex justify-between items-center text-[7pt] text-cyan-600 border-t border-cyan-500/30 pt-1">
-                            <span>CYBER_DATA_SYS_v2.6</span>
-                            <span>BARCODE // ||||| | |||| |||</span>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        // 7. Editorial High Fashion Style
-        function renderEditorialStyle(d, t) {
-            return `
-                <div class="h-full flex flex-col justify-between relative z-10 text-black">
-                    <div class="border-b-2 border-black pb-2 text-center">
-                        <div class="text-[8pt] font-black tracking-[6px] uppercase mb-1">VOGUE VITALIA</div>
-                        ${t.name ? `<h1 class="text-4xl sm:text-6xl font-serif font-black uppercase tracking-tight leading-none">${d.firstName}</h1>` : ''}
-                        ${t.name ? `<div class="text-2xl sm:text-3xl font-light uppercase tracking-widest text-neutral-700">${d.lastName}</div>` : ''}
-                    </div>
-
-                    <div class="my-auto py-2">
-                        ${generatePhotoHTML('w-full max-h-[300px] border border-black shadow-xl')}
-                    </div>
-
-                    <div class="space-y-3">
-                        <div class="grid grid-cols-3 gap-2 border-t-2 border-b-2 border-black py-3 text-center">
-                            ${t.date ? `<div><span class="block text-[7pt] text-neutral-400 font-bold uppercase">DATE</span><span class="text-sm font-bold">${d.date}</span></div>` : ''}
-                            ${t.weight ? `<div><span class="block text-[7pt] text-neutral-400 font-bold uppercase">WEIGHT</span><span class="text-sm font-bold">${d.weight}</span></div>` : ''}
-                            ${t.height ? `<div><span class="block text-[7pt] text-neutral-400 font-bold uppercase">LENGTH</span><span class="text-sm font-bold">${d.height}</span></div>` : ''}
-                        </div>
-
-                        <div class="flex justify-between text-xs font-serif">
-                            ${t.location ? `<div>${d.location}, ${d.city}</div>` : '<div></div>'}
-                            ${t.parents ? `<div>Parents: <strong>${d.parents}</strong></div>` : ''}
-                        </div>
-                    </div>
-
-                    ${t.footer ? `
-                        <div class="pt-2 border-t border-neutral-300 flex justify-between text-[7pt] font-mono text-neutral-400 uppercase tracking-widest">
-                            <span>EDITORIAL COLLECTION</span>
-                            <span>${d.zodiac}</span>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            initForm();
-            renderCard();
-        });
-    </script>
+/* ---------- Init ---------- */
+loadSaved();
+buildStyleGrid();
+syncForm();
+renderCard();
+setPhotoSource(SAMPLE_IMG);
+document.fonts.ready.then(queueRender);
+</script>
 </body>
 </html>
