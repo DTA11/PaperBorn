@@ -81,6 +81,12 @@ function fieldHTML(fd) {
         fd.options.map(([v, l]) => `<label class="chk"><input type="checkbox" data-mv="${esc(v)}" class="rounded">${esc(l)}</label>`).join('') + '</div>';
       break;
     case 'note': return `<p class="${span} text-zinc-500">${fd.text}</p>`;
+    case 'placesearch':
+      return `<div class="${span} min-w-0" data-place='${JSON.stringify(fd.keys)}'>${lab || ''}
+        <div class="flex gap-2"><input type="search" id="place-q" class="inp" placeholder="${esc(fd.ph || 'Hospital name and city')}" maxlength="120" autocomplete="off">
+        <button type="button" data-place-go class="btn bg-indigo-600 hover:bg-indigo-500 text-white shrink-0">Search</button></div>
+        <div data-place-status class="text-zinc-500 mt-1" aria-live="polite">Sends your search text to OpenStreetMap, only when you press Search.</div>
+        <div data-place-results class="space-y-1 mt-1"></div></div>`;
     default: {
       const attrs = ['min', 'max', 'step'].filter(k => fd[k] !== undefined).map(k => `${k}="${fd[k]}"`).join(' ');
       const mode = fd.type === 'number' ? `inputmode="${fd.step && fd.step < 1 ? 'decimal' : 'numeric'}"` : '';
@@ -308,6 +314,44 @@ function renderTemplates() {
     : '<p class="text-zinc-500">No saved templates yet.</p>';
 }
 
+/* ---------- Place search (OpenStreetMap Nominatim, only on button press) ---------- */
+let placeHits = [];
+const dms = (v, pos, neg) => `${Math.abs(v).toFixed(4)}° ${v >= 0 ? pos : neg}`;
+function placeFields(h) {
+  const a = h.address || {}, lat = +h.lat, lon = +h.lon;
+  const town = a.city || a.town || a.village || a.municipality || a.suburb || a.county || '';
+  const city = [town, a.country].filter(Boolean).join(', ');
+  const name = h.name || (h.display_name || '').split(',')[0].trim();
+  return { name, city, coords: `${dms(lat, 'N', 'S')}, ${dms(lon, 'E', 'W')}` };
+}
+async function placeSearch(box) {
+  const q = box.querySelector('#place-q').value.trim(), st = box.querySelector('[data-place-status]'), out = box.querySelector('[data-place-results]');
+  if (q.length < 3) { st.textContent = 'Type at least 3 characters, e.g. the hospital name and city.'; return; }
+  st.textContent = 'Searching…'; out.innerHTML = '';
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 9000);
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&accept-language=en&q=${encodeURIComponent(q)}`, { signal: ctl.signal, headers: { Accept: 'application/json' } });
+    if (!r.ok) throw new Error(r.status);
+    placeHits = await r.json();
+    if (!placeHits.length) { st.textContent = 'No match found. Try the full name with the city, or type the details below by hand.'; return; }
+    st.textContent = 'Tap a result to fill the fields below:';
+    out.innerHTML = placeHits.map((h, i) => `<button type="button" data-place-pick="${i}" class="block w-full text-left bg-zinc-900 border border-zinc-800 hover:border-zinc-600 rounded p-2 text-zinc-200">${esc(h.display_name)}</button>`).join('');
+  } catch (_) {
+    st.textContent = 'Search is not available right now. You can type the details below by hand.';
+  } finally { clearTimeout(timer); }
+}
+function placePick(box, i) {
+  const h = placeHits[i]; if (!h) return;
+  const k = JSON.parse(box.dataset.place), f = placeFields(h);
+  if (k.name) state.data[k.name] = f.name;
+  if (k.city) state.data[k.city] = f.city;
+  if (k.coords) state.data[k.coords] = f.coords;
+  syncForm(); queueRender(); scheduleSave(); commit(true);
+  box.querySelector('[data-place-status]').textContent = 'Filled in. Check the details and edit if needed.';
+  box.querySelector('[data-place-results]').innerHTML = '';
+  track('place_search', { generator: def.slug });
+}
+
 /* ---------- Boot ---------- */
 function bindEvents() {
   document.addEventListener('input', ev => {
@@ -368,6 +412,14 @@ function bindEvents() {
     const list = getTpls().filter(t => t.name !== name);
     list.push({ name, theme: state.theme, format: state.format, fontMode: state.fontMode, photo: clone(state.photo), toggles: clone(state.toggles) });
     setTpls(list); $('tpl-name').value = ''; renderTemplates();
+  });
+  document.addEventListener('click', ev => {
+    const go = ev.target.closest('[data-place-go]'), pick = ev.target.closest('[data-place-pick]');
+    if (go) placeSearch(go.closest('[data-place]'));
+    else if (pick) placePick(pick.closest('[data-place]'), +pick.dataset.placePick);
+  });
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Enter' && ev.target.id === 'place-q') { ev.preventDefault(); placeSearch(ev.target.closest('[data-place]')); }
   });
   document.addEventListener('click', ev => {
     const load = ev.target.closest('[data-tpl-load]'), del = ev.target.closest('[data-tpl-del]');

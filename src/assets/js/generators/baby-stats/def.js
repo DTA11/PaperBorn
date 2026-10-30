@@ -45,7 +45,7 @@ export default {
   defaults: {
     toggles: { name: true, monogram: true, date: true, time: true, weight: true, height: true, location: true, coords: true, parents: true, zodiac: true, moon: true, quote: true },
     data: { firstName: 'AURELIA', lastName: 'VALENTINE', monogram: 'AV', date: '2026-10-10', time: '08:42', weightG: '3450', heightCm: '51',
-            location: 'Ljubljana Medical Center', city: 'Ljubljana, Slovenia', coords: '46.0569° N, 14.5058° E', parents: 'EMMA & MARK', quote: 'Little miracle, endless love.' },
+            location: 'City General Hospital', city: 'Your City, Country', coords: '45.0000° N, 15.0000° E', parents: 'EMMA & MARK', quote: 'Little miracle, endless love.' },
   },
   extraOrnaments: [['moon', 'Moon phase of birth date (Celestial &amp; Cyber)', true]],
   sections: [{
@@ -62,9 +62,10 @@ export default {
         { key: 'weightG', type: 'number', label: 'Weight (grams)', min: 300, max: 7000, step: 1, ph: '3450' },
         { key: 'heightCm', type: 'number', label: 'Height (cm)', min: 20, max: 70, step: 0.5, ph: '51' } ] },
       { toggles: [['location', 'Hospital & city'], ['coords', 'Coordinates']], cols: 2, fields: [
+        { type: 'placesearch', label: 'Find hospital address', span: 2, ph: 'Hospital name and city', keys: { name: 'location', city: 'city', coords: 'coords' } },
         { key: 'location', type: 'text', ph: 'Medical center', span: 2, maxlength: 60 },
-        { key: 'city', type: 'text', ph: 'Ljubljana, Slovenia', maxlength: 60 },
-        { key: 'coords', type: 'text', ph: '46.0569° N, 14.5058° E', maxlength: 40 } ] },
+        { key: 'city', type: 'text', ph: 'City, Country', maxlength: 60 },
+        { key: 'coords', type: 'text', ph: '45.0000° N, 15.0000° E', maxlength: 40 } ] },
       { toggles: [['parents', 'Parents'], ['zodiac', 'Zodiac']], cols: 2, fields: [
         { key: 'parents', type: 'text', label: 'Parents', ph: 'EMMA & MARK', maxlength: 50 },
         { key: 'zodiac', type: 'readout', label: 'Zodiac (automatic)', empty: 'Pick a birth date' } ] },
