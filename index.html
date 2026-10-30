@@ -39,6 +39,10 @@
   .crop-tr { top: 10px; right: 10px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; }
   .crop-bl { bottom: 10px; left: 10px; border-bottom: 1px solid currentColor; border-left: 1px solid currentColor; }
   .crop-br { bottom: 10px; right: 10px; border-bottom: 1px solid currentColor; border-right: 1px solid currentColor; }
+  /* html2canvas measures font baselines with a tiny <img> appended to <body>.
+     Tailwind's preflight makes every img display:block, which pushes the measured baseline
+     ~0.3-0.45em too low and drops all exported text. Keep that probe inline. */
+  body > div > img { display: inline !important; vertical-align: baseline !important; }
   input[type="range"] { accent-color: #6366f1; }
   input[type="date"], input[type="time"] { color-scheme: dark; }
   .scroll::-webkit-scrollbar { width: 5px; }
@@ -236,11 +240,11 @@ const SAMPLE_IMG = 'https://images.unsplash.com/photo-1519689680058-324335c77eba
 const STORE_KEY = 'paperborn:v3';
 
 const FORMATS = {
-  a4:        { w: 794, h: 1123, mm: [210, 297],     photoH: 360 },
-  a5:        { w: 559, h: 794,  mm: [148, 210],     photoH: 270 },
-  usletter:  { w: 816, h: 1056, mm: [215.9, 279.4], photoH: 340 },
-  frame8x10: { w: 768, h: 960,  mm: [203.2, 254],   photoH: 320 },
-  square:    { w: 800, h: 800,  mm: [210, 210],     photoH: 240 },
+  a4:        { w: 794, h: 1123, mm: [210, 297],     photoH: 440 },
+  a5:        { w: 559, h: 794,  mm: [148, 210],     photoH: 320 },
+  usletter:  { w: 816, h: 1056, mm: [215.9, 279.4], photoH: 420 },
+  frame8x10: { w: 768, h: 960,  mm: [203.2, 254],   photoH: 380 },
+  square:    { w: 800, h: 800,  mm: [210, 210],     photoH: 250 },
 };
 const FONTS = {
   sans: "'Inter', sans-serif", serif: "'Playfair Display', Georgia, serif", playful: "'Fredoka', sans-serif",
@@ -433,15 +437,15 @@ const branch = (c1, c2) => {
   for (let k = 1; k <= 6; k++) { const y = -k * 26, s = k % 2 ? 1 : -1, x = s * 13 + (k % 2 ? 2 : -2); o += `<ellipse cx="${x}" cy="${y}" rx="15" ry="5.5" fill="${c2}" transform="rotate(${-s * 35} ${x} ${y})"/>`; }
   return o + `<ellipse cx="8" cy="-178" rx="12" ry="5" fill="${c2}" transform="rotate(-90 8 -178)"/>`;
 };
-const rainbow = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-170 -170 340 180" style="position:absolute;left:50%;top:6px;width:100%;max-width:340px;transform:translateX(-50%)">` +
-  [[150, '#c2724f'], [126, '#e3c9a8'], [102, '#9caf88'], [78, '#e8b4a0']].map(([r, c]) => `<path d="M${-r} 0A${r} ${r} 0 0 1 ${r} 0" fill="none" stroke="${c}" stroke-width="22"/>`).join('') + '</svg>';
+const rainbow = () => `<div style="position:absolute;left:0;right:0;top:6px;display:flex;justify-content:center;pointer-events:none"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-170 -170 340 180" width="340" height="180" style="display:block;max-width:100%">` +
+  [[150, '#c2724f'], [126, '#e3c9a8'], [102, '#9caf88'], [78, '#e8b4a0']].map(([r, c]) => `<path d="M${-r} 0A${r} ${r} 0 0 1 ${r} 0" fill="none" stroke="${c}" stroke-width="22"/>`).join('') + '</svg></div>';
 const sunRays = H => {
   const R0 = H / 2 + 8, R1 = H / 2 + 34, S = Math.round(R1 * 2 + 4), n = 24; let p = '';
   for (let i = 0; i < n; i++) {
     const a1 = i * 2 * Math.PI / n, a2 = (i + 1) * 2 * Math.PI / n, am = (a1 + a2) / 2, c = S / 2;
     p += `<polygon points="${(c + R0 * Math.cos(a1)).toFixed(1)},${(c + R0 * Math.sin(a1)).toFixed(1)} ${(c + R1 * Math.cos(am)).toFixed(1)},${(c + R1 * Math.sin(am)).toFixed(1)} ${(c + R0 * Math.cos(a2)).toFixed(1)},${(c + R0 * Math.sin(a2)).toFixed(1)}" fill="${i % 2 ? '#e8742c' : '#f2b134'}"/>`;
   }
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)">${p}</svg>`;
+  return `<div style="position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" style="display:block;flex:none">${p}</svg></div>`;
 };
 const sealSVG = s => {
   let p = '';
@@ -497,7 +501,7 @@ const TEMPLATES = {
       ${show(t.name, e.firstName || e.lastName, `<h1 class="text-5xl font-bold text-amber-900 tracking-wide">${e.firstName} ${e.lastName}</h1>`)}
       ${show(t.quote, e.quote, `<p class="text-sm text-amber-700/80 font-medium italic">“${e.quote}”</p>`)}
     </div>
-    <div class="my-auto py-3"><div class="p-3 bg-white rounded-3xl shadow-xl border-4 border-amber-200/60 mx-auto" style="width:fit-content;max-width:100%">${photoHTML('', .85)}</div></div>
+    <div class="my-auto py-3"><div class="p-3 bg-white rounded-3xl shadow-xl border-4 border-amber-200/60 mx-auto" style="width:fit-content;max-width:100%">${photoHTML('', .72)}</div></div>
     <div class="grid grid-cols-2 gap-3 bg-amber-50/80 p-4 rounded-2xl border-2 border-dashed border-amber-200 text-center">
       <div>${show(t.date, e.date, `<span class="block text-[9pt] font-bold text-amber-800 uppercase tracking-wider">Birth date</span><span class="text-base font-bold">${e.date}</span>`)}
            ${show(t.time, e.time, `<span class="block text-xs text-amber-700">${e.time}</span>`)}</div>
@@ -670,7 +674,7 @@ const TEMPLATES = {
       ${show(t.name, e.firstName || e.lastName, `<div class="font-bold uppercase" style="font-size:${nm(e.firstName + ' ' + e.lastName, 34, 16, f)}px;letter-spacing:.06em;color:#5c3d0e">${[e.firstName, e.lastName].filter(Boolean).join(' ')}</div>`)}
       <div class="text-sm mt-1 leading-relaxed">${body.join('<br>')}</div>
     </div>
-    <div class="my-auto py-2">${photoHTML('border:3px double #8a6a2a;', .6)}</div>
+    <div class="my-auto py-2"><div style="width:62%;margin:0 auto">${photoHTML('border:3px double #8a6a2a;', .72)}</div></div>
     <div>
       <div class="flex items-end justify-between gap-4">
         <div class="flex-1 text-center"><div class="pt-1 text-[8pt] uppercase tracking-widest" style="border-top:1px solid #3a2c14">${names[0] || 'Parent'}</div></div>
@@ -713,7 +717,7 @@ const TEMPLATES = {
     <div>
       <div class="text-[9pt] font-black uppercase tracking-[5px]">Birth announcement</div>
       ${show(t.name, e.firstName || e.lastName, `<h1 class="font-black uppercase leading-[.88] mt-2" style="letter-spacing:-.03em"><span class="block" style="font-size:${nm(e.firstName, 78, 8, f)}px">${e.firstName}</span><span class="block" style="font-size:${nm(e.lastName, 78, 8, f)}px;color:#e0603c">${e.lastName}</span></h1>`)}
-      ${show(t.date, e.date, `<span class="inline-block mt-3 px-4 py-1 rounded-full text-white font-bold text-sm" style="background:#1d2a44">${e.date}${t.time && e.time ? ' · ' + e.time : ''}</span>`)}
+      ${show(t.date, e.date, `<span class="inline-block mt-4 px-4 py-1 rounded-full text-white font-bold text-sm" style="background:#1d2a44">${e.date}${t.time && e.time ? ' · ' + e.time : ''}</span>`)}
     </div>
     <div class="my-auto py-4 grid grid-cols-12 gap-4 items-center">
       <div class="col-span-7 pl-3 pb-3">${photoHTML('box-shadow:-12px 12px 0 #e0603c;', .95)}</div>
