@@ -1,14 +1,76 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
-<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3f2"/><stop offset=".62" stop-color="#e9f4f7"/><stop offset="1" stop-color="#fbe3c8"/></linearGradient>
-<radialGradient id="sk" cx=".45" cy=".4" r=".7"><stop offset="0" stop-color="#ffe0cc"/><stop offset="1" stop-color="#f6bf9f"/></radialGradient></defs>
+<!-- Sample photo shown until a real photo is added: a sleeping swaddled newborn on a knitted blanket. -->
+<defs>
+  <radialGradient id="bg" cx=".5" cy=".45" r=".75"><stop offset="0" stop-color="#efe3d3"/><stop offset=".6" stop-color="#ddcab2"/><stop offset="1" stop-color="#c2a888"/></radialGradient>
+  <radialGradient id="skin" cx=".42" cy=".38" r=".75"><stop offset="0" stop-color="#fbe6d8"/><stop offset=".65" stop-color="#f3cdb7"/><stop offset="1" stop-color="#e6b39a"/></radialGradient>
+  <linearGradient id="wrap" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8bfb2"/><stop offset="1" stop-color="#c98f80"/></linearGradient>
+  <linearGradient id="flap" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0d0c6"/><stop offset="1" stop-color="#d7a596"/></linearGradient>
+  <radialGradient id="hat" cx=".45" cy=".35" r=".8"><stop offset="0" stop-color="#fbf7f0"/><stop offset="1" stop-color="#dccbb3"/></radialGradient>
+  <radialGradient id="cheek" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f2a596" stop-opacity=".55"/><stop offset="1" stop-color="#f2a596" stop-opacity="0"/></radialGradient>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="22"/></filter>
+  <filter id="soft2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+  <pattern id="knit" width="36" height="28" patternUnits="userSpaceOnUse">
+    <path d="M0 4 Q9 22 18 4 Q27 22 36 4" fill="none" stroke="#d8c8b3" stroke-width="3" opacity=".55"/>
+  </pattern>
+  <pattern id="rib" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M7 0V14" stroke="#ddcfbb" stroke-width="3"/></pattern>
+</defs>
+
+<!-- knitted blanket background with soft folds -->
 <rect width="900" height="1200" fill="url(#bg)"/>
-<g fill="#fff" opacity=".9"><ellipse cx="200" cy="230" rx="130" ry="46"/><ellipse cx="280" cy="205" rx="80" ry="44"/><ellipse cx="700" cy="330" rx="120" ry="40"/><ellipse cx="770" cy="305" rx="70" ry="38"/></g>
-<path d="M0 930 Q450 820 900 930 V1200 H0Z" fill="#fdeacb"/><path d="M0 1010 Q450 930 900 1010 V1200 H0Z" fill="#f9d9a9"/>
-<ellipse cx="450" cy="800" rx="250" ry="210" fill="#fff"/><ellipse cx="450" cy="820" rx="250" ry="190" fill="#f3f7fb"/>
-<circle cx="450" cy="520" r="230" fill="url(#sk)"/>
-<path d="M240 470 Q450 250 660 470 Q620 330 450 310 Q280 330 240 470Z" fill="#7bb6d8"/><circle cx="450" cy="292" r="34" fill="#7bb6d8"/>
-<path d="M352 520 q34 -30 68 0" fill="none" stroke="#5b4636" stroke-width="12" stroke-linecap="round"/><path d="M480 520 q34 -30 68 0" fill="none" stroke="#5b4636" stroke-width="12" stroke-linecap="round"/>
-<ellipse cx="335" cy="590" rx="42" ry="28" fill="#f3a38d" opacity=".65"/><ellipse cx="565" cy="590" rx="42" ry="28" fill="#f3a38d" opacity=".65"/>
-<path d="M410 610 q40 36 80 0" fill="none" stroke="#c0594a" stroke-width="12" stroke-linecap="round"/><ellipse cx="450" cy="565" rx="13" ry="10" fill="#f0a98e"/>
-<g fill="#f6bf9f"><circle cx="300" cy="860" r="48"/><circle cx="600" cy="860" r="48"/></g>
+<rect width="900" height="1200" fill="url(#knit)" opacity=".45"/>
+<path d="M-40 260 C200 200 380 330 940 230" stroke="#d9c9b4" stroke-width="60" fill="none" opacity=".35" filter="url(#soft)"/>
+<path d="M-40 1040 C260 960 520 1120 940 1000" stroke="#d6c4ad" stroke-width="80" fill="none" opacity=".4" filter="url(#soft)"/>
+
+<!-- shadow under the baby -->
+<ellipse cx="460" cy="710" rx="275" ry="405" fill="#8f735a" opacity=".55" filter="url(#soft)"/>
+
+<!-- swaddle body -->
+<path d="M450 470 C640 470 700 640 680 820 C660 1000 560 1090 450 1090 C340 1090 240 1000 220 820 C200 640 260 470 450 470Z" fill="url(#wrap)" stroke="#b07a6b" stroke-width="4"/>
+<!-- crossing flaps -->
+<path d="M230 700 C330 640 520 640 690 760 C660 900 600 980 520 1020 C470 900 380 800 230 700Z" fill="url(#flap)"/>
+<path d="M240 860 C360 800 520 840 640 980 C580 1060 510 1090 450 1090 C380 1090 300 1040 260 960 Z" fill="#e2b6a9"/>
+<g fill="none" stroke="#b07a6b" stroke-width="5" stroke-linecap="round" opacity=".75">
+  <path d="M260 712 C360 664 500 668 650 760"/><path d="M270 870 C380 820 510 852 620 960"/><path d="M520 1018 C480 920 420 840 330 770"/>
+</g>
+
+<!-- tiny hand peeking out -->
+<g transform="translate(560 690)">
+  <ellipse rx="40" ry="30" fill="url(#skin)" transform="rotate(-18)"/>
+  <g stroke="#dca58c" stroke-width="3" fill="none" stroke-linecap="round"><path d="M-22 -10 C-18 -20 -8 -22 -2 -14"/><path d="M-4 -16 C2 -24 12 -24 16 -14"/><path d="M14 -12 C20 -18 28 -14 28 -6"/></g>
+</g>
+
+<!-- head -->
+<ellipse cx="450" cy="520" rx="150" ry="158" fill="url(#skin)" stroke="#d29a80" stroke-width="4"/>
+<!-- cheeks -->
+<ellipse cx="368" cy="588" rx="52" ry="38" fill="url(#cheek)"/><ellipse cx="532" cy="588" rx="52" ry="38" fill="url(#cheek)"/>
+<!-- sleeping eyes with lashes -->
+<g fill="none" stroke="#5e3b30" stroke-width="8" stroke-linecap="round">
+  <path d="M362 548 Q392 572 422 548"/><path d="M478 548 Q508 572 538 548"/>
+</g>
+<g stroke="#5e3b30" stroke-width="4.5" stroke-linecap="round">
+  <path d="M372 560 l-6 12"/><path d="M390 566 l-2 13"/><path d="M408 562 l4 12"/>
+  <path d="M492 562 l-4 12"/><path d="M510 566 l2 13"/><path d="M528 560 l6 12"/>
+</g>
+<!-- nose and mouth -->
+<path d="M440 598 Q450 608 460 598" fill="none" stroke="#d39a85" stroke-width="5" stroke-linecap="round"/>
+<path d="M432 632 Q450 646 468 632 Q450 640 432 632Z" fill="#d9806f"/>
+
+<!-- knitted bonnet with little ears -->
+<g>
+  <circle cx="325" cy="370" r="46" fill="url(#hat)" stroke="#c9b394" stroke-width="4"/><circle cx="325" cy="370" r="24" fill="#efc9c3"/>
+  <circle cx="575" cy="370" r="46" fill="url(#hat)" stroke="#c9b394" stroke-width="4"/><circle cx="575" cy="370" r="24" fill="#efc9c3"/>
+  <path d="M296 520 C290 400 360 352 450 352 C540 352 610 400 604 520 C560 470 510 452 450 452 C390 452 340 470 296 520Z" fill="url(#hat)" stroke="#c9b394" stroke-width="4"/>
+  <path d="M296 520 C290 400 360 352 450 352 C540 352 610 400 604 520 C560 470 510 452 450 452 C390 452 340 470 296 520Z" fill="url(#rib)" opacity=".45"/>
+  <path d="M300 516 C346 468 396 452 450 452 C504 452 554 468 600 516 C556 486 506 474 450 474 C394 474 344 486 300 516Z" fill="#d8c5aa"/>
+</g>
+
+<!-- small knitted star toy and baby's breath sprig -->
+<g transform="translate(720 1000) rotate(-12)">
+  <ellipse cx="6" cy="12" rx="62" ry="22" fill="#b89f86" opacity=".35" filter="url(#soft2)"/>
+  <path d="M0 -58 L16 -18 L58 -16 L25 10 L37 52 L0 28 L-37 52 L-25 10 L-58 -16 L-16 -18Z" fill="#f2dfa9" stroke="#dcc283" stroke-width="3" stroke-linejoin="round"/>
+</g>
+<g transform="translate(150 1010) rotate(-30)" stroke="#8a9a78" stroke-width="4" fill="none" stroke-linecap="round">
+  <path d="M0 0 C10 -60 20 -110 18 -170"/><path d="M12 -80 C30 -96 44 -100 56 -98"/><path d="M8 -50 C-12 -66 -26 -70 -40 -66"/>
+  <g fill="#fbf8f2" stroke="none"><circle cx="18" cy="-176" r="9"/><circle cx="60" cy="-100" r="8"/><circle cx="-44" cy="-68" r="8"/><circle cx="30" cy="-150" r="6"/><circle cx="2" cy="-140" r="6"/></g>
+</g>
 </svg>
