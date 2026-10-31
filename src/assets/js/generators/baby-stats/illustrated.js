@@ -85,12 +85,16 @@ const laDecor = pal => (t, f) => {
 const BAL = { accent: '#6f8fb5', kraft: '#b08a62', pill: '#eef3f8', label: '#8aa3c2', ink: '#56606e', soft: '#8b8378',
   colors: [['#c4d7ea', '#8fadd0'], ['#f6ead6', '#dcc6a2'], ['#f6d9de', '#e0a9b4'], ['#d9e6cf', '#a8c096'], ['#b9cde4', '#7f9fc6']] };
 function balloonScene(f, t, u, W) {
-  const p = 'bsbal', ph = t.photo, D = Math.round(f.photoH * (ph ? .86 : .6)), bear = ANIMALS.bear;
-  const sc = ph ? D / 360 : D / 230, Hs = ph ? D + 40 * u : 330 * sc + 20 * u, gy = Hs - 14 * u;
-  const pcx = ph ? W / 2 + D * .16 : W / 2, bx = ph ? pcx - D / 2 - 22 * sc : W / 2, by = gy - 150 * sc;
-  const hand = [bx + 46 * sc, by + 88 * sc], R = (ph ? D * .13 : D * .2);
-  const spots = ph ? [[-.2, .2, 1], [.03, .08, 1.12], [-.01, .4, .9], [.21, .27, .96], [-.36, .4, .82]] : [[-.32, .18, 1], [0, .06, 1.12], [.3, .16, 1], [-.14, .36, .86], [.16, .36, .88]];
-  const bs = spots.map(([dx, dy, k], i) => balloon(p, i, bx + dx * D * (ph ? 1 : 1.6), Math.max(R * k + 4, dy * Hs), R * k, ...BAL.colors[i]));
+  const p = 'bsbal', ph = t.photo, bear = ANIMALS.bear;
+  /* With a photo: balloons + teddy on the left, photo beside them on the right, nothing overlapping. */
+  const gap = 18 * u, D = Math.round(ph ? Math.min(f.photoH * .84, (W - gap) / 1.7) : f.photoH * .6);
+  const Lw = ph ? D * .7 : D * 1.6, x0 = ph ? (W - (Lw + gap + D)) / 2 : (W - Lw) / 2, cxL = x0 + Lw / 2;
+  const sc = ph ? Math.min(D / 360, Lw / 200) : D / 230, Hs = ph ? D + 40 * u : 330 * sc + 20 * u, gy = Hs - 14 * u;
+  const pcx = x0 + Lw + gap + D / 2, bx = cxL, by = gy - 150 * sc;
+  const hand = [bx + 46 * sc, by + 88 * sc], R = ph ? D * .13 : D * .2;
+  const spots = [[-.62, .16, 1], [.12, .05, 1.12], [.02, .32, .9], [.66, .24, .96], [-.92, .36, .82]];
+  const reach = Lw / 2 - R * .9, top = by - 64 * sc;                         // keep balloons inside the left area and above the teddy's head
+  const bs = spots.map(([nx, dy, k], i) => balloon(p, i, cxL + nx * reach * (k < 1 ? 1 : .95), Math.min(top - R * k, Math.max(R * k + 4, dy * Hs)), R * k, ...BAL.colors[i]));
   const strings = bs.map(b => `<path d="M${b.knot[0].toFixed(1)} ${b.knot[1].toFixed(1)} C${(b.knot[0] + 10 * sc).toFixed(1)} ${((b.knot[1] + hand[1]) / 2).toFixed(1)} ${(hand[0] - 14 * sc).toFixed(1)} ${(hand[1] - 40 * sc).toFixed(1)} ${hand[0].toFixed(1)} ${hand[1].toFixed(1)}" fill="none" stroke="#a89b8a" stroke-width="1.3"/>`).join('');
   const back = `<defs>${wcDefs(p)}${bs.map(b => b.defs).join('')}</defs>
     <ellipse cx="${(W / 2).toFixed(1)}" cy="${gy}" rx="${(Math.min(W * .45, D * 1.05)).toFixed(1)}" ry="${(12 * u).toFixed(1)}" fill="#eee6da" filter="url(#${p}w)"/>
