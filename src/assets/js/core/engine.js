@@ -20,10 +20,17 @@ function freshState() {
     theme: def.defaultTheme, format: def.defaultFormat, fontMode: th.font, bleed: false, page: 0,
     photo: { shape: th.shape || 'rectangle', filterMode: th.filter || 'none', brightness: 100, contrast: 110, zoom: 100, offsetX: 0, offsetY: 0 },
     toggles: { photo: true, accents: true, border: true, crop: false, footer: true, ...clone(def.defaults.toggles || {}) },
-    data: clone(def.defaults.data || {}),
+    data: { ...clone(def.defaults.data || {}), ...Object.fromEntries(Object.keys(sample()).map(k => [k, ''])) },
+    edited: {},
   };
 }
-const pick = () => ({ theme: state.theme, format: state.format, fontMode: state.fontMode, photo: state.photo, toggles: state.toggles, data: state.data });
+/* Example values: these fields start empty (so people can type straight away). Until a field has been edited, its
+   example shows as grey placeholder text and on the card. Once edited, an empty field stays empty on the card. */
+const sample = () => def.defaults.sample || {};
+const isEmpty = v => v === undefined || v === null || String(v).trim() === '';
+/* Fields that belong together (first + last name, mother + father): typing in one drops the example in both. */
+const touched = k => !!state.edited?.[k] || (def.defaults.sampleGroups || []).some(g => g.includes(k) && g.some(x => state.edited?.[x]));
+const pick = () => ({ theme: state.theme, format: state.format, fontMode: state.fontMode, photo: state.photo, toggles: state.toggles, data: state.data, edited: state.edited });
 const storeKey = () => `paperborn:${def.slug}:v1`;
 const tplKey = () => `paperborn:${def.slug}:templates`;
 const photoKey = () => `paperborn:${def.slug}:photo`;
@@ -58,7 +65,17 @@ function loadSaved() {
     const s = JSON.parse(localStorage.getItem(storeKey()) || 'null');
     if (!s) return;
     const d = freshState();
-    Object.assign(state, d, s, { photo: { ...d.photo, ...s.photo }, toggles: { ...d.toggles, ...s.toggles }, data: { ...d.data, ...s.data }, page: 0, bleed: false });
+    if (s.data) {
+      def.migrate?.(s.data);
+      if (!s.edited) {                         // saves from before example text: keep what people really typed
+        s.edited = {};
+        for (const [k, v] of Object.entries(sample())) {
+          if (s.data[k] === v) s.data[k] = '';
+          else if (s.data[k] !== undefined) s.edited[k] = true;
+        }
+      }
+    }
+    Object.assign(state, d, s, { photo: { ...d.photo, ...s.photo }, toggles: { ...d.toggles, ...s.toggles }, data: { ...d.data, ...s.data }, edited: { ...s.edited }, page: 0, bleed: false });
     if (!def.themes[state.theme]) state.theme = d.theme;
     if (!def.formats[state.format]) state.format = d.format;
     if (!FONTS[state.fontMode]) state.fontMode = d.fontMode;
@@ -81,7 +98,7 @@ function commit(now) {
   };
   if (now) run(); else { hist.timer = setTimeout(run, 500); updateHistBtns(); }
 }
-function restore(s) { Object.assign(state, JSON.parse(s)); syncForm(); refresh(); scheduleSave(); }
+function restore(s) { Object.assign(state, { edited: {} }, JSON.parse(s)); syncForm(); refresh(); scheduleSave(); }
 function undo() { commit(true); if (!hist.past.length) return; hist.future.push(hist.last); hist.last = hist.past.pop(); restore(hist.last); updateHistBtns(); }
 function redo() { commit(true); if (!hist.future.length) return; hist.past.push(hist.last); hist.last = hist.future.pop(); restore(hist.last); updateHistBtns(); }
 
@@ -90,7 +107,7 @@ function fieldHTML(fd) {
   const id = `f-${fd.key}`, span = SPAN[fd.span || 1];
   const lab = fd.label ? `<label class="lbl" for="${id}">${fd.label}</label>` : '';
   const common = `id="${id}" data-f="${fd.key}" class="inp ${fd.cls || ''}"`;
-  const ph = `placeholder="${esc(fd.ph || '')}"`;
+  const ph = `placeholder="${esc(sample()[fd.key] ?? fd.ph ?? '')}"${fd.key in sample() ? ` data-sample="${fd.key}"` : ''}${fd.autoPh ? ` data-autoph="${fd.autoPh}"` : ''}`;
   let ctl;
   switch (fd.type) {
     case 'textarea': ctl = `<textarea ${common} rows="${fd.rows || 4}" ${ph} maxlength="${fd.max || 3000}"></textarea>`; break;
@@ -221,7 +238,9 @@ const queueRender = () => { cancelAnimationFrame(rafId); rafId = requestAnimatio
 function refresh() { syncPhotoURL(); queueRender(); }
 
 function derive() {
-  const dv = def.derive ? def.derive(state.data) : { ...state.data };
+  const data = { ...state.data };
+  for (const [k, v] of Object.entries(sample())) if (isEmpty(data[k]) && !touched(k)) data[k] = v;
+  const dv = def.derive ? def.derive(data) : data;
   const e = {};
   for (const [k, v] of Object.entries(dv)) {
     e[k] = Array.isArray(v) ? v.map(x => esc(String(x))) : (v && typeof v === 'object') ? v : esc(String(v ?? '')).trim();
@@ -246,6 +265,8 @@ export function renderCard() {
   const f = fmt(), th = def.themes[state.theme], t = state.toggles;
   const { dv, e } = derive();
   document.querySelectorAll('[data-readout]').forEach(el => { el.textContent = dv[el.dataset.readout] || el.dataset.empty; });
+  document.querySelectorAll('[data-autoph]').forEach(el => { el.placeholder = dv[el.dataset.autoph] || ''; });
+  document.querySelectorAll('[data-sample]').forEach(el => { el.placeholder = touched(el.dataset.sample) ? '' : sample()[el.dataset.sample]; });
   const n = def.pageCount ? Math.max(1, def.pageCount(dv, state)) : 1;
   state.page = Math.max(0, Math.min(state.page, n - 1));
   updatePager(n);
@@ -470,9 +491,7 @@ async function placeSearch(box) {
 function placePick(box, i) {
   const h = placeHits[i]; if (!h) return;
   const k = JSON.parse(box.dataset.place), f = placeFields(h);
-  if (k.name) state.data[k.name] = f.name;
-  if (k.city) state.data[k.city] = f.city;
-  if (k.coords) state.data[k.coords] = f.coords;
+  for (const [slot, val] of [[k.name, f.name], [k.city, f.city], [k.coords, f.coords]]) if (slot) { state.data[slot] = val; state.edited[slot] = true; }
   syncForm(); queueRender(); scheduleSave(); commit(true);
   box.querySelector('[data-place-status]').textContent = 'Filled in. Check the details and edit if needed.';
   box.querySelector('[data-place-results]').innerHTML = '';
@@ -483,7 +502,7 @@ function placePick(box, i) {
 function bindEvents() {
   document.addEventListener('input', ev => {
     const el = ev.target, ds = el.dataset;
-    if (ds.f !== undefined) { state.data[ds.f] = el.value; queueRender(); }
+    if (ds.f !== undefined) { state.data[ds.f] = el.value; if (ds.f in sample()) state.edited[ds.f] = true; queueRender(); }
     else if (ds.mv !== undefined) {
       const box = el.closest('[data-m]');
       state.data[box.dataset.m] = [...box.querySelectorAll('[data-mv]:checked')].map(i => i.dataset.mv);

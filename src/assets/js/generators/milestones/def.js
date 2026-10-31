@@ -47,13 +47,16 @@ export default {
   photo: true,
   defaults: {
     toggles: { name: true, date: true, weight: true, height: true, note: true, facts: true },
-    data: { babyName: 'Aurelia', milestone: '3', customBig: '100', customSmall: 'DAYS', date: '2026-10-10', weightG: '5800', heightCm: '61',
-            note: 'Smiles at everyone and loves bath time!', loves: 'Bath time & lullabies', skill: 'Rolling over', fun: 'Giggles at the dog' },
+    data: { milestone: '3', date: '2026-10-10' },
+    sample: { babyName: 'Aurelia', customBig: '100', customSmall: 'DAYS', weightG: '5800', heightCm: '61',
+              note: 'Smiles at everyone and loves bath time!', loves: 'Bath time & lullabies', skill: 'Rolling over', fun: 'Giggles at the dog' },
+    sampleGroups: [['customBig', 'customSmall'], ['weightG', 'heightCm'], ['loves', 'skill', 'fun']],
   },
   ornaments: [['accents', 'Little doodles'], ['border', 'Border line'], ['crop', 'Cutting guides'], ['footer', 'Small footer text']],
   sections: [{
     title: 'Milestone details',
     boxes: [
+      { fields: [{ type: 'note', text: 'Grey text is only an example and stays on the card until you type your own. Untick a line to leave it off.' }] },
       { toggles: [['name', 'Baby name']], fields: [{ key: 'babyName', type: 'text', ph: 'Baby name', maxlength: 30 }] },
       { cols: 2, fields: [
         { key: 'milestone', type: 'select', label: 'Milestone', span: 2, options: MILESTONES },

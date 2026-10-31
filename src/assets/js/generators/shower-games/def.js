@@ -37,7 +37,8 @@ export default {
   ornaments: [['accents', 'Little decorations'], ['border', 'Border line'], ['crop', 'Cutting guides']],
   defaults: {
     toggles: { accents: true, border: false, crop: false },
-    data: { game: 'bingo', title: '', honoree: 'for Emma & Jake', cardCount: '6', seed: '1', free: 'FREE', items: GIFTS.join('\n'), prompts: PROMPTS.join('\n'), perPage: '2', advicePrompt: 'My advice for the parents-to-be:' },
+    sample: { honoree: 'for Emma & Jake' },
+    data: { game: 'bingo', title: '', cardCount: '6', seed: '1', free: 'FREE', items: GIFTS.join('\n'), prompts: PROMPTS.join('\n'), perPage: '2', advicePrompt: 'My advice for the parents-to-be:' },
   },
   sections: [{
     title: 'Game',

@@ -20,9 +20,11 @@ function zodiacOf(iso) {
   for (const [sm, sd, name, sym] of starts) if (mo > sm || (mo === sm && da >= sd)) sign = [name, sym];
   return `${sign[0]} ${sign[1]}︎`;
 }
+const initials = (a, b) => [a, b].map(s => (String(s || '').trim()[0] || '')).join('').toUpperCase();
 function derived(d) {
   const g = parseFloat(d.weightG), c = parseFloat(d.heightCm);
-  return { ...d, dateISO: d.date || '', weightN: g > 0 ? Math.round(g) : '', heightN: c > 0 ? +c.toFixed(1) : '', date: fmtDate(d.date), time: d.time || '', zodiac: zodiacOf(d.date),
+  const parents = [d.mother, d.father].map(s => String(s || '').trim()).filter(Boolean).join(' & ');
+  return { ...d, monogram: String(d.monogram || '').trim().toUpperCase() || initials(d.firstName, d.lastName), parents, dateISO: d.date || '', weightN: g > 0 ? Math.round(g) : '', heightN: c > 0 ? +c.toFixed(1) : '', date: fmtDate(d.date), time: d.time || '', zodiac: zodiacOf(d.date),
     weight: g > 0 ? `${Math.round(g)} G` : '', weightSub: '',
     height: c > 0 ? `${+c.toFixed(1)} CM` : '', heightSub: '' };
 }
@@ -44,17 +46,29 @@ export default {
   photo: true,
   defaults: {
     toggles: { name: true, monogram: true, date: true, time: true, weight: true, height: true, location: true, city: true, coords: true, parents: true, zodiac: true, moon: true, quote: true },
-    data: { firstName: 'AURELIA', lastName: 'VALENTINE', monogram: 'AV', date: '2026-10-10', time: '08:42', weightG: '3450', heightCm: '51',
-            location: 'City General Hospital', city: 'Your City, Country', coords: '45.0000° N, 15.0000° E', parents: 'EMMA & MARK', quote: 'Little miracle, endless love.' },
+    data: { monogram: '', date: '2026-10-10', time: '08:42' },
+    sample: { firstName: 'AURELIA', lastName: 'VALENTINE', weightG: '3450', heightCm: '51', location: 'City General Hospital', city: 'Your City, Country',
+              coords: '45.0000° N, 15.0000° E', mother: 'EMMA', father: 'MARK', quote: 'Little miracle, endless love.' },
+    sampleGroups: [['firstName', 'lastName'], ['mother', 'father'], ['weightG', 'heightCm'], ['location', 'city', 'coords']],
   },
   extraOrnaments: [['moon', 'Moon on the birth date (Celestial and Cyber designs)', true]],
+  /* Older saves had one "parents" field ("EMMA & MARK"); split it into mother and father. */
+  migrate(d) {
+    if (d.parents === undefined || d.mother !== undefined) return;
+    const p = String(d.parents).trim();
+    if (p && p !== 'EMMA & MARK') { const [m, ...f] = p.split(/\s*(?:&|\+|\band\b)\s*/i); d.mother = m || ''; d.father = f.join(' & '); }
+    if (d.monogram === 'AV') d.monogram = '';
+    delete d.parents;
+  },
   sections: [{
     title: 'Details',
     boxes: [
+      { fields: [{ type: 'note', text: 'Grey text is only an example and stays on the card until you type your own. Untick a line to leave it off.' }] },
       { toggles: [['name', 'Baby name'], ['monogram', 'Initials']], cols: 3, fields: [
-        { key: 'firstName', type: 'text', ph: 'First name', span: 2, maxlength: 40 },
-        { key: 'monogram', type: 'text', ph: 'AV', maxlength: 3, cls: 'text-center uppercase font-bold' },
-        { key: 'lastName', type: 'text', ph: 'Last name', span: 3, maxlength: 40 } ] },
+        { key: 'firstName', type: 'text', label: 'First name', span: 2, maxlength: 40 },
+        { key: 'monogram', type: 'text', label: 'Initials', autoPh: 'monogram', maxlength: 3, cls: 'text-center uppercase font-bold' },
+        { key: 'lastName', type: 'text', label: 'Last name', span: 3, maxlength: 40 },
+        { type: 'note', span: 3, text: 'Initials are made from the name. Type in the box only to change them.' } ] },
       { toggles: [['date', 'Birth date'], ['time', 'Time']], cols: 2, fields: [
         { key: 'date', type: 'date', label: 'Date of birth', min: '1900-01-01' },
         { key: 'time', type: 'time', label: 'Time (24 h)' } ] },
@@ -66,8 +80,10 @@ export default {
         { key: 'location', type: 'text', ph: 'Medical center', span: 2, maxlength: 60 },
         { key: 'city', type: 'text', ph: 'City, Country', maxlength: 60 },
         { key: 'coords', type: 'text', ph: '45.0000° N, 15.0000° E', maxlength: 40 } ] },
-      { toggles: [['parents', 'Parents'], ['zodiac', 'Star sign']], cols: 2, fields: [
-        { key: 'parents', type: 'text', label: 'Parents', ph: 'EMMA & MARK', maxlength: 50 },
+      { toggles: [['parents', 'Parents']], cols: 2, fields: [
+        { key: 'mother', type: 'text', label: 'Mother', maxlength: 24 },
+        { key: 'father', type: 'text', label: 'Father', maxlength: 24 } ] },
+      { toggles: [['zodiac', 'Star sign']], fields: [
         { key: 'zodiac', type: 'readout', label: 'Star sign (filled in for you)', empty: 'Pick a birth date' } ] },
       { toggles: [['quote', 'Short message']], fields: [ { key: 'quote', type: 'text', ph: 'Little miracle, endless love.', maxlength: 90 } ] },
     ],
