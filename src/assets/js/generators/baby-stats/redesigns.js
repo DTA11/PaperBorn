@@ -91,7 +91,7 @@ const vintage = (e, t, f) => {
       <div style="display:flex;align-items:center;justify-content:space-between;gap:${n1(10 * u)}px">
         ${ear('WEATHER', 'Sunny, with a chance of naps')}
         <div style="min-width:0">
-          <div style="font-weight:700;font-size:${n1(W * .6 / 9.6)}px;line-height:1;letter-spacing:.02em;white-space:nowrap">The Daily Cuddle</div>
+          <div style="font-weight:700;font-size:${n1(W * .56 / 13)}px;line-height:1;letter-spacing:.01em;white-space:nowrap">The Daily Cuddle</div>
           <div style="font-style:italic;font-size:${n1(11 * u)}px;margin-top:${n1(4 * u)}px">“All the news that’s fit to cuddle” · Est. ${e.dateISO ? e.dateISO.slice(0, 4) : 'today'}</div>
         </div>
         ${ear('PRICE', 'One big cuddle')}

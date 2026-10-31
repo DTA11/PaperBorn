@@ -77,10 +77,14 @@ export function scallopPath(cx, cy, rx, ry, n = 44) {
 }
 
 /* Watercolor rainbow arch: bands from outside in, centred at (cx, cy) on its base line */
-export const rainbowArch = (p, cx, cy, r, bandW, colors) => colors.map((c, i) => {
-  const rr = r - i * bandW - bandW / 2;
-  return `<path d="M${(cx - rr).toFixed(1)} ${cy} A${rr.toFixed(1)} ${rr.toFixed(1)} 0 0 1 ${(cx + rr).toFixed(1)} ${cy}" fill="none" stroke="${c}" stroke-width="${(bandW * .92).toFixed(1)}" stroke-linecap="round" filter="url(#${p}w)"/>`;
-}).join('');
+/* Clean, smooth bands (no watercolor wobble) with an even hairline gap; the rounded ends rest on the base line. */
+export const rainbowArch = (p, cx, cy, r, bandW, colors) => {
+  const w = bandW * .9, y = cy - w / 2;
+  return colors.map((c, i) => {
+    const rr = r - i * bandW - bandW / 2;
+    return `<path d="M${(cx - rr).toFixed(2)} ${y.toFixed(2)} A${rr.toFixed(2)} ${rr.toFixed(2)} 0 0 1 ${(cx + rr).toFixed(2)} ${y.toFixed(2)}" fill="none" stroke="${c}" stroke-width="${w.toFixed(2)}" stroke-linecap="round"/>`;
+  }).join('');
+};
 
 /* Pampas grass plume and a leafy boho sprig, base at (x,y), pointing up then rotated */
 export const pampas = (x, y, s, rot, c = '#e6cfae', stem = '#b89a73') => {
