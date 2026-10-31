@@ -102,3 +102,50 @@ export function newsprint(w, lines, c = '#2b2118', lh = 9) {
   for (let i = 0; i < lines; i++) { const last = i === lines - 1 || rnd() < .12, len = last ? w * (.3 + rnd() * .4) : w * (.92 + rnd() * .08); o += `<rect x="0" y="${i * lh}" width="${len.toFixed(1)}" height="${(lh * .42).toFixed(1)}" rx="1" fill="${c}" opacity=".32"/>`; }
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${lines * lh}" viewBox="0 0 ${w} ${lines * lh}" style="display:block">${o}</svg>`;
 }
+
+/* ---------- Holiday pieces ---------- */
+/* Six-armed snowflake */
+export const snowflake = (x, y, s, c = '#fff', op = .9) => {
+  let arms = '';
+  for (let i = 0; i < 6; i++) arms += `<g transform="rotate(${i * 60})"><path d="M0 0V-12M0 -7L-3.5 -10M0 -7L3.5 -10"/></g>`;
+  return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s})" stroke="${c}" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="${op}">${arms}</g>`;
+};
+/* Little fir tree with baubles and a star; base centre at (x,y), about 120*s tall */
+export const xmasTree = (x, y, s, green = '#5f8f6b', dark = '#4a7656') => {
+  const tier = (w, top, bot, c) => `<path d="M0 ${top} C${-w * .2} ${top + (bot - top) * .4} ${-w * .55} ${bot - 6} ${-w} ${bot} C${-w * .4} ${bot + 6} ${w * .4} ${bot + 6} ${w} ${bot} C${w * .55} ${bot - 6} ${w * .2} ${top + (bot - top) * .4} 0 ${top}Z" fill="${c}"/>`;
+  return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s})">
+    <rect x="-7" y="-14" width="14" height="16" rx="2" fill="#9a6b4a"/>
+    ${tier(48, -62, -12, dark)}${tier(38, -92, -46, green)}${tier(26, -118, -80, dark)}
+    <g><circle cx="-20" cy="-22" r="4.5" fill="#d9534f"/><circle cx="18" cy="-30" r="4.5" fill="#f2c14e"/><circle cx="-8" cy="-56" r="4" fill="#f2c14e"/>
+      <circle cx="14" cy="-64" r="4" fill="#d9534f"/><circle cx="-4" cy="-90" r="3.5" fill="#d9534f"/><circle cx="26" cy="-16" r="3.5" fill="#fff"/></g>
+    <path d="M-30 -36 C-10 -30 10 -40 30 -34M-22 -70 C-6 -66 8 -74 22 -70" stroke="#f6e7b4" stroke-width="2" fill="none" opacity=".8"/>
+    <path transform="translate(0 -124)" d="M0 -11 L3 -3 L11 -3 L5 2 L7 10 L0 5 L-7 10 L-5 2 L-11 -3 L-3 -3Z" fill="#f2c14e" stroke="#d9a62e" stroke-width="1"/></g>`;
+};
+/* Wrapped gift box, base centre at (x,y) */
+export const gift = (x, y, s, box = '#d9534f', ribbon = '#f6e7b4', w = 40, h = 30) => `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s})">
+  <rect x="${-w / 2}" y="${-h}" width="${w}" height="${h}" rx="3" fill="${box}"/><rect x="${-w / 2 - 3}" y="${-h - 8}" width="${w + 6}" height="10" rx="2" fill="${box}" stroke="rgba(0,0,0,.08)"/>
+  <rect x="-4" y="${-h - 8}" width="8" height="${h + 8}" fill="${ribbon}"/>
+  <path d="M0 ${-h - 8} C-10 ${-h - 22} -22 ${-h - 14} -12 ${-h - 8}M0 ${-h - 8} C10 ${-h - 22} 22 ${-h - 14} 12 ${-h - 8}" stroke="${ribbon}" stroke-width="4" fill="none" stroke-linecap="round"/></g>`;
+/* Santa hat sized for the animals' heads (head centre 0,0, top of head about y=-54) */
+export const santaHat = (rot = -10) => `<g transform="translate(4 -50) rotate(${rot})">
+  <path d="M-46 4 C-40 -40 -6 -66 30 -58 C46 -54 58 -40 62 -24 C52 -34 40 -38 30 -32 C24 -18 26 -4 30 6Z" fill="#d23c45" stroke="#a82c35" stroke-width="1.4" stroke-linejoin="round"/>
+  <path d="M-40 -6 C-34 -34 -8 -52 18 -50" stroke="#e8606a" stroke-width="5" fill="none" stroke-linecap="round" opacity=".6"/>
+  <circle cx="62" cy="-22" r="11" fill="#fdfaf5" stroke="#e2dccf" stroke-width="1.4"/>
+  <rect x="-52" y="-4" width="88" height="20" rx="10" fill="#fdfaf5" stroke="#e2dccf" stroke-width="1.4"/></g>`;
+/* Wreath of leaves and berries around (cx,cy) radius r */
+export const wreath = (cx, cy, r, s = 1, leafA = '#3f7a52', leafB = '#5e9a6c', berry = '#d23c45') => {
+  let o = '';
+  const n = Math.round(r / 3.2);
+  for (let i = 0; i < n; i++) {
+    const a = i / n * 2 * Math.PI, x = cx + r * Math.cos(a), y = cy + r * Math.sin(a), deg = a * 180 / Math.PI;
+    o += `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(deg + 90 + (i % 2 ? 28 : -28)).toFixed(1)}) scale(${s})"><path d="M0 0 C7 -14 22 -18 30 -15 C26 -5 14 4 0 0Z" fill="${i % 2 ? leafA : leafB}"/></g>`;
+    if (i % 7 === 3) o += `<circle cx="${(cx + (r + 4 * s) * Math.cos(a + .05)).toFixed(1)}" cy="${(cy + (r + 4 * s) * Math.sin(a + .05)).toFixed(1)}" r="${(4.2 * s).toFixed(1)}" fill="${berry}"/>`;
+  }
+  return o;
+};
+/* Firework burst */
+export const burst = (x, y, r, c, op = .9) => {
+  let o = '';
+  for (let i = 0; i < 16; i++) { const a = i / 16 * 2 * Math.PI, r0 = r * .35, r1 = r * (i % 2 ? .8 : 1); o += `<path d="M${(x + r0 * Math.cos(a)).toFixed(1)} ${(y + r0 * Math.sin(a)).toFixed(1)}L${(x + r1 * Math.cos(a)).toFixed(1)} ${(y + r1 * Math.sin(a)).toFixed(1)}"/><circle cx="${(x + (r1 + r * .08) * Math.cos(a)).toFixed(1)}" cy="${(y + (r1 + r * .08) * Math.sin(a)).toFixed(1)}" r="${(r * .035).toFixed(1)}" fill="${c}" stroke="none"/>`; }
+  return `<g stroke="${c}" stroke-width="${(r * .03).toFixed(1)}" stroke-linecap="round" opacity="${op}">${o}</g>`;
+};

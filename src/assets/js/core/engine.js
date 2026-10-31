@@ -655,6 +655,12 @@ export async function boot(definition) {
   def = definition; ctx.def = definition;
   Object.assign(state, freshState());
   loadSaved();
+  /* Links can open a design and greeting directly, e.g. ?design=xmas_red&greeting=newyear (used by the holiday guide). */
+  try {
+    const q = new URLSearchParams(location.search), dz = q.get('design'), gr = q.get('greeting');
+    if (dz && def.themes[dz]) { state.theme = dz; state.fontMode = def.themes[dz].font; if (def.photo) { const th = def.themes[dz]; if (th.shape) state.photo.shape = th.shape; if (th.filter) state.photo.filterMode = th.filter; } }
+    if (gr && 'greeting' in state.data) state.data.greeting = gr;
+  } catch (_) {}
   $('controls-inner').innerHTML = buildControls();
   setTimeout(() => fixGap($('editor')), 0);
   if (!matchMedia('(min-width:1024px)').matches) document.querySelectorAll('[data-acc]:not([data-keep])').forEach(d => { d.open = false; });

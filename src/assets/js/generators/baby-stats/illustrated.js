@@ -206,3 +206,4 @@ export const NEW_DECOR = {
   animals_blue: laDecor('blue'), animals_pink: laDecor('pink'), balloons: balloonsDecor,
   bow_blue: bowDecor('blue'), bow_pink: bowDecor('pink'), elephants: elephantsDecor,
 };
+export { U, fit, nice, statList, where, photoAt, svgBox, full, footer, pills, lowerBlock, dashedBorder, animalOf };

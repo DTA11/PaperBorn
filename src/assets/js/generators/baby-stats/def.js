@@ -3,10 +3,11 @@ import { THEMES } from './themes.js';
 import { TEMPLATES, DECOR } from './templates.js';
 import { NEW_THEMES, NEW_TEMPLATES, NEW_DECOR } from './illustrated.js';
 import { REDESIGN_THEMES, REDESIGN_TEMPLATES, REDESIGN_DECOR } from './redesigns.js';
+import { HOLIDAY_THEMES, HOLIDAY_TEMPLATES, HOLIDAY_DECOR, GREETINGS } from './holiday.js';
 import { ANIMALS, ANIMAL_ORDER } from '../../core/animals.js';
 
 /* New illustrated designs first, then the originals (four of them redesigned, same ids so saved cards keep working). */
-const ALL_THEMES = { ...NEW_THEMES, ...Object.fromEntries(Object.entries(THEMES).map(([k, v]) => [k, REDESIGN_THEMES[k] || v])) };
+const ALL_THEMES = { ...NEW_THEMES, ...HOLIDAY_THEMES, ...Object.fromEntries(Object.entries(THEMES).map(([k, v]) => [k, REDESIGN_THEMES[k] || v])) };
 
 /* ---------- Derived values: calendar date, grams, cm, zodiac ---------- */
 function fmtDate(iso) {
@@ -52,7 +53,7 @@ export default {
   photo: true,
   defaults: {
     toggles: { name: true, monogram: true, date: true, time: true, weight: true, height: true, location: true, city: true, coords: true, parents: true, zodiac: true, moon: true, quote: true },
-    data: { monogram: '', date: '2026-10-10', time: '08:42', animal: 'elephant' },
+    data: { monogram: '', date: '2026-10-10', time: '08:42', animal: 'elephant', greeting: 'auto' },
     sample: { firstName: 'AURELIA', lastName: 'VALENTINE', weightG: '3450', heightCm: '51', location: 'City General Hospital', city: 'Your City, Country',
               coords: '45.0000° N, 15.0000° E', mother: 'EMMA', father: 'MARK', quote: 'Little miracle, endless love.' },
     sampleGroups: [['firstName', 'lastName'], ['mother', 'father'], ['weightG', 'heightCm'], ['location', 'city', 'coords']],
@@ -89,7 +90,8 @@ export default {
       { toggles: [['parents', 'Parents']], cols: 2, fields: [
         { key: 'mother', type: 'text', label: 'Mother', maxlength: 24 },
         { key: 'father', type: 'text', label: 'Father', maxlength: 24 } ] },
-      { fields: [{ key: 'animal', type: 'select', label: 'Animal (Little Animals designs)', options: ANIMAL_ORDER.map(k => [k, ANIMALS[k].name]) }] },
+      { fields: [{ key: 'animal', type: 'select', label: 'Animal (Little Animals and Christmas designs)', options: ANIMAL_ORDER.map(k => [k, ANIMALS[k].name]) }] },
+      { fields: [{ key: 'greeting', type: 'select', label: 'Greeting (Christmas and New Year designs)', options: GREETINGS }] },
       { toggles: [['zodiac', 'Star sign']], fields: [
         { key: 'zodiac', type: 'readout', label: 'Star sign (filled in for you)', empty: 'Pick a birth date' } ] },
       { toggles: [['quote', 'Short message']], fields: [ { key: 'quote', type: 'text', ph: 'Little miracle, endless love.', maxlength: 90 } ] },
@@ -105,11 +107,11 @@ export default {
   derive: derived,
   /* Hospital name and city are separate switches; the designs only know one "location" switch, so adapt here:
      whichever of the two is switched on takes the place the design reserves for the hospital (Playful only has a city slot). */
-  templates: Object.fromEntries(Object.entries({ ...NEW_TEMPLATES, ...TEMPLATES, ...REDESIGN_TEMPLATES }).map(([id, fn]) => [id, (e, t, f, dv, pg) => {
+  templates: Object.fromEntries(Object.entries({ ...NEW_TEMPLATES, ...HOLIDAY_TEMPLATES, ...TEMPLATES, ...REDESIGN_TEMPLATES }).map(([id, fn]) => [id, (e, t, f, dv, pg) => {
     const hos = t.location ? e.location : '', city = t.city ? e.city : '';
     const e2 = id === 'playful' ? { ...e, location: hos, city: city || hos }
       : { ...e, location: hos || city, city: hos ? city : '' };
     return fn(e2, { ...t, location: !!(hos || city) }, f, dv, pg);
   }])),
-  decor: { ...DECOR, ...NEW_DECOR, ...REDESIGN_DECOR },
+  decor: { ...DECOR, ...NEW_DECOR, ...HOLIDAY_DECOR, ...REDESIGN_DECOR },
 };
