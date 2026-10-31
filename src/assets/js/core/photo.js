@@ -77,19 +77,26 @@ export function syncPhotoURL() {
   if (key !== photo.key) { photo.url = buildPhotoURL(); photo.key = key; }
 }
 
+export function clearPhoto() { photo.source = null; photo.srcId++; photo.key = ''; photo.url = ''; photo.canvas = null; }
 export async function setPhotoSource(src) {
   try { photo.source = await loadSource(src); photo.srcId++; photo.key = ''; }
   catch (err) { console.warn('Photo failed to load:', err); photo.source = null; }
 }
 
 /* Photo frame HTML. hMul scales the frame height relative to the format's photoH. */
-export function photoHTML(extraStyle = '', hMul = 1) {
+export function photoHTML(extraStyle = '', hMul = 1, emptyStyle = '') {   // emptyStyle: extra style for the empty "add a photo" spot only
   if (!state.toggles.photo) return '';
   const f = fmt(), sh = SHAPES[state.photo.shape] || SHAPES.rectangle, p = state.photo;
   const H = Math.round((f.photoH || 360) * hMul);
   const size = sh.ratio ? `width:${Math.round(H * sh.ratio)}px;height:${H}px;max-width:100%;` : `width:100%;height:${H}px;`;
   const base = `${size}margin-inline:auto;position:relative;overflow:hidden;border-radius:${sh.radius};touch-action:none;cursor:grab;${extraStyle}`;
-  if (!photo.url) return `<div style="${base}display:flex;align-items:center;justify-content:center;border:1px dashed currentColor;opacity:.5;font-size:11px;text-align:center;padding:8px">Upload a photo</div>`;
+  if (!photo.url) {                                   // empty spot: a hint on screen, hidden (but still taking its space) in downloads
+    const fs = Math.max(12, Math.min(22, H * .07));
+    return `<div data-ph-empty data-add-photo role="button" aria-label="Add a photo" style="${base}cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed currentColor;background:rgba(128,128,128,.12);color:inherit;text-align:center;padding:8px;box-sizing:border-box;${emptyStyle}"><div style="opacity:.72;display:flex;flex-direction:column;align-items:center">` +
+      `<svg width="${Math.round(fs * 2.2)}" height="${Math.round(fs * 2.2)}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="opacity:.75" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>` +
+      `<span style="font-size:${fs.toFixed(1)}px;font-weight:600;margin-top:${(fs * .4).toFixed(1)}px;font-family:system-ui,-apple-system,sans-serif">Tap to add a photo</span>` +
+      `<span style="font-size:${(fs * .72).toFixed(1)}px;margin-top:2px;opacity:.75;font-family:system-ui,-apple-system,sans-serif">Not printed</span></div></div>`;
+  }
   // Non-hexagon photos are cropped on a canvas by bakeFrames() after layout, so the preview and the export use identical pixels
   // (html2canvas does not reproduce object-fit + transform reliably). The hexagon is already baked in buildPhotoURL().
   const bakeAttr = p.shape === 'hexagon' ? '' : ' data-ph';

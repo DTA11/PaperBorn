@@ -6,7 +6,10 @@ export async function renderToCanvas(el, f, bg, maxScale = 3) {
   return window.html2canvas(el, {
     scale, useCORS: true, logging: false, backgroundColor: bg,
     width: f.w, height: f.h, windowWidth: Math.max(f.w, innerWidth),
-    onclone: doc => { const s = doc.getElementById('card-scale'); if (s) s.style.transform = 'none'; },
+    onclone: doc => {
+      const s = doc.getElementById('card-scale'); if (s) s.style.transform = 'none';
+      doc.querySelectorAll('[data-ph-empty]').forEach(n => { n.style.visibility = 'hidden'; });   // the "add a photo" hint is never printed
+    },
   });
 }
 

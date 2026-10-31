@@ -31,11 +31,17 @@
           </div>
         </div>
       </div>
+      <div id="design-nav" data-html2canvas-ignore="true">
+        <button id="design-prev" type="button" aria-label="Previous design">&#8249;</button>
+        <span id="design-name" aria-live="polite"><span id="design-title"></span><span id="design-hint">Swipe the card to change the design</span></span>
+        <button id="design-next" type="button" aria-label="Next design">&#8250;</button>
+      </div>
     </div>
   </div>
   <dialog id="dl-dialog" class="rounded-xl border border-zinc-700 bg-zinc-950 text-zinc-200 p-0 w-[calc(100%-2rem)] max-w-md backdrop:bg-black/70">
     <div class="p-5 space-y-3">
       <h2 class="text-sm font-bold uppercase tracking-widest text-white">Download your card</h2>
+      <p id="dl-note" class="hidden text-xs" style="color:#fcd34d">No photo added yet: the photo spot will be left empty. Add a photo, or switch off “Show photo” in the Photo section.</p>
       <button type="button" data-dl="standard" class="w-full text-left rounded-lg border border-zinc-700 hover:border-indigo-400 hover:bg-zinc-900 p-4">
         <span class="block font-bold text-white">Print at home <span class="font-normal text-zinc-400">(PDF)</span></span>
         <span class="block text-xs text-zinc-400 mt-1">A document ready for your own printer. Small file.</span>

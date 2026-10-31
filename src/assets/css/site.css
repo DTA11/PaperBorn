@@ -91,3 +91,17 @@ dialog.dlg-fallback { position: fixed; left: 50%; top: 50%; transform: translate
 #big-preview.dlg-fallback { left: 0; top: 0; transform: none; box-shadow: none; }
 /* Older Safari (before iOS 15): no aspect-ratio. Let square pattern boxes and bingo boards fill the width instead. */
 @supports not (aspect-ratio: 1 / 1) { .ar-box { width: 100%; } }
+
+/* Design picker on phones and tablets: a swipeable row of names, and a bar under the card */
+#style-strip { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; padding: 2px 0 6px; scrollbar-width: none; }
+#style-strip::-webkit-scrollbar { display: none; }
+#style-strip button { flex: none; scroll-snap-align: start; display: flex; align-items: center; margin-right: 8px; padding: 10px 14px; border-radius: 999px; border: 1px solid #3f3f46; background: #18181b; color: #d4d4d8; font-size: 14px; white-space: nowrap; }
+#style-strip button i { width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; border: 1px solid rgba(255,255,255,.35); flex: none; }
+#style-strip button.on { border-color: #6366f1; background: rgba(49,46,129,.6); color: #fff; font-weight: 700; }
+#design-nav { display: flex; align-items: center; padding: 8px 12px; background: #000; border-top: 1px solid #27272a; color: #e4e4e7; }
+#design-nav button { flex: none; width: 44px; height: 40px; border-radius: 8px; background: #27272a; color: #fff; font-size: 24px; line-height: 1; }
+#design-name { flex: 1; min-width: 0; margin: 0 10px; text-align: center; }
+#design-title { display: block; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#design-hint { display: block; font-size: 11px; color: #a1a1aa; margin-top: 2px; }
+#sizer { will-change: transform; }
+@media (min-width: 1024px) { #style-strip, #design-nav { display: none; } }

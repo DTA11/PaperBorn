@@ -42,7 +42,7 @@ const editorial = (e, t, f) => {
   /* big photo, in front of the masthead */
   const ph = { ...g.photo, y: Math.max(H * .1, mBot - ms * .14) };              // tucks in front of the bottom of the masthead
   ph.h = Math.min(H * .84 - ph.y, H * .64);
-  parts.push(at(ph.x, ph.y, ph.w, t.photo ? photoHTML(`box-shadow:0 ${n1(14 * u)}px ${n1(30 * u)}px rgba(60,10,20,.22);`, ph.h / (f.photoH || 360))
+  parts.push(at(ph.x, ph.y, ph.w, t.photo ? photoHTML(`box-shadow:0 ${n1(14 * u)}px ${n1(30 * u)}px rgba(60,10,20,.22);`, ph.h / (f.photoH || 360), `background:${ED.cream};color:${ED.ink}`)
     : `<div style="height:${n1(ph.h)}px;background:linear-gradient(160deg,${ED.rose},${ED.wine})"></div>`, 'z-index:1'));
   /* vertical last name up the left side */
   if (t.name && e.lastName) {
@@ -57,7 +57,8 @@ const editorial = (e, t, f) => {
   /* small inset of the photo, bottom left */
   if (t.photo && t.accents) {                                                     // sits just above the footer line on every paper size
     const iw = Math.min(W * .15, H * .11), ih = iw * .9;
-    parts.push(at(W * .05, H - 34 * u - ih, iw, photoHTML(`border:${n1(3 * u)}px solid ${ED.cream};box-shadow:0 0 0 1px ${ED.wine};`, ih / (f.photoH || 360)), ''));
+    const inset = photoHTML(`border:${n1(3 * u)}px solid ${ED.cream};box-shadow:0 0 0 1px ${ED.wine};`, ih / (f.photoH || 360));
+    if (inset.indexOf('data-ph-empty') < 0) parts.push(at(W * .05, H - 34 * u - ih, iw, inset, ''));   // the small copy only appears once there is a photo
   }
   /* stats on the red panel, right of the photo */
   const stats = [['Weight', t.weight && e.weight], ['Length', t.height && e.height], ['Time', t.time && e.time], ['Sign', t.zodiac && e.zodiac]].filter(r => r[1]);

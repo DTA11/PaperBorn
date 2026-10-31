@@ -5,7 +5,7 @@ import { $, esc, clone, track } from './util.js';
 import { fixGap } from './compat.js';
 import { state, ctx, fmt } from './state.js';
 import { FONTS, FONT_LABELS, loadFonts } from './fonts.js';
-import { photo, setPhotoSource, syncPhotoURL, bakeFrames, initPhotoDrag, SHAPE_LABELS, FILTER_LABELS } from './photo.js';
+import { photo, setPhotoSource, clearPhoto, syncPhotoURL, bakeFrames, initPhotoDrag, SHAPE_LABELS, FILTER_LABELS } from './photo.js';
 import { renderToCanvas, pageMM, addBleed, newPDF, addPageToPDF, downloadBlob } from './export.js';
 
 let def;
@@ -64,7 +64,7 @@ function savePhoto() {
 async function loadPhoto() {
   let saved = null; try { saved = localStorage.getItem(photoKey()); } catch (_) {}
   if (saved) { await setPhotoSource(saved); if (photo.source) return; try { localStorage.removeItem(photoKey()); } catch (_) {} }
-  await setPhotoSource(def.sampleImage);
+  clearPhoto();                                   // no sample picture: the card shows a "Tap to add a photo" spot
 }
 
 let saveTimer;
@@ -162,7 +162,7 @@ function buildControls() {
   const CHEV = '<svg class="w-4 h-4 text-zinc-500 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   /* Each section is a collapsible <details>; on phones only the ones marked "keep" start open. */
   const sec = (title, body, extra = '', keep = false) => `<details class="sec group" data-acc ${keep ? 'data-keep' : ''} open><summary class="flex justify-between items-center gap-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden"><h2 class="h2">${++n}. ${title}</h2><span class="flex items-center gap-3">${extra}${CHEV}</span></summary><div class="space-y-3 pt-3">${body}</div></details>`;
-  let html = sec((def.ui && def.ui.themeTitle) || 'Design', '<div id="style-grid" class="hidden lg:grid grid-cols-2 gap-2"></div><select id="style-select" aria-label="Design" class="inp lg:hidden !text-base !py-2.5"></select>',
+  let html = sec((def.ui && def.ui.themeTitle) || 'Design', '<div id="style-grid" class="hidden lg:grid grid-cols-2 gap-2"></div><div id="style-strip" role="listbox" aria-label="Design"></div>',
     `<span class="text-[10px] text-zinc-500 font-mono">${Object.keys(def.themes).length} DESIGNS</span>`, true);
 
   for (const s of def.sections) html += sec(s.title, s.boxes.map(boxHTML).join(''), '', true);
@@ -212,13 +212,49 @@ function buildStyleGrid() {
   $('style-grid').innerHTML = ids.map((id, i) =>
     `<button type="button" data-style="${id}" class="style-btn"><span class="block text-xs">${i + 1}) ${def.themes[id].name}</span><span class="block text-[9px] text-zinc-500 mt-0.5">${def.themes[id].desc}</span></button>`).join('');
   $('style-grid').addEventListener('click', ev => { const b = ev.target.closest('[data-style]'); if (b) setTheme(b.dataset.style); });
-  const ss = $('style-select');
-  ss.innerHTML = ids.map((id, i) => `<option value="${id}">${i + 1}) ${esc(def.themes[id].name)}</option>`).join('');
-  ss.addEventListener('change', () => setTheme(ss.value));
+  /* Phones and tablets: a row of design names to swipe through, plus swiping the card itself. */
+  const strip = $('style-strip');
+  strip.innerHTML = ids.map(id => `<button type="button" role="option" data-style="${id}"><i style="background:${def.themes[id].bg}"></i>${esc(def.themes[id].name)}</button>`).join('');
+  strip.addEventListener('click', ev => { const b = ev.target.closest('[data-style]'); if (b) setTheme(b.dataset.style); });
+  $('design-prev').addEventListener('click', () => stepTheme(-1));
+  $('design-next').addEventListener('click', () => stepTheme(1));
+  initSwipe();
+}
+
+function stepTheme(dir) {
+  const ids = Object.keys(def.themes), i = ids.indexOf(state.theme), next = ids[(i + dir + ids.length) % ids.length];
+  const s = $('sizer');
+  s.style.transition = 'transform .13s ease-in, opacity .13s ease-in'; s.style.transform = `translateX(${-dir * 48}px)`; s.style.opacity = '0';
+  setTimeout(() => {
+    setTheme(next);
+    s.style.transition = 'none'; s.style.transform = `translateX(${dir * 48}px)`; void s.offsetWidth;
+    s.style.transition = 'transform .18s ease-out, opacity .18s ease-out'; s.style.transform = ''; s.style.opacity = '';
+  }, 130);
+  try { localStorage.setItem('paperborn:swiped', '1'); } catch (_) {}
+  const h = $('design-hint'); if (h) h.style.display = 'none';
+}
+/* Swipe left/right on the preview to change the design (touch only; dragging the photo is left alone). */
+function initSwipe() {
+  const st = $('stage'); let t0 = null;
+  st.addEventListener('touchstart', e => {
+    t0 = e.touches.length === 1 && !e.target.closest('[data-phf]') ? { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() } : null;
+  }, { passive: true });
+  st.addEventListener('touchend', e => {
+    if (!t0 || isDesktop()) return;
+    const p = e.changedTouches[0], dx = p.clientX - t0.x, dy = p.clientY - t0.y; t0 = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.6) stepTheme(dx < 0 ? 1 : -1);
+  }, { passive: true });
+  try { if (localStorage.getItem('paperborn:swiped')) $('design-hint').style.display = 'none'; } catch (_) {}
 }
 
 function syncForm() {
-  const ssel = $('style-select'); if (ssel) ssel.value = state.theme;
+  const ids0 = Object.keys(def.themes), strip = $('style-strip');
+  if (strip) {
+    strip.querySelectorAll('[data-style]').forEach(b => { const on = b.dataset.style === state.theme; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+    const cur = strip.querySelector('.on');                         // keep the chosen name in view without scrolling the page
+    if (cur) { const l = cur.offsetLeft - strip.offsetLeft, r = l + cur.offsetWidth; if (l < strip.scrollLeft || r > strip.scrollLeft + strip.clientWidth) strip.scrollLeft = Math.max(0, l - 24); }
+  }
+  const dt = $('design-title'); if (dt) dt.textContent = `${ids0.indexOf(state.theme) + 1} / ${ids0.length} · ${def.themes[state.theme].name}`;
   document.querySelectorAll('[data-f]').forEach(el => { el.value = nn(state.data[el.dataset.f], ''); });
   document.querySelectorAll('[data-m]').forEach(box => {
     const sel = state.data[box.dataset.m] || [];
@@ -313,7 +349,7 @@ const miniScale = () => { const f = fmt(); return Math.min(Math.min(innerWidth *
 function cardCopy() {
   const c = $('card-target').cloneNode(true);
   c.removeAttribute('id'); c.style.transform = '';
-  c.querySelectorAll('[data-add-photo]').forEach(n => n.remove());
+  c.querySelectorAll('button[data-add-photo]').forEach(n => n.remove());
   c.querySelectorAll('[data-phf]').forEach(n => { n.removeAttribute('data-phf'); n.style.cursor = 'default'; });
   c.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
   return c;
@@ -562,13 +598,13 @@ function bindEvents() {
     Object.assign(state, freshState()); try { localStorage.removeItem(storeKey()); localStorage.removeItem(photoKey()); } catch (_) {}
     if ($('photo-file')) $('photo-file').value = '';
     syncForm();
-    if (def.photo) { await setPhotoSource(def.sampleImage); }
+    if (def.photo) clearPhoto();
     refresh(); commit(true);
   });
 
   const dlg = $('dl-dialog'), dlBtn = $('btn-download');
   const runDownload = kind => withBusy(dlBtn, 'Preparing…', () => kind === 'png' ? exportPNG() : exportPDF(kind));
-  dlBtn.addEventListener('click', () => openDlg(dlg));
+  dlBtn.addEventListener('click', () => { $('dl-note').classList.toggle('hidden', !(def.photo && state.toggles.photo && !photo.source)); openDlg(dlg); });
   dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-dl-cancel]')) closeDlg(dlg); });
   dlg.querySelectorAll('[data-dl]').forEach(b => b.addEventListener('click', () => { const kind = b.dataset.dl; closeDlg(dlg); runDownload(kind); }));
   if (def.photo) {
@@ -617,7 +653,6 @@ function bindEvents() {
 
 export async function boot(definition) {
   def = definition; ctx.def = definition;
-  if (!def.sampleImage) def.sampleImage = '/assets/img/placeholder-baby.svg';   // new file name on purpose: phones cache images for a day
   Object.assign(state, freshState());
   loadSaved();
   $('controls-inner').innerHTML = buildControls();

@@ -12,7 +12,7 @@ const cap1 = w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
 const nice = s => { const v = String(s || '').trim(), bare = v.replace(/&\w+;/g, ''); return v && bare === bare.toUpperCase() ? v.split(/(\s+|-)/).map(w => /\w/.test(w) ? cap1(w) : w).join('') : v; };
 const statList = (e, t) => [['Time', t.time && e.time], ['Weight', t.weight && e.weight], ['Length', t.height && e.height], ['Sign', t.zodiac && e.zodiac]].filter(r => r[1]);
 const where = (e, t) => t.location ? [e.location, e.city].filter(Boolean).join(', ') : '';
-const photoAt = (f, size, style = '') => photoHTML(style, size / (f.photoH || 360));       // '' when the photo is switched off
+const photoAt = (f, size, style = '', empty = '') => photoHTML(style, size / (f.photoH || 360), empty);       // '' when the photo is switched off
 const svgBox = (w, h, inner, z = 0) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w.toFixed(1)} ${h.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" style="position:absolute;left:0;top:0;pointer-events:none;z-index:${z}">${inner}</svg>`;
 const full = (f, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${f.w} ${f.h}" width="${f.w}" height="${f.h}" style="position:absolute;left:0;top:0;pointer-events:none">${inner}</svg>`;
 const animalOf = dv => ANIMALS[dv.animal] || ANIMALS.elephant;
@@ -62,7 +62,7 @@ function laScene(p, P, f, t, dv, u, W) {
     ${t.accents ? ground(p, W / 2, gy, Math.min(W * .92, D * 2.1 + 40), { flowers: P.flowers }) : `<ellipse cx="${W / 2}" cy="${gy}" rx="${(D * .9).toFixed(1)}" ry="${(12 * u).toFixed(1)}" fill="#e9e1d2" opacity=".75"/>`}`;
   const front = `<g transform="translate(${ax.toFixed(1)} ${ay.toFixed(1)}) scale(${sc.toFixed(3)})">${an.svg(p + 'a')}</g>`;
   return `<div style="position:relative;width:${W.toFixed(1)}px;height:${Hs.toFixed(1)}px;margin:0 auto">${svgBox(W, Hs, back)}
-    ${ph ? `<div style="position:absolute;left:${(pcx - D / 2).toFixed(1)}px;top:${(gy - D - 4 * u).toFixed(1)}px;width:${D}px;z-index:1">${photoAt(f, D, `border:${(6 * u).toFixed(1)}px solid #fff;box-shadow:0 0 0 ${(2 * u).toFixed(1)}px ${P.accent}66,0 ${(8 * u).toFixed(1)}px ${(20 * u).toFixed(1)}px rgba(0,0,0,.08);`)}</div>` : ''}
+    ${ph ? `<div style="position:absolute;left:${(pcx - D / 2).toFixed(1)}px;top:${(gy - D - 4 * u).toFixed(1)}px;width:${D}px;z-index:1">${photoAt(f, D, `border:${(6 * u).toFixed(1)}px solid #fff;box-shadow:0 0 0 ${(2 * u).toFixed(1)}px ${P.accent}66,0 ${(8 * u).toFixed(1)}px ${(20 * u).toFixed(1)}px rgba(0,0,0,.08);`, 'padding-right:30%')}</div>` : ''}
     ${svgBox(W, Hs, front, 2)}</div>`;
 }
 const laTemplate = pal => (e, t, f, dv) => {
