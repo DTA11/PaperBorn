@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { vendor, LIBS } from './vendor.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = path.join(ROOT, 'src');
@@ -51,7 +52,6 @@ fs.rmSync(DIST, { recursive: true, force: true });
 fs.mkdirSync(DIST, { recursive: true });
 
 const FONTS_FULL = 'https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@400;700&family=Fredoka:wght@400;600;700&family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap';
-const FONTS_BASE = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap';
 
 const pagesDir = path.join(SRC, 'pages');
 const sitemap = [];
@@ -79,9 +79,9 @@ for (const file of walk(pagesDir)) {
     robotsMeta: meta.noindex || !urlPath ? '<meta name="robots" content="noindex">' : '',
     h1: meta.h1 || meta.title || '',
     lead: meta.lead || '',
-    fonts: `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="${editor ? FONTS_FULL : FONTS_BASE}" rel="stylesheet">`,
+    fonts: '<link rel="stylesheet" href="/assets/css/fonts.css">',
     editorLibs: editor
-      ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>\n<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>' : '',
+      ? LIBS.map(l => `<script src="/assets/vendor/${l.out}"></script>`).join('\n') : '',
     moduleScript: editor ? `<script type="module" src="${meta.module}"></script>` : '',
     analytics: cfg.analytics.plausibleDomain
       ? `<script defer data-domain="${cfg.analytics.plausibleDomain}" src="https://plausible.io/js/script.outbound-links.js"></script>\n<script>window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}</script>` : '',
@@ -100,6 +100,8 @@ for (const file of walk(pagesDir)) {
 }
 
 copyDir(path.join(SRC, 'assets'), path.join(DIST, 'assets'));
+if (process.env.SKIP_VENDOR) console.log('SKIP_VENDOR set: not downloading fonts/libraries (local testing only)');
+else { const v = await vendor(DIST, { fontsUrl: FONTS_FULL }); console.log(`Self-hosted ${v.fonts} font files and ${v.libs} libraries`); }
 for (const f of ['favicon.svg', 'favicon-32.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'site.webmanifest']) if (fs.existsSync(path.join(SRC, f))) fs.copyFileSync(path.join(SRC, f), path.join(DIST, f));
 
 fs.writeFileSync(path.join(DIST, 'sitemap.xml'),
