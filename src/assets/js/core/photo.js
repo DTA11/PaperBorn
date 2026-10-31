@@ -93,7 +93,7 @@ export function photoHTML(extraStyle = '', hMul = 1) {
   // Non-hexagon photos are cropped on a canvas by bakeFrames() after layout, so the preview and the export use identical pixels
   // (html2canvas does not reproduce object-fit + transform reliably). The hexagon is already baked in buildPhotoURL().
   const bakeAttr = p.shape === 'hexagon' ? '' : ' data-ph';
-  return `<div data-phf style="${base}"><img${bakeAttr} src="${photo.url}" alt="Baby portrait" draggable="false" style="width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none"></div>`;
+  return `<div data-phf style="${base}"><img${bakeAttr} src="${photo.url}" alt="Baby portrait" draggable="false" style="width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none"><button type="button" data-add-photo data-html2canvas-ignore="true" aria-label="Change photo" title="Change photo" style="position:absolute;right:calc(8px * var(--inv, 1));bottom:calc(8px * var(--inv, 1));width:calc(40px * var(--inv, 1));height:calc(40px * var(--inv, 1));border-radius:50%;border:0;padding:0;background:rgba(17,17,20,.78);color:#fff;font:400 calc(26px * var(--inv, 1))/1 system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 6px rgba(0,0,0,.4)">+</button></div>`;
 }
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -130,6 +130,7 @@ export function initPhotoDrag(host, onCommit) {
     if (img.hasAttribute('data-ph')) bakeImg(img); else { syncPhotoURL(); img.src = photo.url; }
   };
   host.addEventListener('pointerdown', e => {
+    if (e.target.closest('[data-add-photo]')) return;
     const fr = e.target.closest('[data-phf]');
     if (!fr || !photo.source || e.button > 0) return;
     const r = fr.getBoundingClientRect(), L0 = state.photo.shape === 'hexagon' ? { x: 40, y: 40 } : limits(fr.clientWidth, fr.clientHeight);

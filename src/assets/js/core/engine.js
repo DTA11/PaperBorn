@@ -252,6 +252,7 @@ function fitStage() {
   $('sizer').style.width = f.w * s + 'px';
   $('sizer').style.height = f.h * s + 'px';
   $('card-scale').style.transform = `scale(${s})`;
+  $('card-target').style.setProperty('--inv', String(+(1 / s).toFixed(3)));   // keeps preview-only buttons a constant size on screen
 }
 
 /* ---------- Export ---------- */
@@ -446,6 +447,7 @@ function bindEvents() {
   $('btn-png').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', exportPNG));
   if (def.photo) {
     initPhotoDrag($('card-target'), () => { scheduleSave(); });
+    $('card-target').addEventListener('click', e => { if (e.target.closest('[data-add-photo]')) $('photo-file').click(); });
     $('btn-photo-center').addEventListener('click', () => { state.photo.offsetX = 0; state.photo.offsetY = 0; refresh(); scheduleSave(); });
   }
   $('btn-pdf-2').addEventListener('click', e => withBusy(e.currentTarget, 'Generating…', exportPDF));
