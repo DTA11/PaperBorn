@@ -241,6 +241,28 @@ export function renderCard() {
   el.innerHTML = `${decor}${crop}${frame}<div class="relative z-10 h-full flex flex-col justify-between" style="padding:${chromeFrame && t.border ? 12 : 0}px">${inner}</div>`;
   if (def.photo) bakeFrames(el);
   fitStage();
+  updateMini();
+}
+
+/* Small floating copy of the card on phones/tablets while the real preview is scrolled out of sight. */
+let miniOn = false;
+function updateMini() {
+  const box = $('mini-preview'); if (!box) return;
+  const show = miniOn && !matchMedia('(min-width:1024px)').matches;
+  box.classList.toggle('hidden', !show);
+  if (!show) return;
+  const f = fmt(), k = Math.min(84 / f.w, 130 / f.h), src = $('card-target'), inner = $('mini-inner');
+  const c = src.cloneNode(true);
+  c.removeAttribute('id'); c.style.transform = ''; c.querySelectorAll('[data-add-photo]').forEach(n => n.remove());
+  c.querySelectorAll('[data-phf]').forEach(n => n.removeAttribute('data-phf'));
+  inner.replaceChildren(c); inner.style.transform = `scale(${k})`;
+  box.style.width = Math.round(f.w * k) + 'px'; box.style.height = Math.round(f.h * k) + 'px';
+}
+function initMini() {
+  const box = $('mini-preview'); if (!box || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(([en]) => { miniOn = !en.isIntersecting; updateMini(); }, { threshold: 0.05 }).observe($('stage'));
+  box.addEventListener('click', () => { const st = $('stage'); st.style.scrollMarginTop = ($('editor-bar').offsetHeight + 8) + 'px'; st.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  matchMedia('(min-width:1024px)').addEventListener?.('change', updateMini);
 }
 
 function fitStage() {
@@ -493,6 +515,7 @@ function bindEvents() {
     }
   });
   new ResizeObserver(fitStage).observe($('stage'));
+  initMini();
 }
 
 export async function boot(definition) {
