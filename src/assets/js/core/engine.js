@@ -602,7 +602,7 @@ function bindEvents() {
 
 export async function boot(definition) {
   def = definition; ctx.def = definition;
-  if (!def.sampleImage) def.sampleImage = '/assets/img/sample.svg';
+  if (!def.sampleImage) def.sampleImage = '/assets/img/placeholder-baby.svg';   // new file name on purpose: phones cache images for a day
   Object.assign(state, freshState());
   loadSaved();
   $('controls-inner').innerHTML = buildControls();

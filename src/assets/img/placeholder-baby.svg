@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+<!-- Sample picture shown until a real photo is added: a fine-line drawing of a sleeping newborn curled up. -->
+<defs>
+  <radialGradient id="bg" cx=".5" cy=".45" r=".8"><stop offset="0" stop-color="#f7f3ee"/><stop offset="1" stop-color="#e9e1d7"/></radialGradient>
+</defs>
+<rect width="900" height="1200" fill="url(#bg)"/>
+<g fill="none" stroke="#2c2622" stroke-linecap="round" stroke-linejoin="round">
+  <!-- head, back and bottom in one sweeping line -->
+  <path stroke-width="11" d="M300 470
+    C268 400 300 300 392 268
+    C478 238 566 270 596 350
+    C616 404 604 452 580 486
+    C640 540 694 640 700 740
+    C708 870 640 960 530 972
+    C470 978 420 960 392 930"/>
+  <!-- thicker back like a brush stroke -->
+  <path stroke-width="18" opacity=".9" d="M612 560 C664 630 690 700 690 770 C690 860 640 930 560 958"/>
+  <!-- ear -->
+  <path stroke-width="8" d="M486 372 C506 360 526 378 518 400 C512 414 496 416 494 428"/>
+  <!-- face: closed eye and cheek -->
+  <path stroke-width="7" d="M360 392 Q378 404 396 394"/>
+  <path stroke-width="8" d="M300 470 C306 494 324 506 344 508"/>
+  <!-- arm tucked under the chin, little hand -->
+  <path stroke-width="10" d="M560 500 C510 520 440 540 404 560 C368 580 362 620 392 640 C420 658 452 640 452 612 C452 590 432 584 418 592"/>
+  <path stroke-width="8" d="M344 508 C360 530 380 548 404 560"/>
+  <!-- tucked legs -->
+  <path stroke-width="10" d="M392 930 C340 900 300 850 312 790 C322 740 380 716 432 740 C470 758 478 800 456 828"/>
+  <path stroke-width="10" d="M456 828 C432 852 392 856 372 838 C352 820 356 792 380 784"/>
+  <!-- little foot -->
+  <path stroke-width="9" d="M312 790 C286 800 268 828 280 856 C290 878 318 880 334 866"/>
+</g>
+</svg>
