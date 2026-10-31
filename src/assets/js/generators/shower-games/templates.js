@@ -30,7 +30,7 @@ function bingo(dv, f, th, page) {
   }).join('');
   return `${header(dv, f, th)}
   <div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center">
-    <div style="height:100%;max-width:100%;aspect-ratio:5/5.7;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:.7fr repeat(5,1fr);gap:6px">${letters}${cells}</div>
+    <div class="ar-box" style="height:100%;max-width:100%;aspect-ratio:5/5.7;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:.7fr repeat(5,1fr);gap:6px">${letters}${cells}</div>
   </div>
   <div class="text-center" style="flex:none;padding-top:8px;font-size:${Math.round(fs * .75)}px;letter-spacing:.2em;text-transform:uppercase;opacity:.6">Mark the gifts as they are opened · first to get 5 in a row wins</div>`;
 }

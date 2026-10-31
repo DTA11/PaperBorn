@@ -59,7 +59,7 @@ html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
 body { overflow-x: clip; touch-action: manipulation; }
 
 /* Editor pages on phones and tablets: the site header scrolls away, the editor toolbar stays at the top. */
-@media (max-width: 1023px) { body:has(#editor) header { position: static; } }
+@media (max-width: 1023px) { body:has(#editor) header, body.editor-page header { position: static; } }   /* .editor-page: older Safari has no :has() */
 
 /* Very narrow phones (under 360 px): keep Undo, Redo, Start over and Download on one line. */
 @media (max-width: 359px) {
@@ -74,7 +74,7 @@ body { overflow-x: clip; touch-action: manipulation; }
 #mini-open { display: block; padding: 0; overflow: hidden; border-radius: 6px; border: 1px solid #71717a; background: #fff; box-shadow: 0 12px 30px rgba(0,0,0,.6); }
 #mini-inner { transform-origin: top left; pointer-events: none; }
 #mini-close { position: absolute; top: -10px; right: -10px; width: 28px; height: 28px; border-radius: 999px; background: #18181b; color: #fff; border: 1px solid #52525b; font-size: 12px; line-height: 1; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
-#big-preview { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgba(9,9,11,.96); color: #e4e4e7; }
+#big-preview { width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgba(9,9,11,.96); color: #e4e4e7; }
 #big-preview[open] { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 #big-preview::backdrop { background: rgba(0,0,0,.8); }
 #big-sizer { flex: none; overflow: hidden; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,.7); }
@@ -84,3 +84,10 @@ body { overflow-x: clip; touch-action: manipulation; }
 
 /* Example text in empty fields: clearly dimmer than real input */
 .inp::placeholder { color: #71717a; opacity: 1; }
+
+/* Older Safari (before iOS 15.4): no <dialog> element support. Hide closed dialogs; open ones are placed by hand. */
+dialog:not([open]) { display: none; }
+dialog.dlg-fallback { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 100; margin: 0; max-height: 92vh; overflow: auto; box-shadow: 0 0 0 100vmax rgba(0,0,0,.72); }
+#big-preview.dlg-fallback { left: 0; top: 0; transform: none; box-shadow: none; }
+/* Older Safari (before iOS 15): no aspect-ratio. Let square pattern boxes and bingo boards fill the width instead. */
+@supports not (aspect-ratio: 1 / 1) { .ar-box { width: 100%; } }

@@ -2,6 +2,7 @@
    A generator is a plain definition object (see each generator def.js). The engine builds the sidebar from it,
    renders the live card, and provides undo/redo, saved looks, multi-page output, packs and PNG/PDF export. */
 import { $, esc, clone, track } from './util.js';
+import { fixGap } from './compat.js';
 import { state, ctx, fmt } from './state.js';
 import { FONTS, FONT_LABELS, loadFonts } from './fonts.js';
 import { photo, setPhotoSource, syncPhotoURL, bakeFrames, initPhotoDrag, SHAPE_LABELS, FILTER_LABELS } from './photo.js';
@@ -29,7 +30,19 @@ function freshState() {
 const sample = () => def.defaults.sample || {};
 const isEmpty = v => v === undefined || v === null || String(v).trim() === '';
 /* Fields that belong together (first + last name, mother + father): typing in one drops the example in both. */
-const touched = k => !!state.edited?.[k] || (def.defaults.sampleGroups || []).some(g => g.includes(k) && g.some(x => state.edited?.[x]));
+/* No ?. or ?? in this file: older iPad Safari (before iPadOS 13.4) cannot read them and the whole editor would stop. */
+const nn = (v, d) => (v === undefined || v === null ? d : v);
+/* <dialog> fallback for Safari before 15.4: show/hide with the open attribute (CSS hides closed dialogs). */
+const isOpen = d => d.hasAttribute('open');
+function openDlg(d) {
+  if (typeof d.showModal === 'function') { d.showModal(); return; }
+  d.classList.add('dlg-fallback'); d.setAttribute('open', '');
+}
+function closeDlg(d) {
+  if (typeof d.close === 'function') { d.close(); return; }
+  d.removeAttribute('open'); d.dispatchEvent(new Event('close'));
+}
+const touched = k => { const ed = state.edited || {}; return !!ed[k] || (def.defaults.sampleGroups || []).some(g => g.includes(k) && g.some(x => ed[x])); };
 const pick = () => ({ theme: state.theme, format: state.format, fontMode: state.fontMode, photo: state.photo, toggles: state.toggles, data: state.data, edited: state.edited });
 const storeKey = () => `paperborn:${def.slug}:v1`;
 const tplKey = () => `paperborn:${def.slug}:templates`;
@@ -66,7 +79,7 @@ function loadSaved() {
     if (!s) return;
     const d = freshState();
     if (s.data) {
-      def.migrate?.(s.data);
+      if (def.migrate) def.migrate(s.data);
       if (!s.edited) {                         // saves from before example text: keep what people really typed
         s.edited = {};
         for (const [k, v] of Object.entries(sample())) {
@@ -107,7 +120,7 @@ function fieldHTML(fd) {
   const id = `f-${fd.key}`, span = SPAN[fd.span || 1];
   const lab = fd.label ? `<label class="lbl" for="${id}">${fd.label}</label>` : '';
   const common = `id="${id}" data-f="${fd.key}" class="inp ${fd.cls || ''}"`;
-  const ph = `placeholder="${esc(sample()[fd.key] ?? fd.ph ?? '')}"${fd.key in sample() ? ` data-sample="${fd.key}"` : ''}${fd.autoPh ? ` data-autoph="${fd.autoPh}"` : ''}`;
+  const ph = `placeholder="${esc(nn(sample()[fd.key], nn(fd.ph, '')))}"${fd.key in sample() ? ` data-sample="${fd.key}"` : ''}${fd.autoPh ? ` data-autoph="${fd.autoPh}"` : ''}`;
   let ctl;
   switch (fd.type) {
     case 'textarea': ctl = `<textarea ${common} rows="${fd.rows || 4}" ${ph} maxlength="${fd.max || 3000}"></textarea>`; break;
@@ -149,7 +162,7 @@ function buildControls() {
   const CHEV = '<svg class="w-4 h-4 text-zinc-500 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   /* Each section is a collapsible <details>; on phones only the ones marked "keep" start open. */
   const sec = (title, body, extra = '', keep = false) => `<details class="sec group" data-acc ${keep ? 'data-keep' : ''} open><summary class="flex justify-between items-center gap-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden"><h2 class="h2">${++n}. ${title}</h2><span class="flex items-center gap-3">${extra}${CHEV}</span></summary><div class="space-y-3 pt-3">${body}</div></details>`;
-  let html = sec(def.ui?.themeTitle || 'Design', '<div id="style-grid" class="hidden lg:grid grid-cols-2 gap-2"></div><select id="style-select" aria-label="Design" class="inp lg:hidden !text-base !py-2.5"></select>',
+  let html = sec((def.ui && def.ui.themeTitle) || 'Design', '<div id="style-grid" class="hidden lg:grid grid-cols-2 gap-2"></div><select id="style-select" aria-label="Design" class="inp lg:hidden !text-base !py-2.5"></select>',
     `<span class="text-[10px] text-zinc-500 font-mono">${Object.keys(def.themes).length} DESIGNS</span>`, true);
 
   for (const s of def.sections) html += sec(s.title, s.boxes.map(boxHTML).join(''), '', true);
@@ -206,7 +219,7 @@ function buildStyleGrid() {
 
 function syncForm() {
   const ssel = $('style-select'); if (ssel) ssel.value = state.theme;
-  document.querySelectorAll('[data-f]').forEach(el => { el.value = state.data[el.dataset.f] ?? ''; });
+  document.querySelectorAll('[data-f]').forEach(el => { el.value = nn(state.data[el.dataset.f], ''); });
   document.querySelectorAll('[data-m]').forEach(box => {
     const sel = state.data[box.dataset.m] || [];
     box.querySelectorAll('[data-mv]').forEach(i => { i.checked = sel.includes(i.dataset.mv); });
@@ -226,7 +239,7 @@ function syncForm() {
 
 function setTheme(id) {
   const th = def.themes[id], prev = def.themes[state.theme];
-  if (prev?.toggles && prev !== th) {                            // leaving a design that switched extras off: switch them back on
+  if (prev && prev.toggles && prev !== th) {                            // leaving a design that switched extras off: switch them back on
     const base = { photo: true, ...(def.defaults.toggles || {}) };
     for (const k of Object.keys(prev.toggles)) if (k in base) state.toggles[k] = base[k];
   }
@@ -248,7 +261,7 @@ function derive() {
   const dv = def.derive ? def.derive(data) : data;
   const e = {};
   for (const [k, v] of Object.entries(dv)) {
-    e[k] = Array.isArray(v) ? v.map(x => esc(String(x))) : (v && typeof v === 'object') ? v : esc(String(v ?? '')).trim();
+    e[k] = Array.isArray(v) ? v.map(x => esc(String(x))) : (v && typeof v === 'object') ? v : esc(String(nn(v, ''))).trim();
   }
   return { dv, e };
 }
@@ -276,16 +289,17 @@ export function renderCard() {
   state.page = Math.max(0, Math.min(state.page, n - 1));
   updatePager(n);
 
-  const pad = th.pad ?? def.pad ?? 40;
-  const chromeFrame = def.chrome?.frame !== false, chromeCrop = def.chrome?.crop !== false;
+  const pad = nn(th.pad, nn(def.pad, 40));
+  const ch = def.chrome || {}, chromeFrame = ch.frame !== false, chromeCrop = ch.crop !== false;
   const el = $('card-target');
   el.style.cssText = `width:${f.w}px;height:${f.h}px;padding:${pad}px;background:${th.bg};color:${th.fg};font-family:${FONTS[state.fontMode]};`;
   const crop = chromeCrop && t.crop ? '<div class="crop-mark crop-tl"></div><div class="crop-mark crop-tr"></div><div class="crop-mark crop-bl"></div><div class="crop-mark crop-br"></div>' : '';
-  const frame = chromeFrame && t.border && th.frame ? `<div style="position:absolute;inset:16px;border:${th.frame};pointer-events:none;z-index:5"></div>` : '';
-  const decor = def.decor?.[state.theme]?.(t, f, e, dv, state.page) ?? '';
+  const frame = chromeFrame && t.border && th.frame ? `<div style="position:absolute;top:16px;right:16px;bottom:16px;left:16px;border:${th.frame};pointer-events:none;z-index:5"></div>` : '';
+  const dfn = def.decor && def.decor[state.theme], decor = nn(dfn ? dfn(t, f, e, dv, state.page) : '', '');
   const inner = def.templates[state.theme](e, t, f, dv, state.page);
   el.innerHTML = `${decor}${crop}${frame}<div class="relative z-10 h-full flex flex-col justify-between" style="padding:${chromeFrame && t.border ? 12 : 0}px">${inner}</div>`;
   if (def.photo) bakeFrames(el);
+  fixGap(el);
   fitStage();
   updateMini();
 }
@@ -306,12 +320,12 @@ function cardCopy() {
 }
 function updateMini() {
   const box = $('mini-preview'); if (!box) return;
-  const show = mini.on && !mini.hidden && !isDesktop() && !$('big-preview').open;
+  const show = mini.on && !mini.hidden && !isDesktop() && !isOpen($('big-preview'));
   box.classList.toggle('hidden', !show);
   if (!show) return;
   const f = fmt(), k = miniScale();
   const inner = $('mini-inner');
-  inner.replaceChildren(cardCopy()); inner.style.transform = `scale(${k})`;
+  inner.innerHTML = ''; inner.appendChild(cardCopy()); inner.style.transform = `scale(${k})`;
   const btn = $('mini-open'); btn.style.width = Math.round(f.w * k) + 'px'; btn.style.height = Math.round(f.h * k) + 'px';
 }
 function checkMini() {
@@ -326,9 +340,9 @@ function checkMini() {
 }
 function openBig() {
   const dlg = $('big-preview'), f = fmt(), inner = $('big-inner');
-  dlg.showModal(); updateMini();
+  openDlg(dlg); updateMini();
   const k = Math.min((innerWidth - 32) / f.w, (innerHeight - 110) / f.h, 1.5);
-  inner.replaceChildren(cardCopy()); inner.style.transform = `scale(${k})`;
+  inner.innerHTML = ''; inner.appendChild(cardCopy()); inner.style.transform = `scale(${k})`;
   $('big-sizer').style.width = Math.round(f.w * k) + 'px'; $('big-sizer').style.height = Math.round(f.h * k) + 'px';
   const n = pageCount();
   $('big-note').textContent = n > 1 ? `Page ${state.page + 1} of ${n}` : '';
@@ -341,10 +355,10 @@ function initMini() {
   $('mini-open').addEventListener('click', openBig);
   $('mini-close').addEventListener('click', () => { mini.hidden = true; updateMini(); });
   const dlg = $('big-preview');
-  $('big-close').addEventListener('click', () => dlg.close());
-  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+  $('big-close').addEventListener('click', () => closeDlg(dlg));
+  dlg.addEventListener('click', e => { if (e.target === dlg) closeDlg(dlg); });
   dlg.addEventListener('close', updateMini);
-  matchMedia('(min-width:1024px)').addEventListener?.('change', updateMini);
+  const mq = matchMedia('(min-width:1024px)'); if (mq.addEventListener) mq.addEventListener('change', updateMini); else if (mq.addListener) mq.addListener(updateMini);
   checkMini();
 }
 
@@ -368,7 +382,7 @@ async function capturePage(i, o = {}) {
   for (const m of new Set([state.fontMode, ...(def.themes[state.theme].fonts || [])])) await loadFonts(m);
   const f = fmt(), bg = def.themes[state.theme].bg;
   const c = await renderToCanvas($('card-target'), f, bg, o.scale);
-  return (o.bleed ?? state.bleed) ? addBleed(c, f, bg) : c;
+  return nn(o.bleed, state.bleed) ? addBleed(c, f, bg) : c;
 }
 
 async function withBusy(btn, label, fn) {
@@ -382,7 +396,7 @@ async function withBusy(btn, label, fn) {
 const PDF_PRESETS = { standard: { scale: 2, quality: 0.85 }, print: { scale: 3, quality: 1, bleed: true } };
 
 async function exportPDF(kind = 'print') {
-  const o = { ...(PDF_PRESETS[kind] || PDF_PRESETS.print) }; o.bleed = o.bleed ?? state.bleed;   // standard follows the bleed checkbox
+  const o = { ...(PDF_PRESETS[kind] || PDF_PRESETS.print) }; o.bleed = nn(o.bleed, state.bleed);   // standard follows the bleed checkbox
   const [pw, ph] = pageMM(fmt(), o.bleed), n = pageCount();
   let pdf;
   for (let i = 0; i < n; i++) {
@@ -465,6 +479,7 @@ function renderTemplates() {
     `<div class="flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-800 rounded p-2"><span class="truncate text-zinc-200">${esc(t.name)}</span>` +
     `<span class="flex gap-1 shrink-0"><button type="button" data-tpl-load="${i}" class="btn !py-1 !px-2 bg-zinc-800 text-white">Load</button><button type="button" data-tpl-del="${i}" aria-label="Delete saved look" class="btn !py-1 !px-2 text-zinc-400 hover:text-white">&#10005;</button></span></div>`).join('')
     : '<p class="text-zinc-500">No saved looks yet.</p>';
+  fixGap($('tpl-list'));
 }
 
 /* ---------- Place search (OpenStreetMap Nominatim, only on button press) ---------- */
@@ -553,9 +568,9 @@ function bindEvents() {
 
   const dlg = $('dl-dialog'), dlBtn = $('btn-download');
   const runDownload = kind => withBusy(dlBtn, 'Preparing…', () => kind === 'png' ? exportPNG() : exportPDF(kind));
-  dlBtn.addEventListener('click', () => { if (typeof dlg.showModal === 'function') dlg.showModal(); else runDownload('print'); });
-  dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-dl-cancel]')) dlg.close(); });
-  dlg.querySelectorAll('[data-dl]').forEach(b => b.addEventListener('click', () => { const kind = b.dataset.dl; dlg.close(); runDownload(kind); }));
+  dlBtn.addEventListener('click', () => openDlg(dlg));
+  dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-dl-cancel]')) closeDlg(dlg); });
+  dlg.querySelectorAll('[data-dl]').forEach(b => b.addEventListener('click', () => { const kind = b.dataset.dl; closeDlg(dlg); runDownload(kind); }));
   if (def.photo) {
     initPhotoDrag($('card-target'), () => { scheduleSave(); });
     $('card-target').addEventListener('click', e => { if (e.target.closest('[data-add-photo]')) $('photo-file').click(); });
@@ -596,7 +611,7 @@ function bindEvents() {
       if (t && confirm(`Delete the saved look “${t.name}”?`)) { list.splice(+del.dataset.tplDel, 1); setTpls(list); renderTemplates(); }
     }
   });
-  new ResizeObserver(fitStage).observe($('stage'));
+  if (typeof window.ResizeObserver === 'function') new ResizeObserver(fitStage).observe($('stage')); else addEventListener('resize', fitStage);
   initMini();
 }
 
@@ -606,6 +621,7 @@ export async function boot(definition) {
   Object.assign(state, freshState());
   loadSaved();
   $('controls-inner').innerHTML = buildControls();
+  setTimeout(() => fixGap($('editor')), 0);
   if (!matchMedia('(min-width:1024px)').matches) document.querySelectorAll('[data-acc]:not([data-keep])').forEach(d => { d.open = false; });
   buildStyleGrid();
   bindEvents();

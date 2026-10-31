@@ -24,7 +24,7 @@ function template(e, t, f, dv, page) {
     const id = cards[i];
     if (!id) return `<div></div>`;
     const lab = t.footer ? `<div style="text-align:center;font-size:${cols === 1 ? 22 : 13}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding-top:6px;height:${cols === 1 ? 40 : 26}px;box-sizing:border-box">${PATTERNS[id][0]}</div>` : '';
-    return `<div style="${cut}display:flex;flex-direction:column;padding:${cols === 1 ? 28 : 16}px;box-sizing:border-box;min-height:0;min-width:0"><div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center"><div style="aspect-ratio:1/1;height:100%;max-width:100%">${patternSVG(id, th.fg, th.acc, th.bg)}</div></div>${lab}</div>`;
+    return `<div style="${cut}display:flex;flex-direction:column;padding:${cols === 1 ? 28 : 16}px;box-sizing:border-box;min-height:0;min-width:0"><div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center"><div class="ar-box" style="aspect-ratio:1/1;height:100%;max-width:100%">${patternSVG(id, th.fg, th.acc, th.bg)}</div></div>${lab}</div>`;
   }).join('');
   return `<div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));grid-template-rows:repeat(${rows},minmax(0,1fr));gap:${t.crop ? 0 : 8}px">${cells}</div>`;
 }
