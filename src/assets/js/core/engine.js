@@ -258,12 +258,12 @@ function fitStage() {
 /* ---------- Export ---------- */
 const slug = () => (def.fileName ? def.fileName(state.data) : def.slug).toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || def.slug;
 
-async function capturePage(i) {
+async function capturePage(i, o = {}) {
   state.page = i; renderCard();
   await loadFonts(state.fontMode);
   const f = fmt(), bg = def.themes[state.theme].bg;
-  const c = await renderToCanvas($('card-target'), f, bg);
-  return state.bleed ? addBleed(c, f, bg) : c;
+  const c = await renderToCanvas($('card-target'), f, bg, o.scale);
+  return (o.bleed ?? state.bleed) ? addBleed(c, f, bg) : c;
 }
 
 async function withBusy(btn, label, fn) {
@@ -273,16 +273,20 @@ async function withBusy(btn, label, fn) {
   finally { state.page = page; renderCard(); btn.disabled = false; btn.textContent = orig; }
 }
 
-async function exportPDF() {
-  const [pw, ph] = pageMM(fmt(), state.bleed), n = pageCount();
+/* PDF presets: standard = small file for screens and home printing; print = about 300 dpi with 3 mm bleed for print shops. */
+const PDF_PRESETS = { standard: { scale: 2, quality: 0.85 }, print: { scale: 3, quality: 1, bleed: true } };
+
+async function exportPDF(kind = 'print') {
+  const o = { ...(PDF_PRESETS[kind] || PDF_PRESETS.print) }; o.bleed = o.bleed ?? state.bleed;   // standard follows the bleed checkbox
+  const [pw, ph] = pageMM(fmt(), o.bleed), n = pageCount();
   let pdf;
   for (let i = 0; i < n; i++) {
-    const c = await capturePage(i);
+    const c = await capturePage(i, o);
     if (!pdf) pdf = newPDF(pw, ph);
-    addPageToPDF(pdf, c, pw, ph, i === 0);
+    addPageToPDF(pdf, c, pw, ph, i === 0, o.quality);
   }
-  pdf.save(`babycardprintables-${slug()}.pdf`);
-  track('export', { generator: def.slug, format: 'pdf', pages: n, theme: state.theme });
+  pdf.save(`babycardprintables-${slug()}${kind === 'print' ? '-print' : ''}.pdf`);
+  track('export', { generator: def.slug, format: 'pdf', kind, pages: n, theme: state.theme });
 }
 
 async function exportPNG() {
@@ -443,7 +447,10 @@ function bindEvents() {
     refresh(); commit(true);
   });
 
-  $('btn-pdf').addEventListener('click', e => withBusy(e.currentTarget, 'Generating…', exportPDF));
+  const dlg = $('pdf-dialog');
+  $('btn-pdf').addEventListener('click', () => { if (typeof dlg.showModal === 'function') dlg.showModal(); else withBusy($('btn-pdf'), 'Generating…', () => exportPDF('print')); });
+  dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-pdf-cancel]')) dlg.close(); });
+  dlg.querySelectorAll('[data-pdf]').forEach(b => b.addEventListener('click', () => { const kind = b.dataset.pdf; dlg.close(); withBusy($('btn-pdf'), 'Generating…', () => exportPDF(kind)); }));
   $('btn-png').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', exportPNG));
   if (def.photo) {
     initPhotoDrag($('card-target'), () => { scheduleSave(); });

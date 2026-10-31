@@ -1,8 +1,8 @@
 /* Export helpers: html2canvas capture, print bleed, PDF page sizes. html2canvas and jsPDF are loaded as globals. */
 export const BLEED_MM = 3;
 
-export async function renderToCanvas(el, f, bg) {
-  const scale = Math.min(3, Math.sqrt(16e6 / (f.w * f.h))); // stay under mobile canvas-size limits
+export async function renderToCanvas(el, f, bg, maxScale = 3) {
+  const scale = Math.min(maxScale, Math.sqrt(16e6 / (f.w * f.h))); // stay under mobile canvas-size limits
   return window.html2canvas(el, {
     scale, useCORS: true, logging: false, backgroundColor: bg,
     width: f.w, height: f.h, windowWidth: Math.max(f.w, innerWidth),
@@ -21,9 +21,9 @@ export function addBleed(c, f, bg) {
 
 export const newPDF = (pw, ph) => new window.jspdf.jsPDF({ orientation: pw > ph ? 'landscape' : 'portrait', unit: 'mm', format: [pw, ph] });
 
-export function addPageToPDF(pdf, canvas, pw, ph, first) {
+export function addPageToPDF(pdf, canvas, pw, ph, first, quality = 0.95) {
   if (!first) pdf.addPage([pw, ph], pw > ph ? 'landscape' : 'portrait');
-  pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
+  pdf.addImage(canvas.toDataURL('image/jpeg', quality), 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
 }
 
 export function downloadBlob(blob, name) {
