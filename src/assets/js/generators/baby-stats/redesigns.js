@@ -21,44 +21,62 @@ function footer(e, t, label, color, u, font = '') {
   return `<div style="display:flex;justify-content:space-between;gap:8px;font-size:${n1(9.5 * u)}px;letter-spacing:.22em;text-transform:uppercase;color:${color};padding-top:${n1(8 * u)}px;${font}"><span>${t.footer ? label : ''}</span><span>${t.coords ? e.coords : ''}</span></div>`;
 }
 
-/* ---------- Editorial: full-color magazine cover ---------- */
-const ED = { rose: '#c6455c', ink: '#1c1a1a', soft: '#6b6461', panel: 'linear-gradient(160deg,#e9a3ad,#c6455c)' };
+/* ---------- Editorial: fashion-magazine cover (giant name masthead, photo in front, red panels, vertical title) ----------
+   Laid out in fractions of the card so every paper size keeps the same look. Absolute boxes ignore the card padding (pad 0). */
+const ED = { wine: '#8e1b2c', rose: '#d9a3a3', paper: '#f3ede4', ink: '#2a1d1d', soft: '#6e5b57', cream: '#f8efe6' };
+const edGeo = f => ({ u: U(f), w: f.w, h: f.h,
+  photo: { x: f.w * .27, y: f.h * .17, w: f.w * .47, h: f.h * .6 },
+  panel: { x: f.w * .45, y: f.h * .3, w: f.w * .5, h: f.h * .54 },
+  rose: { x: f.w * .19, y: f.h * .42, w: f.w * .3, h: f.h * .3 } });
+const caps = (sz, extra = '') => `font-size:${n1(sz)}px;letter-spacing:.2em;text-transform:uppercase;${extra}`;
+const at = (x, y, w, inner, extra = '') => `<div style="position:absolute;left:${n1(x)}px;top:${n1(y)}px;${w ? `width:${n1(w)}px;` : ''}${extra}">${inner}</div>`;
 const editorial = (e, t, f) => {
-  const u = U(f), W = contentW(f, t, 34), H = Math.round(f.photoH * 1.28), mast = Math.min(f.w * .25, f.h * .16);
-  const lines = [[t.weight && e.weightN && `${e.weightN} g`, 'weighing in'], [t.height && e.heightN && `${e.heightN} cm`, 'and growing'],
-    [t.time && e.time, 'the big moment'], [t.zodiac && e.zodiac, 'star sign']].filter(r => r[0]);
-  const shadow = 'text-shadow:0 1px 3px rgba(0,0,0,.55),0 2px 14px rgba(0,0,0,.45)';
-  const first = nice(e.firstName);
-  const overlay = `<div style="position:absolute;left:0;top:0;width:100%;height:100%;background:linear-gradient(90deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,0) 42%),linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 52%,rgba(0,0,0,.62) 100%);color:#fff;pointer-events:none">
-      <div style="position:absolute;left:${n1(18 * u)}px;top:${n1(18 * u)}px;${shadow}">${lines.map(([v, l]) =>
-        `<div style="margin-bottom:${n1(12 * u)}px"><div style="font-weight:900;font-size:${n1(fit(v, 36 * u, 8))}px;line-height:1">${v}</div><div style="font-size:${n1(11.5 * u)}px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;margin-top:${n1(2 * u)}px">${l}</div></div>`).join('')}</div>
-      ${t.accents ? `<div style="position:absolute;right:${n1(16 * u)}px;top:${n1(16 * u)}px;width:${n1(104 * u)}px;height:${n1(104 * u)}px;border-radius:50%;background:${ED.rose};display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(-12deg);box-shadow:0 ${n1(4 * u)}px ${n1(14 * u)}px rgba(0,0,0,.25)">
-        <div style="font-size:${n1(11 * u)}px;letter-spacing:.25em;text-transform:uppercase">Just</div><div style="font-style:italic;font-weight:700;font-size:${n1(26 * u)}px;line-height:1">arrived</div><div style="font-size:${n1(16 * u)}px">♥</div></div>` : ''}
-      ${t.name && (e.firstName || e.lastName) ? `<div style="position:absolute;left:${n1(20 * u)}px;right:${n1(20 * u)}px;bottom:${n1(16 * u)}px;${shadow}">
-        <div style="font-style:italic;font-size:${n1(fit(first, 92 * u, 8))}px;line-height:1">${first}</div>
-        ${e.lastName ? `<div style="font-size:${n1(fit(e.lastName, 22 * u, 12))}px;letter-spacing:.38em;text-transform:uppercase;margin-top:${n1(4 * u)}px">${e.lastName}</div>` : ''}</div>` : ''}</div>`;
-  const pl = where(e, t);
-  return `
-    <div style="text-align:center">
-      <div style="font-weight:900;font-size:${n1(mast)}px;line-height:.86;letter-spacing:.02em;color:${ED.ink}">BABY</div>
-      <div style="display:flex;justify-content:space-between;gap:8px;border-top:2px solid ${ED.ink};border-bottom:1px solid ${ED.ink};margin-top:${n1(6 * u)}px;padding:${n1(5 * u)}px ${n1(4 * u)}px;font-size:${n1(10.5 * u)}px;letter-spacing:.28em;text-transform:uppercase;color:${ED.ink}">
-        <span>The Arrival Issue</span><span>${t.date ? e.date : ''}</span><span>Nº 01</span></div>
-    </div>
-    <div style="margin:${n1(14 * u)}px 0;position:relative;width:${n1(W)}px;height:${H}px;overflow:hidden;${t.photo ? '' : `background:${ED.panel}`}">
-      ${t.photo ? `<div style="position:absolute;left:0;top:0;width:100%">${photoHTML('', H / (f.photoH || 360))}</div>` : ''}${overlay}
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:${n1(14 * u)}px">
-      <div style="min-width:0">
-        <div style="font-size:${n1(10.5 * u)}px;letter-spacing:.3em;text-transform:uppercase;color:${ED.rose};font-weight:700">Inside this issue</div>
-        ${pl ? `<div style="font-weight:700;font-size:${n1(15 * u)}px;margin-top:${n1(4 * u)}px">${pl}</div>` : ''}
-        ${t.parents && e.parents ? `<div style="font-size:${n1(14 * u)}px;margin-top:${n1(2 * u)}px">Proud parents <b>${e.parents}</b> tell all</div>` : ''}
-        ${t.quote && e.quote ? `<div style="font-style:italic;font-size:${n1(14 * u)}px;color:${ED.soft};margin-top:${n1(2 * u)}px">“${e.quote}”</div>` : ''}
-      </div>
-      ${t.accents ? `<div style="flex:none;text-align:center">${barcode(Math.round(92 * u), Math.round(34 * u), ED.ink)}<div style="font-size:${n1(8 * u)}px;font-family:monospace">${e.dateISO ? e.dateISO.replace(/-/g, '') : ''}</div></div>` : ''}
-    </div>
-    ${footer(e, t, 'Baby Card Printables · Editorial', '#a39a94', u)}`;
+  const g = edGeo(f), u = g.u, W = f.w, H = f.h, parts = [];
+  const mast = (t.name && e.firstName ? e.firstName : 'BABY').toUpperCase();
+  const len = mast.replace(/&\w+;/g, '&').length;
+  const ms = Math.min(H * .19, W * .94 / (len * .74));                              // masthead fills the width
+  parts.push(at(W * .03, H * .025, W * .94, mast, `font-weight:900;font-size:${n1(ms)}px;line-height:.82;letter-spacing:-.01em;color:${ED.wine};white-space:nowrap;text-align:center`));
+  const mBot = H * .025 + ms * .82;
+  parts.push(at(W * .05, mBot + 8 * u, W * .2, `The Arrival Issue<br><span style="opacity:.7">Nº 01</span>`, caps(9.5 * u, `color:${ED.ink};line-height:1.6`)));
+  if (t.date && e.date) parts.push(at(W * .76, mBot + 8 * u, W * .19, `${e.date}${t.time && e.time ? `<br><span style="opacity:.7">${e.time}</span>` : ''}`, caps(9.5 * u, `color:${ED.ink};line-height:1.6;text-align:right`)));
+  /* big photo, in front of the masthead */
+  const ph = { ...g.photo, y: Math.max(H * .1, mBot - ms * .14) };              // tucks in front of the bottom of the masthead
+  ph.h = Math.min(H * .84 - ph.y, H * .64);
+  parts.push(at(ph.x, ph.y, ph.w, t.photo ? photoHTML(`box-shadow:0 ${n1(14 * u)}px ${n1(30 * u)}px rgba(60,10,20,.22);`, ph.h / (f.photoH || 360))
+    : `<div style="height:${n1(ph.h)}px;background:linear-gradient(160deg,${ED.rose},${ED.wine})"></div>`, 'z-index:1'));
+  /* vertical last name up the left side */
+  if (t.name && e.lastName) {
+    const vs = Math.min(fit(e.lastName, 78 * u, 9), W * .14);
+    parts.push(at(W * .045, H * .73, H * .5, nice(e.lastName), `font-style:italic;font-size:${n1(vs)}px;line-height:1;color:${ED.wine};white-space:nowrap;transform:rotate(-90deg);transform-origin:0 0`));
+  }
+  /* left column text under the vertical title */
+  const where2 = where(e, t);
+  const story = [t.weight && e.weight && `weighing ${e.weight}`, t.height && e.height && `measuring ${e.height}`].filter(Boolean).join(' and ');
+  parts.push(at(W * .05, H * .755, W * .2, `<div style="${caps(9 * u, `font-weight:700;color:${ED.wine}`)}">A study in<br>new beginnings</div>
+    <div style="font-size:${n1(10.5 * u)}px;line-height:1.45;color:${ED.soft};margin-top:${n1(6 * u)}px">${[story && `Arrived ${story}`, where2 && `at ${where2}`].filter(Boolean).join(' ')}${story || where2 ? '.' : ''}</div>`));
+  /* small inset of the photo, bottom left */
+  if (t.photo && t.accents) {                                                     // sits just above the footer line on every paper size
+    const iw = Math.min(W * .15, H * .11), ih = iw * .9;
+    parts.push(at(W * .05, H - 34 * u - ih, iw, photoHTML(`border:${n1(3 * u)}px solid ${ED.cream};box-shadow:0 0 0 1px ${ED.wine};`, ih / (f.photoH || 360)), ''));
+  }
+  /* stats on the red panel, right of the photo */
+  const stats = [['Weight', t.weight && e.weight], ['Length', t.height && e.height], ['Time', t.time && e.time], ['Sign', t.zodiac && e.zodiac]].filter(r => r[1]);
+  if (stats.length) parts.push(at(W * .765, H * .52, W * .17, `<div style="width:${n1(24 * u)}px;border-top:1px solid ${ED.cream};margin-bottom:${n1(10 * u)}px"></div>` + stats.map(([l, v]) =>
+    `<div style="margin-bottom:${n1(9 * u)}px"><div style="${caps(8.5 * u, 'opacity:.75')}">${l}</div><div style="${caps(12.5 * u, 'letter-spacing:.08em;font-weight:700')}">${v}</div></div>`).join(''), `color:${ED.cream}`));
+  /* bottom right: headline + parents */
+  parts.push(at(W * .5, H * .862, W * .45, `<div style="font-size:${n1(19 * u)}px;letter-spacing:.14em;text-transform:uppercase;line-height:1.25;color:${ED.wine}">Welcome to<br>the world.</div>
+    ${t.parents && e.parents ? `<div style="${caps(9 * u, `color:${ED.ink};margin-top:${n1(6 * u)}px`)}">— with love, ${e.parents}</div>` : ''}
+    ${t.quote && e.quote ? `<div style="font-style:italic;font-size:${n1(12 * u)}px;color:${ED.soft};margin-top:${n1(3 * u)}px">“${e.quote}”</div>` : ''}`, 'text-align:right'));
+  if (t.footer || (t.coords && e.coords)) parts.push(at(W * .05, H - 26 * u, W * .9, `<span>${t.footer ? 'Baby Card Printables · Editions' : ''}</span><span>${t.coords ? e.coords : ''}</span>`,
+    caps(8 * u, `color:${ED.soft};display:flex;justify-content:space-between;opacity:.8`)));
+  return `<div style="position:absolute;left:0;top:0;width:${W}px;height:${H}px;color:${ED.ink}">${parts.join('')}</div>`;
 };
-const editorialDecor = (t, f) => full(f, `<rect width="${f.w}" height="${f.h}" fill="#f7f1ec"/>${t.border ? `<rect x="14" y="14" width="${f.w - 28}" height="${f.h - 28}" fill="none" stroke="${ED.ink}" stroke-width="1.5"/>` : ''}`);
+const editorialDecor = (t, f) => {
+  const g = edGeo(f), r = (o, c, extra = '') => `<rect x="${n1(o.x)}" y="${n1(o.y)}" width="${n1(o.w)}" height="${n1(o.h)}" fill="${c}" ${extra}/>`;
+  return full(f, `<rect width="${f.w}" height="${f.h}" fill="${ED.paper}"/>${r(g.panel, ED.wine)}${t.accents ? r(g.rose, ED.rose, 'opacity=".85"') : ''}
+    ${t.accents ? `<line x1="${n1(f.w * .05)}" y1="${n1(f.h * .845)}" x2="${n1(f.w * .22)}" y2="${n1(f.h * .845)}" stroke="${ED.wine}" stroke-width="1"/>` : ''}
+    ${t.border ? `<rect x="12" y="12" width="${f.w - 24}" height="${f.h - 24}" fill="none" stroke="${ED.ink}" stroke-opacity=".5" stroke-width="1"/>` : ''}`);
+};
 
 /* ---------- Victorian Gazette: The Daily Cuddle ---------- */
 const VG = { ink: '#2b2118', soft: '#5a4a3a' };
@@ -224,7 +242,7 @@ const cyberDecor = (t, f) => {
 };
 
 export const REDESIGN_THEMES = {
-  editorial: { name: 'Editorial Cover', desc: 'Full-color magazine cover & cover lines', bg: '#f7f1ec', fg: '#1c1a1a', font: 'serif', shape: 'rectangle', filter: 'none', frame: '', pad: 34 },
+  editorial: { name: 'Editorial Cover', desc: 'Fashion-magazine cover: giant name & red panels', bg: '#f3ede4', fg: '#2a1d1d', font: 'serif', shape: 'rectangle', filter: 'none', frame: '', pad: 0 },
   vintage:   { name: 'Victorian Gazette', desc: 'The Daily Cuddle: headlines & columns', bg: '#f1e6cc', fg: '#2b2118', font: 'vintage', shape: 'rectangle', filter: 'sepia', frame: '', pad: 40 },
   boho:      { name: 'Boho Botanical', desc: 'Watercolor rainbow, pampas & terracotta', bg: '#f6eee4', fg: '#5a3a2a', font: 'playful', shape: 'arch', filter: 'warm', frame: '', pad: 36, fonts: ['script'] },
   cyber:     { name: 'Cyber Tech Sheet', desc: 'Neon HUD, data tiles & grid floor', bg: '#04070f', fg: '#c8fff4', font: 'mono', shape: 'hexagon', filter: 'cool', frame: '', pad: 40 },
