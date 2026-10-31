@@ -12,7 +12,8 @@ export const GREETINGS = [['auto', 'Matches the design'], ['first', 'Baby’s Fi
 function greeting(key, design) {
   const now = new Date(), m = now.getMonth(), y = now.getFullYear();
   const xmasY = String(m === 0 ? y - 1 : y), nyY = String(m >= 9 ? y + 1 : y);
-  const k = key && key !== 'auto' ? key : (design === 'newyear' ? 'newyear' : 'first');
+  let k = key && key !== 'auto' ? key : (design === 'newyear' ? 'newyear' : 'first');
+  if (design === 'newyear' && k !== 'both') k = 'newyear';   // the fireworks design always says New Year, even if a Christmas wording was picked earlier
   const all = { first: ['Baby’s First', 'Christmas', xmasY], merry: ['Wishing you a', 'Merry Christmas', xmasY], newyear: ['Happy', 'New Year', nyY],
     both: ['Merry Christmas &', 'Happy New Year', nyY], season: ['Warm', 'Season’s Greetings', xmasY] };
   return all[k] || all.first;
