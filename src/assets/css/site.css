@@ -57,3 +57,6 @@ body > div > img { display: inline !important; vertical-align: baseline !importa
 }
 html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
 body { overflow-x: clip; touch-action: manipulation; }
+
+/* Editor pages on phones and tablets: the site header scrolls away, the editor toolbar stays at the top. */
+@media (max-width: 1023px) { body:has(#editor) header { position: static; } }
