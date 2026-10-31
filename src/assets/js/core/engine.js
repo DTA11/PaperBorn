@@ -267,10 +267,10 @@ async function capturePage(i, o = {}) {
 }
 
 async function withBusy(btn, label, fn) {
-  const orig = btn.textContent, page = state.page; btn.disabled = true; btn.textContent = label;
+  const orig = btn.innerHTML, page = state.page; btn.disabled = true; btn.textContent = label;
   try { await fn(); }
   catch (err) { console.error(err); alert('Export failed. Try again, or use a smaller paper size.'); }
-  finally { state.page = page; renderCard(); btn.disabled = false; btn.textContent = orig; }
+  finally { state.page = page; renderCard(); btn.disabled = false; btn.innerHTML = orig; }
 }
 
 /* PDF presets: standard = small file for screens and home printing; print = about 300 dpi with 3 mm bleed for print shops. */
@@ -447,11 +447,11 @@ function bindEvents() {
     refresh(); commit(true);
   });
 
-  const dlg = $('pdf-dialog');
-  $('btn-pdf').addEventListener('click', () => { if (typeof dlg.showModal === 'function') dlg.showModal(); else withBusy($('btn-pdf'), 'Generating…', () => exportPDF('print')); });
-  dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-pdf-cancel]')) dlg.close(); });
-  dlg.querySelectorAll('[data-pdf]').forEach(b => b.addEventListener('click', () => { const kind = b.dataset.pdf; dlg.close(); withBusy($('btn-pdf'), 'Generating…', () => exportPDF(kind)); }));
-  $('btn-png').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', exportPNG));
+  const dlg = $('dl-dialog'), dlBtn = $('btn-download');
+  const runDownload = kind => withBusy(dlBtn, 'Preparing…', () => kind === 'png' ? exportPNG() : exportPDF(kind));
+  dlBtn.addEventListener('click', () => { if (typeof dlg.showModal === 'function') dlg.showModal(); else runDownload('print'); });
+  dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-dl-cancel]')) dlg.close(); });
+  dlg.querySelectorAll('[data-dl]').forEach(b => b.addEventListener('click', () => { const kind = b.dataset.dl; dlg.close(); runDownload(kind); }));
   if (def.photo) {
     initPhotoDrag($('card-target'), () => { scheduleSave(); });
     $('card-target').addEventListener('click', e => { if (e.target.closest('[data-add-photo]')) $('photo-file').click(); });
