@@ -112,7 +112,7 @@ function buildControls() {
   const CHEV = '<svg class="w-4 h-4 text-zinc-500 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   /* Each section is a collapsible <details>; on phones only the ones marked "keep" start open. */
   const sec = (title, body, extra = '', keep = false) => `<details class="sec group" data-acc ${keep ? 'data-keep' : ''} open><summary class="flex justify-between items-center gap-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden"><h2 class="h2">${++n}. ${title}</h2><span class="flex items-center gap-3">${extra}${CHEV}</span></summary><div class="space-y-3 pt-3">${body}</div></details>`;
-  let html = sec(def.ui?.themeTitle || 'Aesthetic Theme', '<div id="style-grid" class="hidden lg:grid grid-cols-2 gap-2"></div><select id="style-select" aria-label="Style" class="inp lg:hidden !text-sm !py-2.5"></select>',
+  let html = sec(def.ui?.themeTitle || 'Aesthetic Theme', '<div id="style-grid" class="hidden lg:grid grid-cols-2 gap-2"></div><select id="style-select" aria-label="Style" class="inp lg:hidden !text-base !py-2.5"></select>',
     `<span class="text-[10px] text-zinc-500 font-mono">${Object.keys(def.themes).length} STYLES</span>`, true);
 
   for (const s of def.sections) html += sec(s.title, s.boxes.map(boxHTML).join(''), '', true);

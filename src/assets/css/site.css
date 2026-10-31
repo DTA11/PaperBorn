@@ -49,3 +49,11 @@ body > div > img { display: inline !important; vertical-align: baseline !importa
 .ad-leaderboard { min-height: 100px; }
 .ad-inContent { min-height: 280px; max-width: 336px; }
 @media (min-width: 1024px) { .ad-leaderboard { min-height: 90px; } }
+
+/* Phones and tablets: iOS Safari zooms into any text field under 16px and stays zoomed afterwards.
+   Keep fields at 16px on touch screens, and never let the page pan sideways. */
+@media (max-width: 1023px), (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]), select, textarea { font-size: 16px !important; }
+}
+html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
+body { overflow-x: clip; touch-action: manipulation; }
