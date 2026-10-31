@@ -450,12 +450,6 @@ function bindEvents() {
     $('card-target').addEventListener('click', e => { if (e.target.closest('[data-add-photo]')) $('photo-file').click(); });
     $('btn-photo-center').addEventListener('click', () => { state.photo.offsetX = 0; state.photo.offsetY = 0; refresh(); scheduleSave(); });
   }
-  $('btn-pdf-2').addEventListener('click', e => withBusy(e.currentTarget, 'Generating…', exportPDF));
-  $('btn-png-2').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', exportPNG));
-  if ('IntersectionObserver' in window) {   // show the phone download bar only while the editor is on screen
-    const bar = $('dl-bar');
-    new IntersectionObserver(([en]) => { bar.classList.toggle('hidden', !en.isIntersecting); bar.classList.toggle('flex', en.isIntersecting); }, { threshold: 0.15 }).observe($('editor'));
-  }
   $('btn-pin').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', exportPin));
   $('btn-share').addEventListener('click', e => withBusy(e.currentTarget, 'Preparing…', shareCard));
   const bp = $('btn-pack'); if (bp) bp.addEventListener('click', e => withBusy(e.currentTarget, 'Building…', exportPack));
