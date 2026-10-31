@@ -31,7 +31,7 @@ function derive(d) {
 }
 
 export default {
-  slug: 'milestones',
+  slug: 'milestones', pinTitle: 'Baby milestone cards',
   name: 'Milestone Cards',
   fileName: d => `${d.babyName || 'baby'}-milestone`,
   themes: THEMES,

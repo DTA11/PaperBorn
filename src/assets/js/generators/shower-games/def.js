@@ -20,7 +20,7 @@ function derive(d) {
 }
 
 export default {
-  slug: 'shower-games',
+  slug: 'shower-games', pinTitle: 'Baby shower games',
   name: 'Baby Shower Games',
   fileName: () => 'baby-shower-game',
   themes: THEMES,

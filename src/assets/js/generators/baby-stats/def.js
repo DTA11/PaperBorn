@@ -28,7 +28,7 @@ function derived(d) {
 }
 
 export default {
-  slug: 'baby-stats',
+  slug: 'baby-stats', pinTitle: 'Printable baby birth card',
   name: 'Baby Stats',
   fileName: d => d.firstName || 'baby-stats',
   themes: THEMES,

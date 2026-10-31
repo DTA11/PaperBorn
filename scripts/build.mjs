@@ -82,7 +82,7 @@ for (const file of walk(pagesDir)) {
     fonts: '<link rel="stylesheet" href="/assets/css/fonts.css">',
     editorLibs: editor
       ? LIBS.map(l => `<script src="/assets/vendor/${l.out}"></script>`).join('\n') : '',
-    moduleScript: editor ? `<script type="module" src="${meta.module}"></script>` : '',
+    moduleScript: editor ? `<script type="module" src="${meta.module}"></script>` : (meta.script ? `<script type="module" src="${meta.script}"></script>` : ''),
     analytics: cfg.analytics.plausibleDomain
       ? `<script defer data-domain="${cfg.analytics.plausibleDomain}" src="https://plausible.io/js/script.outbound-links.js"></script>\n<script>window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}</script>` : '',
     adsScript: cfg.ads.enabled && cfg.ads.adsenseClient

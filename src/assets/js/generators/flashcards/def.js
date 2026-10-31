@@ -30,7 +30,7 @@ function template(e, t, f, dv, page) {
 }
 
 export default {
-  slug: 'flashcards',
+  slug: 'flashcards', pinTitle: 'Newborn flashcards',
   name: 'High-Contrast Flashcards',
   fileName: d => `high-contrast-flashcards`,
   themes: THEMES,

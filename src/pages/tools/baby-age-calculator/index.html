@@ -1,0 +1,28 @@
+<!--meta
+{ "title": "Baby Age Calculator - Months, Weeks and Due Date",
+  "fullTitle": "Baby Age Calculator in Months and Weeks, plus Due Date | Baby Card Printables",
+  "description": "Free baby age calculator: enter a birth date to see your baby's age in months, weeks and days, and which milestone card is next. Includes a simple due date calculator.",
+  "script": "/assets/js/tools/age.js" }
+-->
+<article class="max-w-3xl mx-auto px-4 sm:px-6 py-12 prose-pb">
+  <h1 class="text-3xl font-black text-white tracking-tight">Baby Age Calculator</h1>
+  <p>Enter your baby's birth date to see their age in months, weeks and days, and which monthly milestone card is next. Nothing you type leaves your device.</p>
+
+  <div class="rounded-lg border border-zinc-800 bg-zinc-950 p-5 my-6">
+    <label for="birth" class="block text-xs font-bold uppercase tracking-widest text-zinc-300">Birth date</label>
+    <input id="birth" type="date" class="inp mt-2 w-full sm:w-64">
+    <p id="age-out" class="mt-4 text-lg text-white" aria-live="polite"></p>
+  </div>
+
+  <h2>Due date calculator</h2>
+  <p>Enter the first day of your last period. The estimate adds 280 days, the standard rule of thumb.</p>
+  <div class="rounded-lg border border-zinc-800 bg-zinc-950 p-5 my-6">
+    <label for="lmp" class="block text-xs font-bold uppercase tracking-widest text-zinc-300">First day of last period</label>
+    <input id="lmp" type="date" class="inp mt-2 w-full sm:w-64">
+    <p id="due-out" class="mt-4 text-white" aria-live="polite"></p>
+  </div>
+
+  <h2>Make a card for every month</h2>
+  <p>Once you know the age, print a card to mark it. Our <a href="/generators/milestones/">monthly milestone card maker</a> covers newborn to three years, and the <a href="/generators/baby-stats/">baby stats card</a> is a keepsake for the day of birth.</p>
+  <noscript><p>This calculator needs JavaScript.</p></noscript>
+</article>

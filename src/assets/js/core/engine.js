@@ -146,6 +146,9 @@ function buildControls() {
       <button id="btn-pack" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white w-full">${def.pack.button || 'Download pack PDF'}</button>`);
   }
 
+  html += sec('Share &amp; Pinterest', `<p class="text-zinc-500">Make a vertical 1000×1500 pin image of this card, or share the card straight from your phone.</p>
+    <div class="grid grid-cols-2 gap-2"><button id="btn-pin" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white">Pinterest pin</button><button id="btn-share" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white">Share…</button></div>`);
+
   html += sec('My Templates', `<p class="text-zinc-500">Saves the look (style, size, font, photo settings, toggles), not the text you typed.</p>
     <div class="flex gap-2"><input id="tpl-name" class="inp" placeholder="Template name" maxlength="30"><button id="btn-tpl-save" type="button" class="btn bg-indigo-600 hover:bg-indigo-500 text-white shrink-0">Save</button></div>
     <div id="tpl-list" class="space-y-2"></div>`);
@@ -287,6 +290,37 @@ async function exportPNG() {
   track('export', { generator: def.slug, format: 'png', theme: state.theme });
 }
 
+function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+
+async function makePin() {
+  const c = await capturePage(state.page), W = 1000, H = 1500, pin = document.createElement('canvas');
+  pin.width = W; pin.height = H; const g = pin.getContext('2d');
+  const grd = g.createLinearGradient(0, 0, W, H); grd.addColorStop(0, '#a78bfa'); grd.addColorStop(1, '#6366f1');
+  g.fillStyle = grd; g.fillRect(0, 0, W, H);
+  const maxW = 820, maxH = 1000, k = Math.min(maxW / c.width, maxH / c.height), w = c.width * k, h = c.height * k, x = (W - w) / 2, y = 330 + (maxH - h) / 2;
+  g.save(); g.shadowColor = 'rgba(0,0,0,.35)'; g.shadowBlur = 50; g.shadowOffsetY = 20; g.fillStyle = '#fff'; roundRect(g, x, y, w, h, 18); g.fill(); g.restore();
+  g.save(); roundRect(g, x, y, w, h, 18); g.clip(); g.drawImage(c, x, y, w, h); g.restore();
+  g.fillStyle = '#fff'; g.textAlign = 'center';
+  g.font = '800 64px "DejaVu Sans", Arial, sans-serif'; g.fillText(def.pinTitle || 'Free printable baby cards', W / 2, 170);
+  g.font = '400 36px "DejaVu Sans", Arial, sans-serif'; g.globalAlpha = .9; g.fillText('Edit, print and download in your browser', W / 2, 235);
+  g.globalAlpha = 1; g.font = '700 44px "DejaVu Sans", Arial, sans-serif'; g.fillText('babycardprintables.com', W / 2, H - 90);
+  return new Promise(res => pin.toBlob(res, 'image/png'));
+}
+
+async function exportPin() {
+  downloadBlob(await makePin(), `babycardprintables-${slug()}-pin.png`);
+  track('export', { generator: def.slug, format: 'pin', theme: state.theme });
+}
+
+async function shareCard() {
+  const c = await capturePage(state.page), blob = await new Promise(res => c.toBlob(res, 'image/png'));
+  const file = new File([blob], `babycardprintables-${slug()}.png`, { type: 'image/png' });
+  track('share', { generator: def.slug });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: document.title, text: 'Made with babycardprintables.com' }); } catch (e) { if (e.name !== 'AbortError') throw e; }
+  } else downloadBlob(blob, file.name);
+}
+
 async function exportPack() {
   const ids = [...document.querySelectorAll('[data-pack]:checked')].map(c => c.dataset.pack);
   if (!ids.length) { alert('Select at least one item.'); return; }
@@ -408,6 +442,8 @@ function bindEvents() {
 
   $('btn-pdf').addEventListener('click', e => withBusy(e.currentTarget, 'Generating…', exportPDF));
   $('btn-png').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', exportPNG));
+  $('btn-pin').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', exportPin));
+  $('btn-share').addEventListener('click', e => withBusy(e.currentTarget, 'Preparing…', shareCard));
   const bp = $('btn-pack'); if (bp) bp.addEventListener('click', e => withBusy(e.currentTarget, 'Building…', exportPack));
 
   $('pager-prev').addEventListener('click', () => { state.page = Math.max(0, state.page - 1); renderCard(); });
