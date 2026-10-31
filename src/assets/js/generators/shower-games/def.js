@@ -10,7 +10,7 @@ const THEMES = {
 };
 
 const GIFTS = ['Onesie', 'Baby bottles', 'Pacifier', 'Stroller', 'Diapers', 'Wipes', 'Blanket', 'Bibs', 'Rattle', 'Teddy bear', 'Baby monitor', 'Burp cloths', 'Socks', 'Sun hat', 'Mittens', 'Crib sheets', 'Bath tub', 'Hooded towel', 'Lotion', 'Picture books', 'Swaddle', 'Car seat toy', 'Play mat', 'Mobile', 'Night light', 'Diaper bag', 'Teether', 'Gift card'];
-const PROMPTS = ['Baby’s name:', 'Birth date:', 'Birth time:', 'Weight:', 'Length:', 'Hair colour:', 'Eye colour:', 'Your name:'];
+const PROMPTS = ['Baby’s name:', 'Birth date:', 'Birth time:', 'Weight:', 'Length:', 'Hair color:', 'Eye color:', 'Your name:'];
 
 const lines = s => String(s || '').split('\n').map(x => x.trim()).filter(Boolean);
 
@@ -34,7 +34,7 @@ export default {
   defaultFormat: 'a4',
   photo: false,
   pad: 40,
-  ornaments: [['accents', 'Decorations'], ['border', 'Frame border'], ['crop', 'Crop marks']],
+  ornaments: [['accents', 'Little decorations'], ['border', 'Border line'], ['crop', 'Cutting guides']],
   defaults: {
     toggles: { accents: true, border: false, crop: false },
     data: { game: 'bingo', title: '', honoree: 'for Emma & Jake', cardCount: '6', seed: '1', free: 'FREE', items: GIFTS.join('\n'), prompts: PROMPTS.join('\n'), perPage: '2', advicePrompt: 'My advice for the parents-to-be:' },
@@ -54,9 +54,9 @@ export default {
     boxes: [
       { fields: [
         { key: 'items', type: 'textarea', rows: 8, label: 'Bingo items (one per line, 24 or more)', max: 1500 },
-        { key: 'itemCount', type: 'readout', label: 'Items' },
-        { key: 'free', type: 'text', label: 'Centre square text', ph: 'FREE', maxlength: 10 },
-        { key: 'seed', type: 'number', label: 'Shuffle number (change for a different set)', min: 1, max: 9999, step: 1 } ] },
+        { key: 'itemCount', type: 'readout', label: 'Items entered' },
+        { key: 'free', type: 'text', label: 'Center square text', ph: 'FREE', maxlength: 10 },
+        { key: 'seed', type: 'number', label: 'Shuffle number (change it for different boards)', min: 1, max: 9999, step: 1 } ] },
     ],
   }, {
     title: 'Predictions &amp; advice',
@@ -67,9 +67,9 @@ export default {
     ],
   }],
   pack: {
-    title: 'All Palettes',
-    desc: 'One PDF with the current game in every theme you tick.',
-    button: 'Download theme set (PDF)',
+    title: 'All Designs in One PDF',
+    desc: 'One PDF with the current game in every design you tick.',
+    button: 'Download all designs (PDF)',
     options: Object.entries(THEMES).map(([id, th]) => [id, th.name]),
     apply(state, id) { state.theme = id; },
   },

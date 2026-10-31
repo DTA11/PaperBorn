@@ -81,7 +81,7 @@ export const TEMPLATES = {
       <div class="col-span-5 space-y-4 border-l-2 border-black pl-5">
         ${stat('Born', t.date && e.date, t.time && e.time, { l: 'text-neutral-400', v: 'text-lg font-black', s: 'font-mono text-neutral-500' })}
         ${stat('Weight', t.weight && e.weightN, t.weight && 'grams', { l: 'text-neutral-400', v: 'text-5xl font-black leading-none', s: 'uppercase tracking-widest text-neutral-500' })}
-        ${stat('Height', t.height && e.heightN, t.height && 'centimetres', { l: 'text-neutral-400', v: 'text-5xl font-black leading-none', s: 'uppercase tracking-widest text-neutral-500' })}
+        ${stat('Height', t.height && e.heightN, t.height && 'centimeters', { l: 'text-neutral-400', v: 'text-5xl font-black leading-none', s: 'uppercase tracking-widest text-neutral-500' })}
         ${stat('Sign', t.zodiac && e.zodiac, '', { l: 'text-neutral-400', v: 'text-sm font-bold uppercase' })}
       </div>
     </div>
@@ -325,7 +325,7 @@ export const TEMPLATES = {
       <div class="min-w-0">${show(t.location, e.location, `<div class="uppercase tracking-wider">${e.location}${e.city ? `, ${e.city}` : ''}</div>`)}${show(t.quote, e.quote, `<div class="italic font-normal mt-0.5">“${e.quote}”</div>`)}</div>
       ${show(t.parents, e.parents, `<div class="text-right uppercase tracking-wider">${e.parents}</div>`)}
     </div>
-    ${footer(e, t, 'Baby Card Printables • Colour Block', 'border-[#1d2a44]/40')}`;
+    ${footer(e, t, 'Baby Card Printables • Color Block', 'border-[#1d2a44]/40')}`;
   },
 };
 

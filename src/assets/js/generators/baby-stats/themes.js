@@ -10,5 +10,5 @@ export const THEMES = {
   celestial:   { name: 'Celestial Night',      desc: 'Stars, orbits & real moon phase',   bg: '#0a0e2a', fg: '#f3ecd8', font: 'serif',       shape: 'circle',    filter: 'cool',      frame: '1px solid rgba(232,200,114,.7)' },
   certificate: { name: 'Birth Certificate',    desc: 'Official paper, seal & signatures', bg: '#f6efdb', fg: '#3a2c14', font: 'vintage',     shape: 'rectangle', filter: 'sepia',     frame: 'none' },
   retro:       { name: 'Retro Groove',         desc: '70s sunburst, stripes & bold type', bg: '#f7e6c4', fg: '#5b2a14', font: 'playful',     shape: 'circle',    filter: 'warm',      frame: 'none' },
-  colorblock:  { name: 'Modern Colour Block',  desc: 'Bauhaus shapes & big numerals',     bg: '#f6f1e7', fg: '#1d2a44', font: 'sans',        shape: 'arch',      filter: 'none',      frame: '2px solid #1d2a44' },
+  colorblock:  { name: 'Modern Color Block',  desc: 'Bauhaus shapes & big numerals',     bg: '#f6f1e7', fg: '#1d2a44', font: 'sans',        shape: 'arch',      filter: 'none',      frame: '2px solid #1d2a44' },
 };

@@ -11,8 +11,8 @@ export const SHAPES = { // ratio = width/height, radius = CSS border-radius (per
   hexagon:   { ratio: 1,    radius: '0' },
   rounded:   { ratio: 0.75, radius: '16px' },
 };
-export const SHAPE_LABELS = [['rectangle', 'Rectangle'], ['circle', 'Circle'], ['oval', 'Oval'], ['arch', 'Arch'], ['hexagon', 'Hexagon'], ['rounded', 'Soft rounded']];
-export const FILTER_LABELS = [['none', 'Natural colour'], ['grayscale', 'High-contrast B&W'], ['sepia', 'Soft sepia'], ['warm', 'Warm sunlight'], ['cool', 'Cool midnight'], ['dither', 'Vintage dither']];
+export const SHAPE_LABELS = [['rectangle', 'Rectangle'], ['circle', 'Circle'], ['oval', 'Oval'], ['arch', 'Arch'], ['hexagon', 'Hexagon'], ['rounded', 'Rounded corners']];
+export const FILTER_LABELS = [['none', 'Natural color'], ['grayscale', 'Black & white'], ['sepia', 'Old photo (sepia)'], ['warm', 'Warm'], ['cool', 'Cool'], ['dither', 'Dotted retro']];
 
 export const photo = { source: null, srcId: 0, url: '', key: '', canvas: null, bake: { key: '', url: '' } };
 

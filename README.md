@@ -17,10 +17,19 @@ npm start                     # serves on http://localhost:8080 (python3 -m http
 ```
 Netlify: build command `node scripts/build.mjs`, publish directory `dist` (already in `netlify.toml`).
 
-## Before you go public
-1. In `site.config.json` set `siteUrl` (your .com), `contactEmail` (currently a placeholder) and, when ready, `analytics.plausibleDomain`.
-2. Replace the Tailwind CDN in `src/layout.html` with a compiled stylesheet for speed (Tailwind CLI, content `src/**/*.{html,js}`).
-3. Ads stay off until `ads.enabled` is true. EU visitors need a consent banner (CMP) first.
+## Styles (Tailwind)
+Tailwind is compiled ahead of time into `src/assets/css/tailwind.css` (no CDN on the live site). After adding or changing Tailwind classes in pages or scripts, rebuild it and commit the result:
+```
+npx tailwindcss@3 -c tailwind.config.js -i tailwind/input.css -o src/assets/css/tailwind.css --minify
+```
+
+## Settings
+- `site.config.json`: site name, URL, contact email (`hello@babycardprintables.com`), analytics and ads.
+- Ads stay off until `ads.enabled` is true. EU visitors need a consent banner (CMP) first.
+- `netlify.toml`: the Content Security Policy is still report-only. Switch it to enforcing after a real PNG/PDF export test on an iPhone shows no violations, and add ad/analytics hosts first.
+
+## What the editor saves
+Everything stays in the visitor's browser (local storage): the card details and settings, a smaller copy of an uploaded photo, and saved looks. *Start over* clears the details and photo of the current card.
 
 ## Add a generator
 1. Create `src/assets/js/generators/<slug>/def.js` (themes, formats, sections, templates, optional decor/pageCount/pack) and a `main.js` that calls `boot(def)`.

@@ -27,7 +27,7 @@ export const barcode = (w, h, c) => {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${out}</svg>`;
 };
 
-/* Five-point star path centred on (0,0) with outer radius r */
+/* Five-point star path centered on (0,0) with outer radius r */
 export const starPath = (r, inner = .45) => {
   let d = '';
   for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * inner : r; d += `${i ? 'L' : 'M'}${(rr * Math.cos(a)).toFixed(2)} ${(rr * Math.sin(a)).toFixed(2)}`; }

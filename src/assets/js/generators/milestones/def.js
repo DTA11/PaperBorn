@@ -4,12 +4,12 @@ import { TEMPLATES, DECOR } from './templates.js';
 const THEMES = {
   classic:    { name: 'Classic Numeral',  desc: 'Warm cream & a big serif numeral', bg: '#fbf6ee', fg: '#3d2b1f', font: 'serif',       shape: 'circle',  filter: 'none', frame: '1px solid rgba(181,131,90,.6)' },
   chalkboard: { name: 'Chalkboard',       desc: 'Hand-lettered chalk on slate',     bg: '#243832', fg: '#f4f1e8', font: 'handwritten', shape: 'rounded', filter: 'none', frame: '3px dashed rgba(244,241,232,.55)' },
-  pastel:     { name: 'Pastel Sticker',   desc: 'Soft colours & a round badge',     bg: '#fff4ec', fg: '#4a3b52', font: 'playful',     shape: 'rounded', filter: 'none', frame: '3px solid #ffd9c7' },
+  pastel:     { name: 'Pastel Sticker',   desc: 'Soft colors & a round badge',     bg: '#fff4ec', fg: '#4a3b52', font: 'playful',     shape: 'rounded', filter: 'none', frame: '3px solid #ffd9c7' },
   scrapbook:  { name: 'Scrapbook',        desc: 'Polaroid, washi tape & dots',      bg: '#ecdcc0', fg: '#4b3a28', font: 'handwritten', shape: 'rectangle', filter: 'warm', frame: '2px dashed #8a6d43' },
-  modern:     { name: 'Modern Colour',    desc: 'Bold navy band & bright blocks',   bg: '#f7f1e8', fg: '#1f3a5f', font: 'sans',        shape: 'arch',    filter: 'none', frame: '' },
+  modern:     { name: 'Modern Color',    desc: 'Bold navy band & bright blocks',   bg: '#f7f1e8', fg: '#1f3a5f', font: 'sans',        shape: 'arch',    filter: 'none', frame: '' },
 };
 
-const MILESTONES = [['0', 'Newborn'], ...Array.from({ length: 12 }, (_, i) => [String(i + 1), `${i + 1} Month${i ? 's' : ''}`]), ['18', '18 Months'], ['24', '2 Years'], ['36', '3 Years'], ['custom', 'Custom text']];
+const MILESTONES = [['0', 'Newborn'], ...Array.from({ length: 12 }, (_, i) => [String(i + 1), `${i + 1} Month${i ? 's' : ''}`]), ['18', '18 Months'], ['24', '2 Years'], ['36', '3 Years'], ['custom', 'Write my own']];
 
 function fmtDate(iso) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
@@ -50,29 +50,29 @@ export default {
     data: { babyName: 'Aurelia', milestone: '3', customBig: '100', customSmall: 'DAYS', date: '2026-10-10', weightG: '5800', heightCm: '61',
             note: 'Smiles at everyone and loves bath time!', loves: 'Bath time & lullabies', skill: 'Rolling over', fun: 'Giggles at the dog' },
   },
-  ornaments: [['accents', 'Accents / doodles'], ['border', 'Frame border'], ['crop', 'Crop marks'], ['footer', 'Small footer label']],
+  ornaments: [['accents', 'Little doodles'], ['border', 'Border line'], ['crop', 'Cutting guides'], ['footer', 'Small footer text']],
   sections: [{
     title: 'Milestone details',
     boxes: [
       { toggles: [['name', 'Baby name']], fields: [{ key: 'babyName', type: 'text', ph: 'Baby name', maxlength: 30 }] },
       { cols: 2, fields: [
         { key: 'milestone', type: 'select', label: 'Milestone', span: 2, options: MILESTONES },
-        { key: 'customBig', type: 'text', label: 'Custom big text', ph: '100', maxlength: 6 },
-        { key: 'customSmall', type: 'text', label: 'Custom small text', ph: 'DAYS', maxlength: 14 } ] },
+        { key: 'customBig', type: 'text', label: 'Your big text', ph: '100', maxlength: 6 },
+        { key: 'customSmall', type: 'text', label: 'Your small text', ph: 'DAYS', maxlength: 14 } ] },
       { toggles: [['date', 'Date'], ['weight', 'Weight']], cols: 2, fields: [
         { key: 'date', type: 'date', label: 'Date', min: '1900-01-01' },
         { key: 'weightG', type: 'number', label: 'Weight (grams)', min: 300, max: 25000, step: 1, ph: '5800' } ] },
       { toggles: [['height', 'Height']], fields: [{ key: 'heightCm', type: 'number', label: 'Height (cm)', min: 20, max: 130, step: 0.5, ph: '61' }] },
       { toggles: [['note', 'This month I…']], fields: [{ key: 'note', type: 'textarea', rows: 3, ph: 'Smiles at everyone and loves bath time!', max: 140 }] },
-      { toggles: [['facts', 'Favourites']], fields: [
+      { toggles: [['facts', 'Favorites']], fields: [
         { key: 'loves', type: 'text', label: 'Loves', ph: 'Bath time', maxlength: 36 },
         { key: 'skill', type: 'text', label: 'New skill', ph: 'Rolling over', maxlength: 36 },
         { key: 'fun', type: 'text', label: 'Fun fact', ph: 'Giggles at the dog', maxlength: 36 } ] },
     ],
   }],
   pack: {
-    title: 'Milestone Set',
-    desc: 'One PDF with a card for each month you tick, using your photo and theme. Tip: switch off Date, Weight and Height first if they differ per month.',
+    title: 'Monthly Set in One PDF',
+    desc: 'One PDF with a card for each month you tick, using your photo and design. Tip: switch off Date, Weight and Height first if they differ per month.',
     button: 'Download milestone set (PDF)',
     options: MILESTONES.filter(m => m[0] !== 'custom' && +m[0] <= 12).map(([v, l]) => [v, l]),
     apply(state, id) { state.data.milestone = id; },

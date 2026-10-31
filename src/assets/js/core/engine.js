@@ -10,7 +10,7 @@ import { renderToCanvas, pageMM, addBleed, newPDF, addPageToPDF, downloadBlob } 
 let def;
 const COLS = { 1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3' };
 const SPAN = { 1: 'col-span-1', 2: 'col-span-2', 3: 'col-span-3' };
-const DEFAULT_ORNAMENTS = [['accents', 'Accents / icons'], ['border', 'Frame border'], ['crop', 'Crop marks'], ['footer', 'Archival stamp']];
+const DEFAULT_ORNAMENTS = [['accents', 'Little decorations'], ['border', 'Border line'], ['crop', 'Cutting guides'], ['footer', 'Small footer text']];
 const PCT = new Set(['brightness', 'contrast', 'zoom', 'offsetX', 'offsetY']);
 
 /* ---------- State ---------- */
@@ -26,6 +26,26 @@ function freshState() {
 const pick = () => ({ theme: state.theme, format: state.format, fontMode: state.fontMode, photo: state.photo, toggles: state.toggles, data: state.data });
 const storeKey = () => `paperborn:${def.slug}:v1`;
 const tplKey = () => `paperborn:${def.slug}:templates`;
+const photoKey = () => `paperborn:${def.slug}:photo`;
+
+/* The uploaded photo is kept too (a smaller JPEG copy in this browser only), so a refresh does not lose it. */
+function savePhoto() {
+  const s = photo.source; if (!s) return;
+  for (const max of [1200, 800]) {          // second try is smaller in case browser storage is nearly full
+    try {
+      const k = Math.min(1, max / Math.max(s.width, s.height)), c = document.createElement('canvas');
+      c.width = Math.round(s.width * k); c.height = Math.round(s.height * k);
+      const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(s, 0, 0, c.width, c.height);
+      localStorage.setItem(photoKey(), c.toDataURL('image/jpeg', 0.85)); return;
+    } catch (_) {}
+  }
+  try { localStorage.removeItem(photoKey()); } catch (_) {}
+}
+async function loadPhoto() {
+  let saved = null; try { saved = localStorage.getItem(photoKey()); } catch (_) {}
+  if (saved) { await setPhotoSource(saved); if (photo.source) return; try { localStorage.removeItem(photoKey()); } catch (_) {} }
+  await setPhotoSource(def.sampleImage);
+}
 
 let saveTimer;
 function scheduleSave() {
@@ -82,7 +102,7 @@ function fieldHTML(fd) {
       break;
     case 'note': return `<p class="${span} text-zinc-500">${fd.text}</p>`;
     case 'placesearch':
-      return `<div class="${span} min-w-0" data-place='${JSON.stringify(fd.keys)}'>${lab || ''}
+      return `<div class="${span} min-w-0" data-place='${JSON.stringify(fd.keys)}'>${fd.label ? `<label class="lbl" for="place-q">${fd.label}</label>` : ''}
         <div class="flex gap-2"><input type="search" id="place-q" class="inp" placeholder="${esc(fd.ph || 'Hospital name and city')}" maxlength="120" autocomplete="off">
         <button type="button" data-place-go class="btn bg-indigo-600 hover:bg-indigo-500 text-white shrink-0">Search</button></div>
         <div data-place-status class="text-zinc-500 mt-1" aria-live="polite">Sends your search text to OpenStreetMap, only when you press Search.</div>
@@ -112,46 +132,46 @@ function buildControls() {
   const CHEV = '<svg class="w-4 h-4 text-zinc-500 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   /* Each section is a collapsible <details>; on phones only the ones marked "keep" start open. */
   const sec = (title, body, extra = '', keep = false) => `<details class="sec group" data-acc ${keep ? 'data-keep' : ''} open><summary class="flex justify-between items-center gap-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden"><h2 class="h2">${++n}. ${title}</h2><span class="flex items-center gap-3">${extra}${CHEV}</span></summary><div class="space-y-3 pt-3">${body}</div></details>`;
-  let html = sec(def.ui?.themeTitle || 'Aesthetic Theme', '<div id="style-grid" class="hidden lg:grid grid-cols-2 gap-2"></div><select id="style-select" aria-label="Style" class="inp lg:hidden !text-base !py-2.5"></select>',
-    `<span class="text-[10px] text-zinc-500 font-mono">${Object.keys(def.themes).length} STYLES</span>`, true);
+  let html = sec(def.ui?.themeTitle || 'Design', '<div id="style-grid" class="hidden lg:grid grid-cols-2 gap-2"></div><select id="style-select" aria-label="Design" class="inp lg:hidden !text-base !py-2.5"></select>',
+    `<span class="text-[10px] text-zinc-500 font-mono">${Object.keys(def.themes).length} DESIGNS</span>`, true);
 
   for (const s of def.sections) html += sec(s.title, s.boxes.map(boxHTML).join(''), '', true);
 
   if (def.photo) {
-    html += sec('Photo Studio', `<div class="box">
-      <div><label class="lbl" for="photo-file">Upload image</label>
+    html += sec('Photo', `<div class="box">
+      <div><label class="lbl" for="photo-file">Choose a photo</label>
         <input type="file" id="photo-file" accept="image/*" class="w-full text-zinc-300 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white cursor-pointer"></div>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="lbl">Frame shape</label><select data-p="shape" class="inp">${SHAPE_LABELS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div>
-        <div><label class="lbl">Colour filter</label><select data-p="filterMode" class="inp">${FILTER_LABELS.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join('')}</select></div>
+        <div><label class="lbl" for="photo-shape">Photo shape</label><select id="photo-shape" data-p="shape" class="inp">${SHAPE_LABELS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div>
+        <div><label class="lbl" for="photo-look">Photo look</label><select id="photo-look" data-p="filterMode" class="inp">${FILTER_LABELS.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join('')}</select></div>
       </div>
       <div class="space-y-2 pt-2 border-t border-zinc-800">
         ${range('Brightness', 'brightness', 50, 150)}${range('Contrast', 'contrast', 50, 200)}${range('Zoom', 'zoom', 100, 250)}
         <p class="text-zinc-500">Drag the photo in the preview to move it. Zoom in first to have room to move.</p>
-        <button id="btn-photo-center" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white w-full">Centre photo</button>
+        <button id="btn-photo-center" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white w-full">Center the photo</button>
       </div></div>`,
-      `<label class="chk"><input type="checkbox" data-t="photo" class="rounded"><span class="text-[10px] uppercase tracking-wider font-bold">Include</span></label>`);
+      `<label class="chk"><input type="checkbox" data-t="photo" class="rounded"><span class="text-[10px] uppercase tracking-wider font-bold">Show photo</span></label>`);
   }
 
-  html += sec('Paper &amp; Typography', `<div class="grid grid-cols-2 gap-3">
-    <div><label class="lbl">Canvas size</label><select data-a="format" class="inp">${Object.entries(def.formats).map(([k, f]) => `<option value="${k}">${f.label}</option>`).join('')}</select></div>
-    <div><label class="lbl">Font</label><select data-a="fontMode" class="inp">${FONT_LABELS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div></div>`);
+  html += sec('Paper size &amp; font', `<div class="grid grid-cols-2 gap-3">
+    <div><label class="lbl" for="paper-size">Paper size</label><select id="paper-size" data-a="format" class="inp">${Object.entries(def.formats).map(([k, f]) => `<option value="${k}">${f.label}</option>`).join('')}</select></div>
+    <div><label class="lbl" for="font-pick">Font</label><select id="font-pick" data-a="fontMode" class="inp">${FONT_LABELS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div></div>`);
 
   const orn = [...(def.ornaments || DEFAULT_ORNAMENTS), ...(def.extraOrnaments || [])];
-  html += sec('Ornaments &amp; Print', `<div class="grid grid-cols-2 gap-2">` +
+  html += sec('Extras', `<div class="grid grid-cols-2 gap-2">` +
     orn.map(([k, l, wide]) => `<label class="chk box !space-y-0 ${wide ? 'col-span-2' : ''}"><input type="checkbox" data-t="${k}" class="rounded">${l}</label>`).join('') +
-    `<label class="chk box !space-y-0 col-span-2"><input type="checkbox" data-o="bleed" class="rounded">Add 3 mm print bleed (extends the background on export)</label></div>`);
+    `<label class="chk box !space-y-0 col-span-2"><input type="checkbox" data-o="bleed" class="rounded">Extra 3 mm edge for print shops (also called bleed)</label></div>`);
   if (def.pack) {
     html += sec(def.pack.title, `<p class="text-zinc-500">${def.pack.desc}</p>
       <div class="grid grid-cols-2 gap-2">${def.pack.options.map(([v, l, on]) => `<label class="chk box !space-y-0"><input type="checkbox" data-pack="${esc(v)}" ${on === false ? '' : 'checked'} class="rounded">${esc(l)}</label>`).join('')}</div>
-      <button id="btn-pack" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white w-full">${def.pack.button || 'Download pack PDF'}</button>`);
+      <button id="btn-pack" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white w-full">${def.pack.button || 'Download all (PDF)'}</button>`);
   }
 
-  html += sec('Share &amp; Pinterest', `<p class="text-zinc-500">Make a vertical 1000×1500 pin image of this card, or share the card straight from your phone.</p>
-    <div class="grid grid-cols-2 gap-2"><button id="btn-pin" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white">Pinterest pin</button><button id="btn-share" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white">Share…</button></div>`);
+  html += sec('Share &amp; Pinterest', `<p class="text-zinc-500">Make a tall picture of this card sized for Pinterest, or share the card straight from your phone.</p>
+    <div class="grid grid-cols-2 gap-2"><button id="btn-pin" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white">Pinterest picture</button><button id="btn-share" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white">Share…</button></div>`);
 
-  html += sec('My Templates', `<p class="text-zinc-500">Saves the look (style, size, font, photo settings, toggles), not the text you typed.</p>
-    <div class="flex gap-2"><input id="tpl-name" class="inp" placeholder="Template name" maxlength="30"><button id="btn-tpl-save" type="button" class="btn bg-indigo-600 hover:bg-indigo-500 text-white shrink-0">Save</button></div>
+  html += sec('Saved Looks', `<p class="text-zinc-500">Saves the look (design, paper size, font, photo settings and extras), not the text you typed.</p>
+    <div class="flex gap-2"><input id="tpl-name" class="inp" placeholder="Name this look" aria-label="Name for this look" maxlength="30"><button id="btn-tpl-save" type="button" class="btn bg-indigo-600 hover:bg-indigo-500 text-white shrink-0">Save</button></div>
     <div id="tpl-list" class="space-y-2"></div>`);
 
   return html;
@@ -380,8 +400,8 @@ function renderTemplates() {
   const list = getTpls();
   $('tpl-list').innerHTML = list.length ? list.map((t, i) =>
     `<div class="flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-800 rounded p-2"><span class="truncate text-zinc-200">${esc(t.name)}</span>` +
-    `<span class="flex gap-1 shrink-0"><button type="button" data-tpl-load="${i}" class="btn !py-1 !px-2 bg-zinc-800 text-white">Load</button><button type="button" data-tpl-del="${i}" aria-label="Delete template" class="btn !py-1 !px-2 text-zinc-400 hover:text-white">&#10005;</button></span></div>`).join('')
-    : '<p class="text-zinc-500">No saved templates yet.</p>';
+    `<span class="flex gap-1 shrink-0"><button type="button" data-tpl-load="${i}" class="btn !py-1 !px-2 bg-zinc-800 text-white">Load</button><button type="button" data-tpl-del="${i}" aria-label="Delete saved look" class="btn !py-1 !px-2 text-zinc-400 hover:text-white">&#10005;</button></span></div>`).join('')
+    : '<p class="text-zinc-500">No saved looks yet.</p>';
 }
 
 /* ---------- Place search (OpenStreetMap Nominatim, only on button press) ---------- */
@@ -447,7 +467,7 @@ function bindEvents() {
   if (pf) pf.addEventListener('change', async ev => {
     const file = ev.target.files[0]; if (!file) return;
     const url = URL.createObjectURL(file);
-    try { await setPhotoSource(url); refresh(); } finally { URL.revokeObjectURL(url); }
+    try { await setPhotoSource(url); refresh(); savePhoto(); } finally { URL.revokeObjectURL(url); }
   });
 
   $('btn-undo').addEventListener('click', undo);
@@ -462,7 +482,8 @@ function bindEvents() {
   });
 
   $('btn-reset').addEventListener('click', async () => {
-    Object.assign(state, freshState()); try { localStorage.removeItem(storeKey()); } catch (_) {}
+    if (!confirm('Start over? Your details and photo on this card will be cleared. Saved looks are kept.')) return;
+    Object.assign(state, freshState()); try { localStorage.removeItem(storeKey()); localStorage.removeItem(photoKey()); } catch (_) {}
     if ($('photo-file')) $('photo-file').value = '';
     syncForm();
     if (def.photo) { await setPhotoSource(def.sampleImage); }
@@ -511,7 +532,7 @@ function bindEvents() {
       syncForm(); refresh(); scheduleSave();
     } else if (del) {
       const list = getTpls(), t = list[+del.dataset.tplDel];
-      if (t && confirm(`Delete template “${t.name}”?`)) { list.splice(+del.dataset.tplDel, 1); setTpls(list); renderTemplates(); }
+      if (t && confirm(`Delete the saved look “${t.name}”?`)) { list.splice(+del.dataset.tplDel, 1); setTpls(list); renderTemplates(); }
     }
   });
   new ResizeObserver(fitStage).observe($('stage'));
@@ -532,7 +553,7 @@ export async function boot(definition) {
   renderTemplates();
   hist.last = JSON.stringify(pick()); updateHistBtns();
   document.fonts.ready.then(queueRender);
-  if (def.photo) { await setPhotoSource(def.sampleImage || '/assets/img/sample.svg'); refresh(); }
+  if (def.photo) { await loadPhoto(); refresh(); }
   track('editor_loaded', { generator: def.slug });
   window.__paperborn = { state, renderCard, pageCount, setTheme, exportPDF, exportPNG, exportPack, photo };
   window.ctxThemes = () => def.themes; window.ctxFormats = () => def.formats;  // handy for debugging/tests

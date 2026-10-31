@@ -1,4 +1,4 @@
-/* Baby shower game sheets: bingo, predictions, advice cards. One layout per game, coloured by theme tokens. */
+/* Baby shower game sheets: bingo, predictions, advice cards. One layout per game, colored by theme tokens. */
 import { esc, shuffle, prng } from '../../core/util.js';
 import { theme } from '../../core/state.js';
 import { svgLayer, sparkle, starPath, heartPath } from '../../core/svg.js';

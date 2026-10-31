@@ -47,11 +47,11 @@ export default {
     data: { firstName: 'AURELIA', lastName: 'VALENTINE', monogram: 'AV', date: '2026-10-10', time: '08:42', weightG: '3450', heightCm: '51',
             location: 'City General Hospital', city: 'Your City, Country', coords: '45.0000° N, 15.0000° E', parents: 'EMMA & MARK', quote: 'Little miracle, endless love.' },
   },
-  extraOrnaments: [['moon', 'Moon phase of birth date (Celestial &amp; Cyber)', true]],
+  extraOrnaments: [['moon', 'Moon on the birth date (Celestial and Cyber designs)', true]],
   sections: [{
     title: 'Details',
     boxes: [
-      { toggles: [['name', 'Baby name'], ['monogram', 'Monogram']], cols: 3, fields: [
+      { toggles: [['name', 'Baby name'], ['monogram', 'Initials']], cols: 3, fields: [
         { key: 'firstName', type: 'text', ph: 'First name', span: 2, maxlength: 40 },
         { key: 'monogram', type: 'text', ph: 'AV', maxlength: 3, cls: 'text-center uppercase font-bold' },
         { key: 'lastName', type: 'text', ph: 'Last name', span: 3, maxlength: 40 } ] },
@@ -61,21 +61,21 @@ export default {
       { toggles: [['weight', 'Weight'], ['height', 'Height']], cols: 2, fields: [
         { key: 'weightG', type: 'number', label: 'Weight (grams)', min: 300, max: 7000, step: 1, ph: '3450' },
         { key: 'heightCm', type: 'number', label: 'Height (cm)', min: 20, max: 70, step: 0.5, ph: '51' } ] },
-      { toggles: [['location', 'Hospital name'], ['city', 'City / address'], ['coords', 'Coordinates']], cols: 2, fields: [
+      { toggles: [['location', 'Hospital name'], ['city', 'City / address'], ['coords', 'Map coordinates']], cols: 2, fields: [
         { type: 'placesearch', label: 'Find hospital address', span: 2, ph: 'Hospital name and city', keys: { name: 'location', city: 'city', coords: 'coords' } },
         { key: 'location', type: 'text', ph: 'Medical center', span: 2, maxlength: 60 },
         { key: 'city', type: 'text', ph: 'City, Country', maxlength: 60 },
         { key: 'coords', type: 'text', ph: '45.0000° N, 15.0000° E', maxlength: 40 } ] },
-      { toggles: [['parents', 'Parents'], ['zodiac', 'Zodiac']], cols: 2, fields: [
+      { toggles: [['parents', 'Parents'], ['zodiac', 'Star sign']], cols: 2, fields: [
         { key: 'parents', type: 'text', label: 'Parents', ph: 'EMMA & MARK', maxlength: 50 },
-        { key: 'zodiac', type: 'readout', label: 'Zodiac (automatic)', empty: 'Pick a birth date' } ] },
-      { toggles: [['quote', 'Dedication / quote']], fields: [ { key: 'quote', type: 'text', ph: 'Little miracle, endless love.', maxlength: 90 } ] },
+        { key: 'zodiac', type: 'readout', label: 'Star sign (filled in for you)', empty: 'Pick a birth date' } ] },
+      { toggles: [['quote', 'Short message']], fields: [ { key: 'quote', type: 'text', ph: 'Little miracle, endless love.', maxlength: 90 } ] },
     ],
   }],
   pack: {
-    title: 'Card Pack',
-    desc: 'One multi-page PDF in the selected styles, using the details above and the current paper size.',
-    button: 'Download pack PDF',
+    title: 'All Designs in One PDF',
+    desc: 'One PDF with a page for each design you tick, using your details and the paper size above.',
+    button: 'Download all designs (PDF)',
     options: Object.entries(THEMES).map(([id, th]) => [id, th.name]),
     apply(state, id) { const th = THEMES[id]; state.theme = id; state.fontMode = th.font; state.photo.shape = th.shape; state.photo.filterMode = th.filter; },
   },

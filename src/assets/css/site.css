@@ -60,3 +60,10 @@ body { overflow-x: clip; touch-action: manipulation; }
 
 /* Editor pages on phones and tablets: the site header scrolls away, the editor toolbar stays at the top. */
 @media (max-width: 1023px) { body:has(#editor) header { position: static; } }
+
+/* Very narrow phones (under 360 px): keep Undo, Redo, Start over and Download on one line. */
+@media (max-width: 359px) {
+  #editor-bar .btn { letter-spacing: .04em; }
+  #btn-reset { padding-left: .5rem; padding-right: .5rem; }
+  #btn-download { padding-left: .75rem; padding-right: .75rem; gap: .35rem; }
+}

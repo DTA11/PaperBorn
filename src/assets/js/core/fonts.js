@@ -3,8 +3,8 @@ export const FONTS = {
   handwritten: "'Caveat', cursive", vintage: "'Cinzel', serif", mono: "'JetBrains Mono', monospace",
 };
 export const FONT_LABELS = [
-  ['serif', 'Playfair Serif'], ['sans', 'Inter Modern'], ['playful', 'Fredoka Playful'],
-  ['handwritten', 'Caveat Script'], ['vintage', 'Cinzel Vintage'], ['mono', 'JetBrains Mono'],
+  ['serif', 'Elegant'], ['sans', 'Clean and modern'], ['playful', 'Rounded and playful'],
+  ['handwritten', 'Handwritten'], ['vintage', 'Classic capitals'], ['mono', 'Typewriter'],
 ];
 /* Make sure the chosen web font is really loaded before drawing/exporting. */
 export async function loadFonts(mode) {

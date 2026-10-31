@@ -5,7 +5,7 @@ import { theme } from '../../core/state.js';
 const THEMES = {
   bw:   { name: 'Black & White',          desc: 'Highest contrast',        bg: '#ffffff', fg: '#000000', acc: '#000000', font: 'sans', frame: '' },
   bwr:  { name: 'Black, White & Red',     desc: 'Red accents for 3+ months', bg: '#ffffff', fg: '#000000', acc: '#e10600', font: 'sans', frame: '' },
-  rw:   { name: 'Red & White',            desc: 'Easiest colour to see first', bg: '#ffffff', fg: '#e10600', acc: '#e10600', font: 'sans', frame: '' },
+  rw:   { name: 'Red & White',            desc: 'Easiest color to see first', bg: '#ffffff', fg: '#e10600', acc: '#e10600', font: 'sans', frame: '' },
   wb:   { name: 'White on Black',         desc: 'Inverted, dark cards',    bg: '#000000', fg: '#ffffff', acc: '#ffffff', font: 'sans', frame: '' },
   by:   { name: 'Black & Yellow',         desc: 'Bold and bright',         bg: '#ffd400', fg: '#000000', acc: '#000000', font: 'sans', frame: '' },
 };
@@ -35,7 +35,7 @@ export default {
   fileName: d => `high-contrast-flashcards`,
   themes: THEMES,
   defaultTheme: 'bw',
-  ui: { themeTitle: 'Colour Palette' },
+  ui: { themeTitle: 'Colors' },
   formats: {
     a4:       { label: 'A4 (210×297 mm)',      w: 794, h: 1123, mm: [210, 297] },
     usletter: { label: 'US Letter (8.5×11 in)', w: 816, h: 1056, mm: [215.9, 279.4] },
@@ -60,9 +60,9 @@ export default {
     ],
   }],
   pack: {
-    title: 'All Palettes',
-    desc: 'One PDF with your cards in every palette you tick.',
-    button: 'Download palette set (PDF)',
+    title: 'All Colors in One PDF',
+    desc: 'One PDF with your cards in every color set you tick.',
+    button: 'Download all colors (PDF)',
     options: Object.entries(THEMES).map(([id, th]) => [id, th.name]),
     apply(state, id) { state.theme = id; },
   },
