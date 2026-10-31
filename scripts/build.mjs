@@ -102,7 +102,7 @@ for (const file of walk(pagesDir)) {
 copyDir(path.join(SRC, 'assets'), path.join(DIST, 'assets'));
 if (process.env.SKIP_VENDOR) console.log('SKIP_VENDOR set: not downloading fonts/libraries (local testing only)');
 else { const v = await vendor(DIST, { fontsUrl: FONTS_FULL }); console.log(`Self-hosted ${v.fonts} font files and ${v.libs} libraries`); }
-for (const f of ['favicon.svg', 'favicon-32.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'site.webmanifest']) if (fs.existsSync(path.join(SRC, f))) fs.copyFileSync(path.join(SRC, f), path.join(DIST, f));
+for (const f of ['favicon.svg', 'favicon-32.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'site.webmanifest', 'googlebf3747b7a59ffb8d.html']) if (fs.existsSync(path.join(SRC, f))) fs.copyFileSync(path.join(SRC, f), path.join(DIST, f));
 
 fs.writeFileSync(path.join(DIST, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
