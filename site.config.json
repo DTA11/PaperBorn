@@ -3,6 +3,6 @@
   "tagline": "Free printable cards for little ones",
   "siteUrl": "https://babycardprintables.com",
   "contactEmail": "hello@babycardprintables.com",
-  "analytics": { "plausibleDomain": "" },
+  "analytics": { "umamiWebsiteId": "2096741a-5f89-45fb-8749-8535000b3ec2", "umamiDomains": "babycardprintables.com" },
   "ads": { "enabled": false, "adsenseClient": "", "slots": { "leaderboard": "", "sidebar": "", "inContent": "" } }
 }

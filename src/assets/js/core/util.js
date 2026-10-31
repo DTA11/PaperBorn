@@ -13,7 +13,7 @@ export function shuffle(arr, seed) {
   return a;
 }
 
-/* Privacy-friendly event tracking (no-op unless Plausible is installed) */
-export const track = (name, props) => { try { if (window.plausible) window.plausible(name, { props }); } catch (_) {} };
+/* Privacy-friendly event tracking with Umami (does nothing if Umami is not loaded) */
+export const track = (name, props) => { try { if (window.umami && window.umami.track) window.umami.track(name, props); } catch (_) {} };
 
 export const slugify = s => (String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')) || 'card';

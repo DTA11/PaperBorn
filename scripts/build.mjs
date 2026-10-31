@@ -110,8 +110,9 @@ for (const file of walk(pagesDir)) {
     editorLibs: editor
       ? LIBS.map(l => `<script defer src="/assets/vendor/${l.out}"></script>`).join('\n') : '',   // only needed when downloading, so never block the first view
     moduleScript: editor ? `<script type="module" src="${meta.module}"></script>` : (meta.script ? `<script type="module" src="${meta.script}"></script>` : ''),
-    analytics: cfg.analytics.plausibleDomain
-      ? `<script defer data-domain="${cfg.analytics.plausibleDomain}" src="https://plausible.io/js/script.outbound-links.js"></script>\n<script>window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}</script>` : '',
+    // Umami: cookie-free visit counts. data-domains keeps Netlify previews and local tests out of the numbers.
+    analytics: cfg.analytics.umamiWebsiteId
+      ? `<script defer src="https://cloud.umami.is/script.js" data-website-id="${cfg.analytics.umamiWebsiteId}"${cfg.analytics.umamiDomains ? ` data-domains="${cfg.analytics.umamiDomains}"` : ''}></script>` : '',
     adsScript: cfg.ads.enabled && cfg.ads.adsenseClient
       ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${cfg.ads.adsenseClient}" crossorigin="anonymous"></script>` : '',
     ogImage: cfg.siteUrl + (meta.ogImage || '/assets/img/og-default.png'),

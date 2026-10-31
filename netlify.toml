@@ -18,7 +18,7 @@
     # Report-Only for now: it only logs problems in the browser console. After a real PNG/PDF export test on an
     # iPhone shows no violations, rename this to Content-Security-Policy to enforce it.
     # When you add analytics or ads, add their hosts to script-src / connect-src / img-src first.
-    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://nominatim.openstreetmap.org; frame-src 'self' blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' https://cloud.umami.is; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://nominatim.openstreetmap.org https://cloud.umami.is https://*.umami.is https://api-gateway.umami.dev; frame-src 'self' blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 
 [[headers]]
   for = "/assets/fonts/*"
