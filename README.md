@@ -28,6 +28,13 @@ npx tailwindcss@3 -c tailwind.config.js -i tailwind/input.css -o src/assets/css/
 - Ads stay off until `ads.enabled` is true. EU visitors need a consent banner (CMP) first.
 - `netlify.toml`: the Content Security Policy is still report-only. Switch it to enforcing after a real PNG/PDF export test on an iPhone shows no violations, and add ad/analytics hosts first.
 
+## SEO and share pictures
+- Each page's `<!--meta -->` header sets `fullTitle` (keep under about 60 characters), `description` (under 155), `ogImage` and `schema`
+  (`home`, `app` for card makers and tools, `article` for guides with `published`/`updated` dates). The build turns `schema` into JSON-LD
+  and adds breadcrumbs to every inner page. The sitemap uses each page's last git change as `lastmod`.
+- Share pictures (1200×630) live in `src/assets/img/og/`. Remake them with `python3 scripts/make-og-images.py` (instructions inside).
+- Seasonal links use `data-season="xmas"`; nav.js shows them from 25 October to 6 January (preview any time with `?season=xmas`).
+
 ## What the editor saves
 Everything stays in the visitor's browser (local storage): the card details and settings, a smaller copy of an uploaded photo, and saved looks. *Start over* clears the details and photo of the current card.
 

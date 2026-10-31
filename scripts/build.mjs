@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 import { vendor, LIBS } from './vendor.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -15,6 +16,32 @@ const read = p => fs.readFileSync(p, 'utf8');
 const layout = read(path.join(SRC, 'layout.html'));
 const partial = n => read(path.join(SRC, 'partials', n + '.html'));
 const today = new Date().toISOString().slice(0, 10);
+/* Last real change of a source file, from git (falls back to nothing, so the sitemap never claims every page changed today). */
+const lastChange = file => {
+  try { return execFileSync('git', ['log', '-1', '--format=%cs', '--', file], { cwd: ROOT, encoding: 'utf8' }).trim() || ''; } catch (_) { return ''; }
+};
+/* Structured data (JSON-LD) so search engines know what each page is. */
+const ORG = () => ({ '@type': 'Organization', name: cfg.siteName, url: cfg.siteUrl + '/', logo: cfg.siteUrl + '/icon-512.png', email: cfg.contactEmail });
+const SECTIONS = { guides: ['Guides', '/guides/'] };
+function jsonLd(meta, urlPath, vars) {
+  if (!urlPath || meta.noindex) return '';
+  const url = cfg.siteUrl + urlPath, out = [];
+  if (meta.schema === 'home') {
+    out.push({ '@context': 'https://schema.org', '@type': 'WebSite', name: cfg.siteName, alternateName: 'babycardprintables.com', url: cfg.siteUrl + '/', description: vars.description, publisher: ORG() });
+    out.push({ '@context': 'https://schema.org', ...ORG() });
+  } else {
+    const parts = urlPath.split('/').filter(Boolean), crumbs = [{ name: 'Home', item: cfg.siteUrl + '/' }];
+    if (parts.length > 1 && SECTIONS[parts[0]]) crumbs.push({ name: SECTIONS[parts[0]][0], item: cfg.siteUrl + SECTIONS[parts[0]][1] });
+    crumbs.push({ name: meta.h1 || meta.title || cfg.siteName, item: url });
+    out.push({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: c.item })) });
+  }
+  if (meta.schema === 'app') out.push({ '@context': 'https://schema.org', '@type': 'WebApplication', name: meta.h1 || meta.title, url, description: vars.description,
+    applicationCategory: meta.appCategory || 'DesignApplication', operatingSystem: 'Any (runs in the web browser)', browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, image: vars.ogImage, publisher: ORG() });
+  if (meta.schema === 'article') out.push({ '@context': 'https://schema.org', '@type': 'Article', headline: meta.h1 || meta.title, description: vars.description, url,
+    image: vars.ogImage, datePublished: meta.published, dateModified: meta.updated || meta.published, author: ORG(), publisher: ORG(), mainEntityOfPage: url });
+  return out.map(o => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`).join('\n');
+}
 
 function walk(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap(d =>
@@ -81,7 +108,7 @@ for (const file of walk(pagesDir)) {
     lead: meta.lead || '',
     fonts: '<link rel="stylesheet" href="/assets/css/fonts.css">',
     editorLibs: editor
-      ? LIBS.map(l => `<script src="/assets/vendor/${l.out}"></script>`).join('\n') : '',
+      ? LIBS.map(l => `<script defer src="/assets/vendor/${l.out}"></script>`).join('\n') : '',   // only needed when downloading, so never block the first view
     moduleScript: editor ? `<script type="module" src="${meta.module}"></script>` : (meta.script ? `<script type="module" src="${meta.script}"></script>` : ''),
     analytics: cfg.analytics.plausibleDomain
       ? `<script defer data-domain="${cfg.analytics.plausibleDomain}" src="https://plausible.io/js/script.outbound-links.js"></script>\n<script>window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}</script>` : '',
@@ -89,6 +116,7 @@ for (const file of walk(pagesDir)) {
       ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${cfg.ads.adsenseClient}" crossorigin="anonymous"></script>` : '',
     ogImage: cfg.siteUrl + (meta.ogImage || '/assets/img/og-default.png'),
   };
+  vars.jsonld = jsonLd(meta, urlPath, vars);
   // page content first (it may use {{h1}} etc.), then wrap in the layout
   vars.content = expand(src, { ...vars, content: '' });
   const html = expand(layout, vars);
@@ -96,7 +124,7 @@ for (const file of walk(pagesDir)) {
   const out = path.join(DIST, outRel);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, html);
-  if (urlPath && !meta.noindex) sitemap.push(urlPath);
+  if (urlPath && !meta.noindex) sitemap.push([urlPath, lastChange(file)]);
 }
 
 copyDir(path.join(SRC, 'assets'), path.join(DIST, 'assets'));
@@ -106,7 +134,7 @@ for (const f of ['favicon.svg', 'favicon-32.png', 'apple-touch-icon.png', 'icon-
 
 fs.writeFileSync(path.join(DIST, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-  sitemap.sort().map(u => `  <url><loc>${cfg.siteUrl}${u}</loc><lastmod>${today}</lastmod></url>`).join('\n') + `\n</urlset>\n`);
+  sitemap.sort((a, b) => a[0].localeCompare(b[0])).map(([u, d]) => `  <url><loc>${cfg.siteUrl}${u}</loc>${d ? `<lastmod>${d}</lastmod>` : ''}</url>`).join('\n') + `\n</urlset>\n`);
 fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${cfg.siteUrl}/sitemap.xml\n`);
 
 console.log(`Built ${sitemap.length} pages -> dist/  (siteUrl: ${cfg.siteUrl})`);
