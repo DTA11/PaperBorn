@@ -264,25 +264,62 @@ export function renderCard() {
   updateMini();
 }
 
-/* Small floating copy of the card on phones/tablets while the real preview is scrolled out of sight. */
-let miniOn = false;
+/* Small floating copy of the card on phones/tablets. It shows only while the card is scrolled away AND the settings
+   are still on screen, so it never covers the content below the editor. Tap it for a full-size preview; ✕ hides it
+   until the real card has been on screen again. */
+const mini = { on: false, hidden: false };
+const isDesktop = () => matchMedia('(min-width:1024px)').matches;
+const miniScale = () => { const f = fmt(); return Math.min(Math.min(innerWidth * 0.34, 160) / f.w, innerHeight * 0.26 / f.h); };
+function cardCopy() {
+  const c = $('card-target').cloneNode(true);
+  c.removeAttribute('id'); c.style.transform = '';
+  c.querySelectorAll('[data-add-photo]').forEach(n => n.remove());
+  c.querySelectorAll('[data-phf]').forEach(n => { n.removeAttribute('data-phf'); n.style.cursor = 'default'; });
+  c.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+  return c;
+}
 function updateMini() {
   const box = $('mini-preview'); if (!box) return;
-  const show = miniOn && !matchMedia('(min-width:1024px)').matches;
+  const show = mini.on && !mini.hidden && !isDesktop() && !$('big-preview').open;
   box.classList.toggle('hidden', !show);
   if (!show) return;
-  const f = fmt(), k = Math.min(84 / f.w, 130 / f.h), src = $('card-target'), inner = $('mini-inner');
-  const c = src.cloneNode(true);
-  c.removeAttribute('id'); c.style.transform = ''; c.querySelectorAll('[data-add-photo]').forEach(n => n.remove());
-  c.querySelectorAll('[data-phf]').forEach(n => n.removeAttribute('data-phf'));
-  inner.replaceChildren(c); inner.style.transform = `scale(${k})`;
-  box.style.width = Math.round(f.w * k) + 'px'; box.style.height = Math.round(f.h * k) + 'px';
+  const f = fmt(), k = miniScale();
+  const inner = $('mini-inner');
+  inner.replaceChildren(cardCopy()); inner.style.transform = `scale(${k})`;
+  const btn = $('mini-open'); btn.style.width = Math.round(f.w * k) + 'px'; btn.style.height = Math.round(f.h * k) + 'px';
+}
+function checkMini() {
+  const box = $('mini-preview'); if (!box) return;
+  const top = $('editor-bar').getBoundingClientRect().bottom, stage = $('stage').getBoundingClientRect();
+  const cardGone = stage.bottom < top + 24;                                         // real card hidden under the toolbar
+  if (!cardGone) mini.hidden = false;                                               // seeing the card again re-arms the ✕
+  const controlsEnd = $('controls').getBoundingClientRect().bottom;
+  const inSettings = controlsEnd > innerHeight - 4;                                // hide as soon as anything below the settings comes into view
+  const on = cardGone && inSettings;
+  if (on !== mini.on) { mini.on = on; updateMini(); }
+}
+function openBig() {
+  const dlg = $('big-preview'), f = fmt(), inner = $('big-inner');
+  dlg.showModal(); updateMini();
+  const k = Math.min((innerWidth - 32) / f.w, (innerHeight - 110) / f.h, 1.5);
+  inner.replaceChildren(cardCopy()); inner.style.transform = `scale(${k})`;
+  $('big-sizer').style.width = Math.round(f.w * k) + 'px'; $('big-sizer').style.height = Math.round(f.h * k) + 'px';
+  const n = pageCount();
+  $('big-note').textContent = n > 1 ? `Page ${state.page + 1} of ${n}` : '';
 }
 function initMini() {
-  const box = $('mini-preview'); if (!box || !('IntersectionObserver' in window)) return;
-  new IntersectionObserver(([en]) => { miniOn = !en.isIntersecting; updateMini(); }, { threshold: 0.05 }).observe($('stage'));
-  box.addEventListener('click', () => { const st = $('stage'); st.style.scrollMarginTop = ($('editor-bar').offsetHeight + 8) + 'px'; st.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  const box = $('mini-preview'); if (!box) return;
+  let raf = 0;
+  const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; checkMini(); }); };
+  addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll);
+  $('mini-open').addEventListener('click', openBig);
+  $('mini-close').addEventListener('click', () => { mini.hidden = true; updateMini(); });
+  const dlg = $('big-preview');
+  $('big-close').addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener('close', updateMini);
   matchMedia('(min-width:1024px)').addEventListener?.('change', updateMini);
+  checkMini();
 }
 
 function fitStage() {
