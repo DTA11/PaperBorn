@@ -2,14 +2,14 @@
   <div class="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-black border-b border-zinc-800">
     <div class="min-w-0">
       <h1 class="font-bold text-sm tracking-widest uppercase text-white leading-tight">{{h1}}</h1>
-      <p class="text-[11px] text-zinc-400 mt-0.5">{{lead}}</p>
+      <p class="hidden sm:block text-[11px] text-zinc-400 mt-0.5">{{lead}}</p>
     </div>
-    <div class="flex items-center gap-1 sm:gap-2">
+    <div class="flex items-center gap-1 sm:gap-2 [&_.btn]:!px-3 sm:[&_.btn]:!px-4">
       <button id="btn-undo" type="button" title="Undo (Ctrl+Z)" aria-label="Undo" disabled class="btn text-zinc-300 hover:text-white">&#8630;</button>
       <button id="btn-redo" type="button" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled class="btn text-zinc-300 hover:text-white">&#8631;</button>
       <button id="btn-reset" type="button" class="btn text-zinc-400 hover:text-white">Reset</button>
       <button id="btn-png" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white">PNG</button>
-      <button id="btn-pdf" type="button" class="btn bg-indigo-600 hover:bg-indigo-500 text-white">Download PDF</button>
+      <button id="btn-pdf" type="button" class="btn bg-indigo-600 hover:bg-indigo-500 text-white whitespace-nowrap"><span class="hidden sm:inline">Download </span>PDF</button>
     </div>
   </div>
   {{ad leaderboard}}

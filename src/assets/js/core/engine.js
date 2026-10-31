@@ -109,9 +109,13 @@ function range(label, key, min, max) {
 
 function buildControls() {
   let n = 0;
-  const sec = (title, body, extra = '') => `<section class="sec"><div class="flex justify-between items-center"><h2 class="h2">${++n}. ${title}</h2>${extra}</div>${body}</section>`;
-  let html = sec(def.ui?.themeTitle || 'Aesthetic Theme', '<div id="style-grid" class="grid grid-cols-2 gap-2"></div>',
-    `<span class="text-[10px] text-zinc-500 font-mono">${Object.keys(def.themes).length} STYLES</span>`);
+  const CHEV = '<svg class="w-4 h-4 text-zinc-500 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  /* Each section is a collapsible <details>; on phones only the ones marked "keep" start open. */
+  const sec = (title, body, extra = '', keep = false) => `<details class="sec group" data-acc ${keep ? 'data-keep' : ''} open><summary class="flex justify-between items-center gap-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden"><h2 class="h2">${++n}. ${title}</h2><span class="flex items-center gap-3">${extra}${CHEV}</span></summary><div class="space-y-3 pt-3">${body}</div></details>`;
+  let html = sec(def.ui?.themeTitle || 'Aesthetic Theme', '<div id="style-grid" class="hidden lg:grid grid-cols-2 gap-2"></div><select id="style-select" aria-label="Style" class="inp lg:hidden !text-sm !py-2.5"></select>',
+    `<span class="text-[10px] text-zinc-500 font-mono">${Object.keys(def.themes).length} STYLES</span>`, true);
+
+  for (const s of def.sections) html += sec(s.title, s.boxes.map(boxHTML).join(''), '', true);
 
   if (def.photo) {
     html += sec('Photo Studio', `<div class="box">
@@ -132,22 +136,20 @@ function buildControls() {
     <div><label class="lbl">Canvas size</label><select data-a="format" class="inp">${Object.entries(def.formats).map(([k, f]) => `<option value="${k}">${f.label}</option>`).join('')}</select></div>
     <div><label class="lbl">Font</label><select data-a="fontMode" class="inp">${FONT_LABELS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div></div>`);
 
-  for (const s of def.sections) html += sec(s.title, s.boxes.map(boxHTML).join(''));
-
-  html += sec('My Templates', `<p class="text-zinc-500">Saves the look (style, size, font, photo settings, toggles), not the text you typed.</p>
-    <div class="flex gap-2"><input id="tpl-name" class="inp" placeholder="Template name" maxlength="30"><button id="btn-tpl-save" type="button" class="btn bg-indigo-600 hover:bg-indigo-500 text-white shrink-0">Save</button></div>
-    <div id="tpl-list" class="space-y-2"></div>`);
-
+  const orn = [...(def.ornaments || DEFAULT_ORNAMENTS), ...(def.extraOrnaments || [])];
+  html += sec('Ornaments &amp; Print', `<div class="grid grid-cols-2 gap-2">` +
+    orn.map(([k, l, wide]) => `<label class="chk box !space-y-0 ${wide ? 'col-span-2' : ''}"><input type="checkbox" data-t="${k}" class="rounded">${l}</label>`).join('') +
+    `<label class="chk box !space-y-0 col-span-2"><input type="checkbox" data-o="bleed" class="rounded">Add 3 mm print bleed (extends the background on export)</label></div>`);
   if (def.pack) {
     html += sec(def.pack.title, `<p class="text-zinc-500">${def.pack.desc}</p>
       <div class="grid grid-cols-2 gap-2">${def.pack.options.map(([v, l, on]) => `<label class="chk box !space-y-0"><input type="checkbox" data-pack="${esc(v)}" ${on === false ? '' : 'checked'} class="rounded">${esc(l)}</label>`).join('')}</div>
       <button id="btn-pack" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white w-full">${def.pack.button || 'Download pack PDF'}</button>`);
   }
 
-  const orn = [...(def.ornaments || DEFAULT_ORNAMENTS), ...(def.extraOrnaments || [])];
-  html += `<section class="space-y-3 pb-5"><h2 class="h2">${++n}. Ornaments &amp; Print</h2><div class="grid grid-cols-2 gap-2">` +
-    orn.map(([k, l, wide]) => `<label class="chk box !space-y-0 ${wide ? 'col-span-2' : ''}"><input type="checkbox" data-t="${k}" class="rounded">${l}</label>`).join('') +
-    `<label class="chk box !space-y-0 col-span-2"><input type="checkbox" data-o="bleed" class="rounded">Add 3 mm print bleed (extends the background on export)</label></div></section>`;
+  html += sec('My Templates', `<p class="text-zinc-500">Saves the look (style, size, font, photo settings, toggles), not the text you typed.</p>
+    <div class="flex gap-2"><input id="tpl-name" class="inp" placeholder="Template name" maxlength="30"><button id="btn-tpl-save" type="button" class="btn bg-indigo-600 hover:bg-indigo-500 text-white shrink-0">Save</button></div>
+    <div id="tpl-list" class="space-y-2"></div>`);
+
   return html;
 }
 
@@ -156,9 +158,13 @@ function buildStyleGrid() {
   $('style-grid').innerHTML = ids.map((id, i) =>
     `<button type="button" data-style="${id}" class="style-btn"><span class="block text-xs">${i + 1}) ${def.themes[id].name}</span><span class="block text-[9px] text-zinc-500 mt-0.5">${def.themes[id].desc}</span></button>`).join('');
   $('style-grid').addEventListener('click', ev => { const b = ev.target.closest('[data-style]'); if (b) setTheme(b.dataset.style); });
+  const ss = $('style-select');
+  ss.innerHTML = ids.map((id, i) => `<option value="${id}">${i + 1}) ${esc(def.themes[id].name)}</option>`).join('');
+  ss.addEventListener('change', () => setTheme(ss.value));
 }
 
 function syncForm() {
+  const ssel = $('style-select'); if (ssel) ssel.value = state.theme;
   document.querySelectorAll('[data-f]').forEach(el => { el.value = state.data[el.dataset.f] ?? ''; });
   document.querySelectorAll('[data-m]').forEach(box => {
     const sel = state.data[box.dataset.m] || [];
@@ -236,6 +242,7 @@ function fitStage() {
   const f = fmt(), stage = $('stage');
   let s = (stage.clientWidth - 32) / f.w;
   if (matchMedia('(min-width:1024px)').matches) s = Math.min(s, (stage.clientHeight - 32) / f.h);
+  else s = Math.min(s, (innerHeight * 0.55 - 32) / f.h); // phones: keep the preview short so the settings stay close
   s = Math.max(0.25, Math.min(1, s));
   $('sizer').style.width = f.w * s + 'px';
   $('sizer').style.height = f.h * s + 'px';
@@ -443,6 +450,7 @@ export async function boot(definition) {
   Object.assign(state, freshState());
   loadSaved();
   $('controls-inner').innerHTML = buildControls();
+  if (!matchMedia('(min-width:1024px)').matches) document.querySelectorAll('[data-acc]:not([data-keep])').forEach(d => { d.open = false; });
   buildStyleGrid();
   bindEvents();
   syncForm();
