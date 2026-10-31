@@ -4,7 +4,7 @@
 import { $, esc, clone, track } from './util.js';
 import { state, ctx, fmt } from './state.js';
 import { FONTS, FONT_LABELS, loadFonts } from './fonts.js';
-import { photo, setPhotoSource, syncPhotoURL, SHAPE_LABELS, FILTER_LABELS } from './photo.js';
+import { photo, setPhotoSource, syncPhotoURL, bakeFrames, initPhotoDrag, SHAPE_LABELS, FILTER_LABELS } from './photo.js';
 import { renderToCanvas, pageMM, addBleed, newPDF, addPageToPDF, downloadBlob } from './export.js';
 
 let def;
@@ -127,7 +127,8 @@ function buildControls() {
       </div>
       <div class="space-y-2 pt-2 border-t border-zinc-800">
         ${range('Brightness', 'brightness', 50, 150)}${range('Contrast', 'contrast', 50, 200)}${range('Zoom', 'zoom', 100, 250)}
-        <div class="grid grid-cols-2 gap-2">${range('Offset X', 'offsetX', -40, 40)}${range('Offset Y', 'offsetY', -40, 40)}</div>
+        <p class="text-zinc-500">Drag the photo in the preview to move it. Zoom in first to have room to move.</p>
+        <button id="btn-photo-center" type="button" class="btn bg-zinc-800 hover:bg-zinc-700 text-white w-full">Centre photo</button>
       </div></div>`,
       `<label class="chk"><input type="checkbox" data-t="photo" class="rounded"><span class="text-[10px] uppercase tracking-wider font-bold">Include</span></label>`);
   }
@@ -238,6 +239,7 @@ export function renderCard() {
   const decor = def.decor?.[state.theme]?.(t, f, e, dv, state.page) ?? '';
   const inner = def.templates[state.theme](e, t, f, dv, state.page);
   el.innerHTML = `${decor}${crop}${frame}<div class="relative z-10 h-full flex flex-col justify-between" style="padding:${chromeFrame && t.border ? 12 : 0}px">${inner}</div>`;
+  if (def.photo) bakeFrames(el);
   fitStage();
 }
 
@@ -442,6 +444,10 @@ function bindEvents() {
 
   $('btn-pdf').addEventListener('click', e => withBusy(e.currentTarget, 'Generating…', exportPDF));
   $('btn-png').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', exportPNG));
+  if (def.photo) {
+    initPhotoDrag($('card-target'), () => { scheduleSave(); });
+    $('btn-photo-center').addEventListener('click', () => { state.photo.offsetX = 0; state.photo.offsetY = 0; refresh(); scheduleSave(); });
+  }
   $('btn-pdf-2').addEventListener('click', e => withBusy(e.currentTarget, 'Generating…', exportPDF));
   $('btn-png-2').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', exportPNG));
   if ('IntersectionObserver' in window) {   // show the phone download bar only while the editor is on screen
