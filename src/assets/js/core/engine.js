@@ -428,6 +428,41 @@ async function withBusy(btn, label, fn) {
   finally { state.page = page; renderCard(); btn.disabled = false; btn.innerHTML = orig; }
 }
 
+/* ---------- Handing over a finished file ----------
+   iPhone and iPad cannot download straight to Photos. The share sheet can (Save Image, Save to Files, Print), but iOS
+   only opens it right after a tap, and making the file takes a moment. So on iOS a small "ready" window appears and
+   its button opens the share sheet. Android and computers simply download. "Share" uses the same window everywhere. */
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const ready = { url: '', file: null, kind: '' };
+function deliver(blob, name, kind) {                       // kind: 'image' | 'pdf' | 'share'
+  let file = null;
+  try { file = new File([blob], name, { type: blob.type || (kind === 'pdf' ? 'application/pdf' : 'image/png') }); } catch (_) {}
+  const canShare = !!(file && navigator.canShare && navigator.canShare({ files: [file] }));
+  if (!isIOS() && !(kind === 'share' && canShare)) { downloadBlob(blob, name); return; }
+  if (ready.url) URL.revokeObjectURL(ready.url);
+  ready.url = URL.createObjectURL(blob); ready.file = file; ready.kind = kind;
+  const pdf = kind === 'pdf';
+  $('ready-title').textContent = pdf ? 'Your PDF is ready' : 'Your picture is ready';
+  $('ready-preview').innerHTML = pdf
+    ? `<svg width="56" height="68" viewBox="0 0 56 68" aria-hidden="true" style="display:block;margin:4px auto"><path d="M6 2h32l16 16v44a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z" fill="#27272a" stroke="#71717a" stroke-width="2"/><path d="M38 2v16h16" fill="none" stroke="#71717a" stroke-width="2"/><text x="28" y="48" text-anchor="middle" font-size="13" font-weight="700" fill="#e4e4e7" font-family="system-ui,sans-serif">PDF</text></svg><div class="text-xs text-zinc-400" style="word-break:break-all">${esc(name)}</div>`
+    : `<img src="${ready.url}" alt="Your card" style="display:block;margin:0 auto;max-width:100%;max-height:42vh;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.45);-webkit-touch-callout:default">`;
+  const save = $('ready-save');
+  save.style.display = canShare ? '' : 'none';
+  save.textContent = kind === 'share' ? 'Share…' : pdf ? 'Save or print' : 'Save to Photos';
+  $('ready-hint').textContent = canShare
+    ? (kind === 'share' ? 'Send it in a message, or save it.' : pdf ? 'Then tap “Save to Files”, or “Print” to print it straight away.' : 'Then tap “Save Image”. You can also send it in a message.')
+    : (pdf ? 'Open the PDF, then tap the share button to save or print it.' : 'Press and hold the picture, then tap “Save to Photos”.');
+  const open = $('ready-open'); open.href = ready.url;
+  openDlg($('ready-dialog'));
+}
+async function shareReady() {
+  if (!ready.file) return;
+  try {
+    await navigator.share(ready.kind === 'share' ? { files: [ready.file], text: 'Made with babycardprintables.com' } : { files: [ready.file] });
+    closeDlg($('ready-dialog'));
+  } catch (e) { if (e.name !== 'AbortError') $('ready-hint').textContent = 'Sharing did not work here. Use “Open in a new tab” instead.'; }
+}
+
 /* PDF presets: standard = small file for screens and home printing; print = about 300 dpi with 3 mm bleed for print shops. */
 const PDF_PRESETS = { standard: { scale: 2, quality: 0.85 }, print: { scale: 3, quality: 1, bleed: true } };
 
@@ -440,7 +475,7 @@ async function exportPDF(kind = 'print') {
     if (!pdf) pdf = newPDF(pw, ph);
     addPageToPDF(pdf, c, pw, ph, i === 0, o.quality);
   }
-  pdf.save(`babycardprintables-${slug()}${kind === 'print' ? '-print' : ''}.pdf`);
+  deliver(pdf.output('blob'), `babycardprintables-${slug()}${kind === 'print' ? '-print' : ''}.pdf`, 'pdf');
   track('export', { generator: def.slug, format: 'pdf', kind, pages: n, theme: state.theme });
 }
 
@@ -448,7 +483,7 @@ async function exportPNG() {
   const c = await capturePage(state.page);
   const blob = await new Promise(res => c.toBlob(res, 'image/png'));
   const n = pageCount();
-  downloadBlob(blob, `babycardprintables-${slug()}${n > 1 ? '-' + (state.page + 1) : ''}.png`);
+  deliver(blob, `babycardprintables-${slug()}${n > 1 ? '-' + (state.page + 1) : ''}.png`, 'image');
   track('export', { generator: def.slug, format: 'png', theme: state.theme });
 }
 
@@ -470,17 +505,14 @@ async function makePin() {
 }
 
 async function exportPin() {
-  downloadBlob(await makePin(), `babycardprintables-${slug()}-pin.png`);
+  deliver(await makePin(), `babycardprintables-${slug()}-pin.png`, 'image');
   track('export', { generator: def.slug, format: 'pin', theme: state.theme });
 }
 
 async function shareCard() {
   const c = await capturePage(state.page), blob = await new Promise(res => c.toBlob(res, 'image/png'));
-  const file = new File([blob], `babycardprintables-${slug()}.png`, { type: 'image/png' });
   track('share', { generator: def.slug });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: document.title, text: 'Made with babycardprintables.com' }); } catch (e) { if (e.name !== 'AbortError') throw e; }
-  } else downloadBlob(blob, file.name);
+  deliver(blob, `babycardprintables-${slug()}.png`, 'share');   // the share sheet opens from the ready window's tap
 }
 
 async function exportPack() {
@@ -499,7 +531,7 @@ async function exportPack() {
         addPageToPDF(pdf, c, pw, ph, first); first = false;
       }
     }
-    pdf.save(`babycardprintables-${slug()}-pack.pdf`);
+    deliver(pdf.output('blob'), `babycardprintables-${slug()}-pack.pdf`, 'pdf');
     track('export', { generator: def.slug, format: 'pack', items: ids.length });
   } finally {
     Object.assign(state, JSON.parse(backup)); state.page = 0; syncForm(); syncPhotoURL();
@@ -612,6 +644,9 @@ function bindEvents() {
     $('card-target').addEventListener('click', e => { if (e.target.closest('[data-add-photo]')) $('photo-file').click(); });
     $('btn-photo-center').addEventListener('click', () => { state.photo.offsetX = 0; state.photo.offsetY = 0; refresh(); scheduleSave(); });
   }
+  const rd = $('ready-dialog');
+  $('ready-save').addEventListener('click', shareReady);
+  rd.addEventListener('click', e => { if (e.target === rd || e.target.closest('[data-ready-close]')) closeDlg(rd); });
   $('btn-pin').addEventListener('click', e => withBusy(e.currentTarget, 'Rendering…', exportPin));
   $('btn-share').addEventListener('click', e => withBusy(e.currentTarget, 'Preparing…', shareCard));
   const bp = $('btn-pack'); if (bp) bp.addEventListener('click', e => withBusy(e.currentTarget, 'Building…', exportPack));

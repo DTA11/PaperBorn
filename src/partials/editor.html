@@ -57,6 +57,16 @@
       <button type="button" data-dl-cancel class="w-full text-center text-xs text-zinc-400 hover:text-white py-2">Cancel</button>
     </div>
   </dialog>
+  <dialog id="ready-dialog" data-html2canvas-ignore="true" class="rounded-xl border border-zinc-700 bg-zinc-950 text-zinc-200 p-0 w-[calc(100%-2rem)] max-w-md backdrop:bg-black/70">
+    <div class="p-5 space-y-3 text-center">
+      <h2 id="ready-title" class="text-sm font-bold uppercase tracking-widest text-white">Your picture is ready</h2>
+      <div id="ready-preview"></div>
+      <button id="ready-save" type="button" class="btn w-full bg-indigo-600 hover:bg-indigo-500 text-white" style="padding-top:14px;padding-bottom:14px;font-size:14px">Save to Photos</button>
+      <p id="ready-hint" class="text-xs text-zinc-400"></p>
+      <a id="ready-open" href="#" target="_blank" rel="noopener" class="block text-xs text-zinc-300" style="text-decoration:underline;text-underline-offset:3px;padding:6px 0">Open in a new tab</a>
+      <button type="button" data-ready-close class="w-full text-center text-xs text-zinc-400 hover:text-white py-2">Close</button>
+    </div>
+  </dialog>
   <div id="mini-preview" class="hidden" data-html2canvas-ignore="true">
     <button id="mini-open" type="button" aria-label="Show the card bigger"><div id="mini-inner"></div></button>
     <button id="mini-close" type="button" aria-label="Hide the small preview">&#10005;</button>
