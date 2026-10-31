@@ -1,7 +1,7 @@
 /* Monthly milestone card generator definition */
 import { TEMPLATES, DECOR } from './templates.js';
 import { LA_THEMES, LA_TEMPLATES, LA_DECOR } from './little-animals.js';
-import { ANIMALS, ANIMAL_ORDER } from './animals.js';
+import { ANIMALS, ANIMAL_ORDER } from '../../core/animals.js';
 
 const THEMES = {
   ...LA_THEMES,

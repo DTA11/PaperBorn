@@ -3,6 +3,7 @@ import { show, prng } from '../../core/util.js';
 import { state, fmt } from '../../core/state.js';
 import { photoHTML, SHAPES } from '../../core/photo.js';
 import { svgLayer, sparkle, corners, wavePath, barcode } from '../../core/svg.js';
+import { daisy, spark, crescent, cloud } from '../../core/art.js';
 
 /* ---------- Template helpers ---------- */
 const stat = (label, val, sub, o = {}) => !val ? '' :
@@ -232,7 +233,7 @@ export const TEMPLATES = {
     return `
     <div class="text-center">
       <div class="text-[8pt] tracking-[8px] uppercase" style="color:#e8c872">Written in the stars</div>
-      ${show(t.name, e.firstName || e.lastName, `<h1 class="leading-none mt-2" style="font-size:${nm(e.firstName, 66, 9, f)}px;letter-spacing:.06em">${e.firstName}</h1><div class="uppercase mt-1" style="color:#e8c872;font-size:${nm(e.lastName, 20, 12, f)}px;letter-spacing:.5em">${e.lastName}</div>`)}
+      ${show(t.name, e.firstName || e.lastName, `<h1 class="leading-none mt-2" style="font-size:${nm(e.firstName, 66, 9, f)}px;letter-spacing:.06em;text-shadow:0 0 18px rgba(232,200,114,.5)">${e.firstName}</h1><div class="uppercase mt-1" style="color:#e8c872;font-size:${nm(e.lastName, 20, 12, f)}px;letter-spacing:.5em">${e.lastName}</div>`)}
       ${show(t.date, e.date, `<div class="mt-2 text-[9pt] tracking-[5px] uppercase opacity-80">${e.date}${t.time && e.time ? ' · ' + e.time : ''}</div>`)}
     </div>
     <div class="my-auto py-3">${t.photo ? `<div class="mx-auto" style="padding:6px;width:fit-content;max-width:100%;border:2px solid #e8c872;border-radius:${SHAPES[state.photo.shape].radius}">${photoHTML('', .8)}</div>` : ''}</div>
@@ -289,7 +290,7 @@ export const TEMPLATES = {
     ${t.border ? '<div style="height:30px"></div>' : ''}
     <div class="text-center">
       <div class="text-[9pt] font-bold uppercase tracking-[6px]" style="color:#2f8f83">★ Fresh out the oven ★</div>
-      ${show(t.name, e.firstName || e.lastName, `<h1 class="font-bold uppercase leading-none" style="font-size:${nm(e.firstName, 70, 8, f)}px;text-shadow:4px 4px 0 #f2b134">${e.firstName}</h1><div class="font-bold uppercase" style="font-size:${nm(e.lastName, 26, 12, f)}px;color:#e8742c;letter-spacing:.15em">${e.lastName}</div>`)}
+      ${show(t.name, e.firstName || e.lastName, `<h1 class="font-bold uppercase leading-none" style="font-size:${nm(e.firstName, 70, 8, f)}px;text-shadow:3px 3px 0 #f2b134,6px 6px 0 #e8742c">${e.firstName}</h1><div class="font-bold uppercase" style="font-size:${nm(e.lastName, 26, 12, f)}px;color:#e8742c;letter-spacing:.15em">${e.lastName}</div>`)}
     </div>
     <div class="my-auto relative flex justify-center" style="padding:${t.accents ? 38 : 14}px 0">
       ${t.photo && t.accents ? sunRays(H) : ''}
@@ -383,6 +384,15 @@ export const DECOR = {
         const rx = f.w * a, ry = f.w * b;
         s += `<g transform="rotate(${rot} ${cx} ${cy})" fill="none" stroke="#e8c872" stroke-opacity=".3"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/><circle cx="${(cx + rx * Math.cos(ang)).toFixed(1)}" cy="${(cy + ry * Math.sin(ang)).toFixed(1)}" r="6" fill="#e8c872" stroke="none"/></g>`;
       });
+      const u = Math.min(f.w / 794, f.h / 1123), W = f.w, H = f.h;
+      const constel = pts => `<g stroke="#e8c872" stroke-opacity=".38" stroke-width="1"><path d="M${pts.map(([x, y]) => `${(x * W).toFixed(1)} ${(y * H).toFixed(1)}`).join('L')}" fill="none"/></g>` +
+        pts.map(([x, y]) => `<circle cx="${(x * W).toFixed(1)}" cy="${(y * H).toFixed(1)}" r="${(2.6 * u).toFixed(1)}" fill="#f3ecd8"/>`).join('');
+      s += `<defs><radialGradient id="cgm"><stop offset="0" stop-color="#f3e3b0" stop-opacity=".35"/><stop offset="1" stop-color="#f3e3b0" stop-opacity="0"/></radialGradient>
+          <linearGradient id="cgs" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f3ecd8" stop-opacity="0"/><stop offset="1" stop-color="#f3ecd8" stop-opacity=".9"/></linearGradient></defs>
+        <circle cx="${(W * .13).toFixed(1)}" cy="${(H * .1).toFixed(1)}" r="${(70 * u).toFixed(1)}" fill="url(#cgm)"/>${crescent(W * .13, H * .1, 30 * u, '#f3e3b0')}
+        ${constel([[.7, .08], [.76, .12], [.83, .1], [.88, .16], [.82, .21]])}${constel([[.07, .7], [.13, .74], [.11, .81], [.18, .85]])}
+        <path d="M${(W * .4).toFixed(1)} ${(H * .14).toFixed(1)}L${(W * .55).toFixed(1)} ${(H * .05).toFixed(1)}" stroke="url(#cgs)" stroke-width="${(2 * u).toFixed(1)}" stroke-linecap="round"/>
+        ${cloud(W * .1, H - 40 * u, 1.1 * u, .9, '#1f2366', '#2d3285', '#151848')}${cloud(W * .9, H - 52 * u, .9 * u, .85, '#1f2366', '#2d3285', '#151848')}`;
     }
     return svgLayer(f, s);
   },
@@ -401,10 +411,13 @@ export const DECOR = {
   },
 
   retro: (t, f) => {
-    if (!t.border) return '';
-    const cols = ['#e8742c', '#f2b134', '#2f8f83', '#5b2a14'];
+    const cols = ['#e8742c', '#f2b134', '#2f8f83', '#5b2a14'], u = Math.min(f.w / 794, f.h / 1123);
     const stripes = y0 => cols.map((c, i) => `<path d="${wavePath(0, y0 + i * 12, f.w, y0 + i * 12, 5, 110, i * .9)}" fill="none" stroke="${c}" stroke-width="8"/>`).join('');
-    return svgLayer(f, stripes(14) + `<g transform="translate(0 ${f.h}) scale(1 -1)">${stripes(14)}</g>`);
+    const top = t.border ? 92 : 46;
+    const deco = t.accents ? [[44, top + 30, .9], [f.w - 46, top + 60, .7], [30, f.h * .46, .75], [f.w - 32, f.h * .55, .9], [56, f.h - top - 40, .7], [f.w - 58, f.h - top - 30, .85]]
+      .map(([x, y, k], i) => daisy(x, y, k * u, i % 2 ? '#fffaf0' : '#fde7c8')).join('') +
+      [[110, top + 4, .8], [f.w - 120, top + 12, .7], [24, f.h * .32, .6], [f.w - 22, f.h * .72, .7]].map(([x, y, k]) => spark(x, y, k * u * 1.2, '#e8742c')).join('') : '';
+    return svgLayer(f, (t.border ? stripes(14) + `<g transform="translate(0 ${f.h}) scale(1 -1)">${stripes(14)}</g>` : '') + deco);
   },
 
   colorblock: (t, f) => {

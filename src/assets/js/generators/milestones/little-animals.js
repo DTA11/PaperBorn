@@ -5,7 +5,7 @@
 import { photoHTML } from '../../core/photo.js';
 import { br } from '../../core/util.js';
 import { DIGITS } from './numerals.js';
-import { ANIMALS, animalFor } from './animals.js';
+import { ANIMALS, animalFor } from '../../core/animals.js';
 
 export const PALETTES = {
   blue: { name: 'Blue', num: ['#b9cfe6', '#94b3d6', '#7f9fc6'], spots: ['#cfe0f0', '#a7c1df', '#7f9fc7'], edge: '#6f93bf', wash: '#e3edf6', word: '#7f9cc2' },
