@@ -1,7 +1,10 @@
 /* Monthly milestone card generator definition */
 import { TEMPLATES, DECOR } from './templates.js';
+import { LA_THEMES, LA_TEMPLATES, LA_DECOR } from './little-animals.js';
+import { ANIMALS, ANIMAL_ORDER } from './animals.js';
 
 const THEMES = {
+  ...LA_THEMES,
   classic:    { name: 'Classic Numeral',  desc: 'Warm cream & a big serif numeral', bg: '#fbf6ee', fg: '#3d2b1f', font: 'serif',       shape: 'circle',  filter: 'none', frame: '1px solid rgba(181,131,90,.6)' },
   chalkboard: { name: 'Chalkboard',       desc: 'Hand-lettered chalk on slate',     bg: '#243832', fg: '#f4f1e8', font: 'handwritten', shape: 'rounded', filter: 'none', frame: '3px dashed rgba(244,241,232,.55)' },
   pastel:     { name: 'Pastel Sticker',   desc: 'Soft colors & a round badge',     bg: '#fff4ec', fg: '#4a3b52', font: 'playful',     shape: 'rounded', filter: 'none', frame: '3px solid #ffd9c7' },
@@ -35,7 +38,7 @@ export default {
   name: 'Milestone Cards',
   fileName: d => `${d.babyName || 'baby'}-milestone`,
   themes: THEMES,
-  defaultTheme: 'classic',
+  defaultTheme: 'animals_blue',
   formats: {
     a5:       { label: 'A5 Card (148×210 mm)',  w: 559, h: 794,  mm: [148, 210],     photoH: 215, num: 120 },
     a4:       { label: 'A4 Poster (210×297 mm)', w: 794, h: 1123, mm: [210, 297],     photoH: 370, num: 200 },
@@ -47,7 +50,7 @@ export default {
   photo: true,
   defaults: {
     toggles: { name: true, date: true, weight: true, height: true, note: true, facts: true },
-    data: { milestone: '3', date: '2026-10-10' },
+    data: { milestone: '3', date: '2026-10-10', animal: 'auto' },
     sample: { babyName: 'Aurelia', customBig: '100', customSmall: 'DAYS', weightG: '5800', heightCm: '61',
               note: 'Smiles at everyone and loves bath time!', loves: 'Bath time & lullabies', skill: 'Rolling over', fun: 'Giggles at the dog' },
     sampleGroups: [['customBig', 'customSmall'], ['weightG', 'heightCm'], ['loves', 'skill', 'fun']],
@@ -60,6 +63,7 @@ export default {
       { toggles: [['name', 'Baby name']], fields: [{ key: 'babyName', type: 'text', ph: 'Baby name', maxlength: 30 }] },
       { cols: 2, fields: [
         { key: 'milestone', type: 'select', label: 'Milestone', span: 2, options: MILESTONES },
+        { key: 'animal', type: 'select', label: 'Animal (Little Animals designs)', span: 2, options: [['auto', 'A different one each month'], ...ANIMAL_ORDER.map(k => [k, ANIMALS[k].name])] },
         { key: 'customBig', type: 'text', label: 'Your big text', ph: '100', maxlength: 6 },
         { key: 'customSmall', type: 'text', label: 'Your small text', ph: 'DAYS', maxlength: 14 } ] },
       { toggles: [['date', 'Date'], ['weight', 'Weight']], cols: 2, fields: [
@@ -81,6 +85,6 @@ export default {
     apply(state, id) { state.data.milestone = id; },
   },
   derive,
-  templates: TEMPLATES,
-  decor: DECOR,
+  templates: { ...LA_TEMPLATES, ...TEMPLATES },
+  decor: { ...LA_DECOR, ...DECOR },
 };

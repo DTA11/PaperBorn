@@ -51,7 +51,7 @@ function expand(html, vars) {
 fs.rmSync(DIST, { recursive: true, force: true });
 fs.mkdirSync(DIST, { recursive: true });
 
-const FONTS_FULL = 'https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@400;700&family=Fredoka:wght@400;600;700&family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap';
+const FONTS_FULL = 'https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@400;700&family=Dancing+Script:wght@500;600;700&family=Fredoka:wght@400;600;700&family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap';
 
 const pagesDir = path.join(SRC, 'pages');
 const sitemap = [];

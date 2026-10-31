@@ -19,7 +19,7 @@ function freshState() {
   return {
     theme: def.defaultTheme, format: def.defaultFormat, fontMode: th.font, bleed: false, page: 0,
     photo: { shape: th.shape || 'rectangle', filterMode: th.filter || 'none', brightness: 100, contrast: 110, zoom: 100, offsetX: 0, offsetY: 0 },
-    toggles: { photo: true, accents: true, border: true, crop: false, footer: true, ...clone(def.defaults.toggles || {}) },
+    toggles: { photo: true, accents: true, border: true, crop: false, footer: true, ...clone(def.defaults.toggles || {}), ...(th.toggles || {}) },
     data: { ...clone(def.defaults.data || {}), ...Object.fromEntries(Object.keys(sample()).map(k => [k, ''])) },
     edited: {},
   };
@@ -225,8 +225,13 @@ function syncForm() {
 }
 
 function setTheme(id) {
-  const th = def.themes[id];
+  const th = def.themes[id], prev = def.themes[state.theme];
+  if (prev?.toggles && prev !== th) {                            // leaving a design that switched extras off: switch them back on
+    const base = { photo: true, ...(def.defaults.toggles || {}) };
+    for (const k of Object.keys(prev.toggles)) if (k in base) state.toggles[k] = base[k];
+  }
   state.theme = id; state.fontMode = th.font;
+  if (th.toggles) Object.assign(state.toggles, th.toggles);      // a design can switch extras off that it is not built around
   if (def.photo) { if (th.shape) state.photo.shape = th.shape; if (th.filter) state.photo.filterMode = th.filter; }
   syncForm(); refresh(); scheduleSave();
   track('theme_changed', { generator: def.slug, theme: id });
@@ -360,7 +365,7 @@ const slug = () => (def.fileName ? def.fileName(state.data) : def.slug).toString
 
 async function capturePage(i, o = {}) {
   state.page = i; renderCard();
-  await loadFonts(state.fontMode);
+  for (const m of new Set([state.fontMode, ...(def.themes[state.theme].fonts || [])])) await loadFonts(m);
   const f = fmt(), bg = def.themes[state.theme].bg;
   const c = await renderToCanvas($('card-target'), f, bg, o.scale);
   return (o.bleed ?? state.bleed) ? addBleed(c, f, bg) : c;

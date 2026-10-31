@@ -6,7 +6,7 @@ Free printable baby cards, built in the browser. No framework, no dependencies.
 | URL | What it makes |
 | --- | --- |
 | `/generators/baby-stats/` | Birth announcement card (11 designs, photo studio) |
-| `/generators/milestones/` | Monthly milestone cards, newborn to 3 years (5 designs) |
+| `/generators/milestones/` | Monthly milestone cards, newborn to 3 years (9 designs incl. 4 Little Animals) |
 | `/generators/flashcards/` | High-contrast newborn flashcards (17 patterns, 5 palettes) |
 | `/generators/shower-games/` | Gift bingo with unique boards, predictions, advice cards |
 
