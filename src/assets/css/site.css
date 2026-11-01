@@ -126,4 +126,8 @@ dialog.dlg-fallback { position: fixed; left: 50%; top: 50%; transform: translate
 .seasonal-banner:hover { border-color: #f3c76a; }
 @media (max-width: 480px) { .seasonal-banner .sb-go { display: none; } }
 /* Tablets in portrait: five menu items plus the site name need tighter menu spacing */
-@media (min-width: 768px) and (max-width: 1023px) { header nav[aria-label="Generators"] { column-gap: 14px; letter-spacing: .06em; } header a > span .block:first-child { white-space: nowrap; } }
+/* Tablets: too many links for one row next to the logo, so tablets use the phone menu */
+@media (min-width: 768px) and (max-width: 1023px) { header nav[aria-label="Generators"] { display: none !important; } #nav-menu { display: block !important; } }
+
+/* Home page generator cards: three per row on wide screens */
+@media (min-width:1024px){.gen-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}

@@ -21,6 +21,8 @@ PICS = {
                    [('flashcards', 'bw', ''), ('flashcards', 'rw', '')]),
     'shower-games': ('Baby shower games', 'Bingo with unique boards · predictions · advice cards', '#f7eef0', '#5a3b4b',
                      [('shower-games', 'blossom', ''), ('shower-games', 'blossom', "sel('#f-game','predictions')")]),
+    'first-birthday': ('First birthday invitations', 'Invitations · one year poster · thank-you cards · free', '#fbf1ec', '#5b3d4a',
+                       [('first-birthday', 'animals_pink', ''), ('first-birthday', 'cake', "sel('#f-card','poster')"), ('first-birthday', 'balloons', "sel('#f-card','thanks')")]),
     'christmas': ("Baby's first Christmas cards", 'Christmas & New Year · free printable', '#7a1424', '#fbefdc',
                   [('baby-stats', 'xmas_animals', "sel('#f-greeting','first')"), ('baby-stats', 'xmas_red', "sel('#f-greeting','merry')"), ('baby-stats', 'newyear', "sel('#f-greeting','newyear')")]),
 }
