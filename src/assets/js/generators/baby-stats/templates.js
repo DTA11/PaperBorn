@@ -69,27 +69,6 @@ function moonSVG(p, r, lit, dark) {
 
 /* ---------- Templates: (e = display strings, t = toggles, f = format) ---------- */
 export const TEMPLATES = {
-  minimalist: (e, t, f) => `
-    <div class="flex justify-between items-start text-[9pt] font-bold uppercase tracking-[5px]">
-      <span>Birth Record</span><span class="font-mono tracking-[3px]">${e.dateISO ? 'N° ' + e.dateISO.replace(/-/g, '') : ''}</span>
-    </div>
-    <div class="flex items-center gap-4 border-b-2 border-black pb-4 mt-3">
-      ${mono(e, t, 'border-black')}
-      ${show(t.name, e.firstName || e.lastName, `<h1 class="uppercase leading-[.9] min-w-0"><span class="block font-light tracking-tight" style="font-size:${nm(e.firstName, 64, 8, f)}px">${e.firstName}</span><span class="block font-black tracking-tight" style="font-size:${nm(e.lastName, 64, 8, f)}px">${e.lastName}</span></h1>`)}
-    </div>
-    <div class="my-auto py-5 grid grid-cols-12 gap-5 items-center">
-      <div class="col-span-7 flex gap-3">${t.photo ? ruler(fmt().photoH) : ''}<div class="flex-1 min-w-0 pr-3">${photoHTML('border:1px solid #000;box-shadow:12px 12px 0 #0a0a0a;')}</div></div>
-      <div class="col-span-5 space-y-4 border-l-2 border-black pl-5">
-        ${stat('Born', t.date && e.date, t.time && e.time, { l: 'text-neutral-400', v: 'text-lg font-black', s: 'font-mono text-neutral-500' })}
-        ${stat('Weight', t.weight && e.weightN, t.weight && 'grams', { l: 'text-neutral-400', v: 'text-5xl font-black leading-none', s: 'uppercase tracking-widest text-neutral-500' })}
-        ${stat('Height', t.height && e.heightN, t.height && 'centimeters', { l: 'text-neutral-400', v: 'text-5xl font-black leading-none', s: 'uppercase tracking-widest text-neutral-500' })}
-        ${stat('Sign', t.zodiac && e.zodiac, '', { l: 'text-neutral-400', v: 'text-sm font-bold uppercase' })}
-      </div>
-    </div>
-    ${(t.location || t.parents) ? `<div class="bg-black text-white px-4 py-3 flex justify-between gap-3 text-[9pt] uppercase tracking-widest"><span>${t.location ? [e.location, e.city].filter(Boolean).join(' · ') : ''}</span><span>${t.parents ? e.parents : ''}</span></div>` : ''}
-    ${show(t.quote, e.quote, `<div class="text-center italic text-sm mt-3 text-neutral-600">“${e.quote}”</div>`)}
-    ${footer(e, t, 'Baby Card Printables', 'border-neutral-300 text-neutral-400 font-mono')}`,
-
   playful: (e, t) => `
     <div class="text-center space-y-2">
       ${show(t.accents, 1, `<div class="flex justify-center gap-3 text-amber-400 text-xl"><span>★</span><span>☁</span><span>🧸</span><span>★</span></div>`)}
@@ -108,47 +87,6 @@ export const TEMPLATES = {
       <div>${show(t.location, e.city, `📍 ${e.city}`)}</div><div>${show(t.parents, e.parents, `❤️ ${e.parents}`)}</div><div>${show(t.zodiac, e.zodiac, `✨ ${e.zodiac}`)}</div>
     </div>
     ${footer(e, t, 'Baby Card Printables • Little details. Forever memories.', 'border-amber-200/60 text-amber-700/60 font-bold justify-center')}`,
-
-  vintage: (e, t, f) => `
-    <div class="text-center">
-      <div class="flex justify-between items-center px-6 text-[8pt] font-bold uppercase tracking-widest border-y border-current py-1"><span>Vol. I</span><span>✦ Special Edition ✦</span><span>No. 1</span></div>
-      <div class="text-[8pt] italic mt-2 tracking-wider">“All the news that’s fit to cuddle”</div>
-      <div class="font-black uppercase leading-none tracking-wide my-1" style="font-size:${f.w < 700 ? 28 : 38}px">The Paperborn Gazette</div>
-      <div class="flex justify-between text-[8pt] uppercase tracking-widest border-t-2 border-b border-current py-1 px-2"><span>${t.location && e.city ? e.city : 'Home Edition'}</span><span>${t.date ? e.date : ''}</span><span>Price: Priceless</span></div>
-    </div>
-    <div class="text-center mt-3 border-b-2 border-current pb-3">
-      <div class="text-[9pt] uppercase tracking-[4px] font-bold">— Extra! Extra! —</div>
-      <h2 class="font-black uppercase leading-none" style="font-size:${nm('A STAR IS BORN!', 48, 15, f)}px">A Star Is Born!</h2>
-      ${show(t.name, e.firstName || e.lastName, `<div class="italic mt-1" style="font-size:${nm(e.firstName + e.lastName, 22, 18, f)}px">Welcome, ${[e.firstName, e.lastName].filter(Boolean).join(' ')}</div>`)}
-    </div>
-    <div class="my-auto py-3 grid grid-cols-12 gap-4 items-start">
-      <div class="col-span-6">${photoHTML('border:3px double #2b2118;', .95)}<span class="block text-[8pt] italic text-center mt-1">Portrait of the newborn</span></div>
-      <div class="col-span-6">
-        <div class="font-bold uppercase text-[9pt] tracking-widest border-b border-current mb-2">Vital Statistics</div>
-        <div class="space-y-1.5">${leader('Arrived', t.time && e.time)}${leader('Weight', t.weight && e.weight)}${leader('Length', t.height && e.height)}${leader('Sign', t.zodiac && e.zodiac)}${leader('Place', t.location && e.location)}</div>
-        ${show(t.parents, e.parents, `<p class="text-xs mt-3 italic leading-snug">Proud parents ${e.parents} report that mother and baby are in excellent spirits.</p>`)}
-      </div>
-    </div>
-    ${show(t.quote, e.quote, `<div class="border-4 border-double border-current text-center italic py-2 px-4 text-sm">“${e.quote}”</div>`)}
-    ${footer(e, t, 'Baby Card Printables • Archival Gazette', 'border-current opacity-70 font-mono')}`,
-
-  luxury: (e, t, f) => `
-    <div class="text-center">
-      ${show(t.accents, 1, `<div class="gold-text text-[10pt] tracking-[10px]">◆ ◆ ◆</div>`)}
-      <div class="text-[8pt] tracking-[8px] uppercase gold-text mt-2">Announcing the arrival of</div>
-      ${show(t.name, e.firstName || e.lastName, `<h1 class="gold-text uppercase leading-none mt-2" style="font-size:${nm(e.firstName, 60, 9, f)}px;letter-spacing:.12em">${e.firstName}</h1><div class="uppercase text-amber-100/80 mt-2" style="font-size:${nm(e.lastName, 22, 12, f)}px;letter-spacing:.45em">${e.lastName}</div>`)}
-      ${show(t.date, e.date, `<div class="mt-3 text-[9pt] tracking-[5px] text-amber-200/80 uppercase">${e.date}</div>`)}
-    </div>
-    <div class="my-auto py-3">${t.photo ? `<div class="gold-bg mx-auto" style="padding:5px;width:fit-content;max-width:100%;border-radius:${SHAPES[state.photo.shape].radius}">${photoHTML('', .8)}</div>` : ''}</div>
-    <div>
-      ${statRow([['Time', t.time && e.time], ['Weight', t.weight && e.weight], ['Length', t.height && e.height], ['Sign', t.zodiac && e.zodiac]], { wrap: 'border-t border-b border-[#d4af37]/60', div: 'border-[#d4af37]/40', l: 'text-amber-300/60', v: 'text-sm font-bold text-amber-100' })}
-      <div class="text-center text-xs text-amber-200/80 space-y-1 mt-3">
-        ${show(t.location, e.location, `<div>${e.location}${e.city ? ` • ${e.city}` : ''}</div>`)}
-        ${show(t.parents, e.parents, `<div class="text-amber-100 font-semibold tracking-widest">${e.parents}</div>`)}
-        ${show(t.quote, e.quote, `<div class="italic text-zinc-400 mt-1">“${e.quote}”</div>`)}
-      </div>
-    </div>
-    ${footer(e, t, 'Baby Card Printables • Noir Edition', 'border-[#d4af37]/60 gold-text font-mono')}`,
 
   boho: (e, t, f) => `
     <div class="text-center">
@@ -283,30 +221,6 @@ export const TEMPLATES = {
     ${footer(e, t, 'Registered • Baby Card Printables', 'border-[#8a6a2a]/50 opacity-80')}`;
   },
 
-  retro: (e, t, f) => {
-    const H = Math.round(fmt().photoH * .78);
-    const pill = (v, bg, fg = '#fff') => v ? `<span class="px-4 py-1 rounded-full font-bold" style="background:${bg};color:${fg}">${v}</span>` : '';
-    return `
-    ${t.border ? '<div style="height:30px"></div>' : ''}
-    <div class="text-center">
-      <div class="text-[9pt] font-bold uppercase tracking-[6px]" style="color:#2f8f83">★ Fresh out the oven ★</div>
-      ${show(t.name, e.firstName || e.lastName, `<h1 class="font-bold uppercase leading-none" style="font-size:${nm(e.firstName, 70, 8, f)}px;text-shadow:3px 3px 0 #f2b134,6px 6px 0 #e8742c">${e.firstName}</h1><div class="font-bold uppercase" style="font-size:${nm(e.lastName, 26, 12, f)}px;color:#e8742c;letter-spacing:.15em">${e.lastName}</div>`)}
-    </div>
-    <div class="my-auto relative flex justify-center" style="padding:${t.accents ? 38 : 14}px 0">
-      ${t.photo && t.accents ? sunRays(H) : ''}
-      ${photoHTML('border:6px solid #5b2a14;', .78)}
-    </div>
-    <div class="text-center space-y-2">
-      <div class="flex justify-center gap-2 flex-wrap text-sm">${pill(t.time && e.time, '#2f8f83')}${pill(t.weight && e.weight, '#e8742c')}${pill(t.height && e.height, '#f2b134', '#5b2a14')}${pill(t.zodiac && e.zodiac, '#5b2a14', '#f7e6c4')}</div>
-      ${show(t.date, e.date, `<div class="font-bold tracking-widest uppercase">${e.date}</div>`)}
-      ${show(t.location, e.location, `<div class="text-sm">${e.location}${e.city ? `, ${e.city}` : ''}</div>`)}
-      ${show(t.parents, e.parents, `<div class="text-sm font-bold" style="color:#e8742c">♥ ${e.parents} ♥</div>`)}
-      ${show(t.quote, e.quote, `<div class="text-sm italic">“${e.quote}”</div>`)}
-    </div>
-    ${footer(e, t, 'Baby Card Printables • Retro Groove', 'border-[#5b2a14]/30 opacity-80')}
-    ${t.border ? '<div style="height:26px"></div>' : ''}`;
-  },
-
   colorblock: (e, t, f) => {
     const big = (label, n, unit) => n ? `<div><div class="text-[8pt] font-black uppercase tracking-[3px]">${label}</div><div class="leading-none"><span class="font-black" style="font-size:${f.w < 700 ? 42 : 56}px">${n}</span><span class="font-bold text-lg ml-1">${unit}</span></div></div>` : '';
     return `
@@ -332,28 +246,9 @@ export const TEMPLATES = {
 
 /* ---------- Card-level decoration (behind the content) ---------- */
 export const DECOR = {
-  minimalist: (t, f) => svgLayer(f,
-    `<circle cx="${f.w - 70}" cy="${f.h - 70}" r="230" fill="none" stroke="#000" stroke-opacity=".05" stroke-width="40"/>` +
-    (t.accents ? corners(f, '<path d="M-7 0H7M0 -7V7" stroke="#000" stroke-width="1.2"/>', 24) : '')),
-
   playful: t => !t.accents ? '' :
     `<div style="position:absolute;top:-80px;left:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(251,207,232,.85),rgba(251,207,232,0) 70%)"></div>
      <div style="position:absolute;bottom:-90px;right:-90px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(186,230,253,.85),rgba(186,230,253,0) 70%)"></div>`,
-
-  vintage: (t, f) => svgLayer(f,
-    `<defs><radialGradient id="vg" cx="50%" cy="50%" r="72%"><stop offset="55%" stop-color="#8a5a1a" stop-opacity="0"/><stop offset="100%" stop-color="#8a5a1a" stop-opacity=".38"/></radialGradient></defs><rect width="${f.w}" height="${f.h}" fill="url(#vg)"/>` +
-    (t.accents ? corners(f, `<g transform="scale(.5)">${flourish('#2b2118', 2.4)}</g>`, 24) : '')),
-
-  luxury: (t, f) => {
-    const cx = f.w / 2, cy = f.h * .47; let rays = '';
-    for (let i = 0; i < 48; i++) { const a = i * Math.PI / 24; rays += `<line x1="${cx}" y1="${cy}" x2="${(cx + Math.cos(a) * f.h).toFixed(1)}" y2="${(cy + Math.sin(a) * f.h).toFixed(1)}"/>`; }
-    return svgLayer(f,
-      `<defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bf953f"/><stop offset=".5" stop-color="#fcf6ba"/><stop offset="1" stop-color="#aa771c"/></linearGradient>
-       <radialGradient id="lg" cx="50%" cy="47%" r="70%"><stop offset="0" stop-color="#2a2417"/><stop offset="1" stop-color="#0a0a0f"/></radialGradient></defs>
-       <rect width="${f.w}" height="${f.h}" fill="url(#lg)"/>` +
-      (t.accents ? `<g stroke="#d4af37" stroke-opacity=".11" stroke-width="1.2">${rays}</g>` +
-        corners(f, '<path d="M0 64V0H64M10 46V10H46M0 0L22 22" fill="none" stroke="url(#gg)" stroke-width="2"/>', 24) : ''));
-  },
 
   boho: (t, f) => !t.accents ? '' : svgLayer(f,
     `<g transform="translate(30 ${f.h - 34}) rotate(6) scale(.62)">${branch('#7d9368', '#9caf88')}</g>` +
@@ -408,16 +303,6 @@ export const DECOR = {
         corners(f, '<rect x="-5" y="-5" width="10" height="10" transform="rotate(45)" fill="#8a6a2a"/>', m);
     }
     return svgLayer(f, s);
-  },
-
-  retro: (t, f) => {
-    const cols = ['#e8742c', '#f2b134', '#2f8f83', '#5b2a14'], u = Math.min(f.w / 794, f.h / 1123);
-    const stripes = y0 => cols.map((c, i) => `<path d="${wavePath(0, y0 + i * 12, f.w, y0 + i * 12, 5, 110, i * .9)}" fill="none" stroke="${c}" stroke-width="8"/>`).join('');
-    const top = t.border ? 92 : 46;
-    const deco = t.accents ? [[44, top + 30, .9], [f.w - 46, top + 60, .7], [30, f.h * .46, .75], [f.w - 32, f.h * .55, .9], [56, f.h - top - 40, .7], [f.w - 58, f.h - top - 30, .85]]
-      .map(([x, y, k], i) => daisy(x, y, k * u, i % 2 ? '#fffaf0' : '#fde7c8')).join('') +
-      [[110, top + 4, .8], [f.w - 120, top + 12, .7], [24, f.h * .32, .6], [f.w - 22, f.h * .72, .7]].map(([x, y, k]) => spark(x, y, k * u * 1.2, '#e8742c')).join('') : '';
-    return svgLayer(f, (t.border ? stripes(14) + `<g transform="translate(0 ${f.h}) scale(1 -1)">${stripes(14)}</g>` : '') + deco);
   },
 
   colorblock: (t, f) => {

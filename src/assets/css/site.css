@@ -153,3 +153,20 @@ dialog.dlg-fallback { position: fixed; left: 50%; top: 50%; transform: translate
 .idea-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: 7px 12px; min-height: 34px; border-radius: 999px; border: 1px solid #4338ca; background: rgba(79,70,229,.14); color: #c7d2fe; font-size: 12px; font-weight: 700; cursor: pointer; }
 .idea-btn:hover { background: rgba(79,70,229,.3); color: #fff; }
 .idea-btn:focus-visible { outline: 2px solid #818cf8; outline-offset: 2px; }
+
+/* Color choices for a design: dots in the Design section and under the card on phones */
+.color-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.color-row[hidden] { display: none; }
+#color-row { padding-bottom: 4px; }
+.color-lbl { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #a1a1aa; margin-right: 4px; }
+.color-dot { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 12px 4px 5px; border-radius: 999px; border: 1px solid #3f3f46; background: #18181b; color: #d4d4d8; font-size: 13px; cursor: pointer; }
+.color-dot i { width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(255,255,255,.75); flex: none; }
+.color-dot.on { border-color: #818cf8; background: rgba(49,46,129,.55); color: #fff; font-weight: 700; }
+.color-dot:focus-visible { outline: 2px solid #818cf8; outline-offset: 2px; }
+#design-colors { justify-content: center; margin-top: 6px; }
+#design-colors .color-dot { padding: 3px; min-height: 34px; }
+#design-colors .color-dot span { display: none; }
+#design-colors .color-dot i { width: 26px; height: 26px; }
+#design-nav .color-dot { width: auto; height: auto; background: transparent; border: 2px solid transparent; border-radius: 999px; font-size: 13px; padding: 2px; }
+#design-nav .color-dot.on { border-color: #818cf8; background: transparent; }
+@media (max-width: 1023px) { #color-row { display: none !important; } }

@@ -19,7 +19,7 @@ const PCT = new Set(['brightness', 'contrast', 'zoom', 'offsetX', 'offsetY']);
 function freshState() {
   const th = def.themes[def.defaultTheme];
   return {
-    theme: def.defaultTheme, format: def.defaultFormat, fontMode: th.font, bleed: false, page: 0,
+    theme: def.defaultTheme, colors: {}, format: def.defaultFormat, fontMode: th.font, bleed: false, page: 0,
     photo: { shape: th.shape || 'rectangle', filterMode: th.filter || 'none', brightness: 100, contrast: 110, zoom: 100, offsetX: 0, offsetY: 0 },
     toggles: { photo: true, accents: true, border: true, crop: false, footer: true, ...clone(def.defaults.toggles || {}), ...(th.toggles || {}) },
     data: { ...clone(def.defaults.data || {}), ...Object.fromEntries(Object.keys(sample()).map(k => [k, ''])) },
@@ -44,7 +44,7 @@ function closeDlg(d) {
   d.removeAttribute('open'); d.dispatchEvent(new Event('close'));
 }
 const touched = k => { const ed = state.edited || {}; return !!ed[k] || (def.defaults.sampleGroups || []).some(g => g.includes(k) && g.some(x => ed[x])); };
-const pick = () => ({ theme: state.theme, format: state.format, fontMode: state.fontMode, photo: state.photo, toggles: state.toggles, data: state.data, edited: state.edited });
+const pick = () => ({ theme: state.theme, colors: state.colors, format: state.format, fontMode: state.fontMode, photo: state.photo, toggles: state.toggles, data: state.data, edited: state.edited });
 const storeKey = () => `paperborn:${def.slug}:v1`;
 const tplKey = () => `paperborn:${def.slug}:templates`;
 const photoKey = () => `paperborn:${def.slug}:photo`;
@@ -89,11 +89,41 @@ function loadSaved() {
         }
       }
     }
-    Object.assign(state, d, s, { photo: { ...d.photo, ...s.photo }, toggles: { ...d.toggles, ...s.toggles }, data: { ...d.data, ...s.data }, edited: { ...s.edited }, page: 0, bleed: false });
+    Object.assign(state, d, s, { photo: { ...d.photo, ...s.photo }, toggles: { ...d.toggles, ...s.toggles }, data: { ...d.data, ...s.data }, edited: { ...s.edited }, colors: { ...s.colors }, page: 0, bleed: false });
+    applyAlias(state.theme);
     if (!def.themes[state.theme]) state.theme = d.theme;
     if (!def.formats[state.format]) state.format = d.format;
     if (!FONTS[state.fontMode]) state.fontMode = d.fontMode;
   } catch (_) {}
+}
+
+/* ---------- Color choices ----------
+   A design can offer colors (th.colors = { key: { name, dot, bg?, fg? } }, first one is the default). The choice is kept
+   per design in state.colors and reaches the design as dv.color. Old design ids (e.g. "bow_pink") still work through
+   def.aliases = { bow_pink: ['bow', 'pink'] } in saved cards, links and pins. */
+function applyAlias(id) {
+  const a = def.aliases && def.aliases[id];
+  if (!a) return false;
+  state.theme = a[0];
+  if (a[1]) { state.colors = { ...(state.colors || {}) }; state.colors[a[0]] = a[1]; }
+  return true;
+}
+function colorKey(id = state.theme) {
+  const cs = def.themes[id] && def.themes[id].colors;
+  if (!cs) return '';
+  const k = (state.colors || {})[id];
+  return k && cs[k] ? k : Object.keys(cs)[0];
+}
+function setColor(k) {
+  state.colors = { ...(state.colors || {}), [state.theme]: k };
+  syncForm(); refresh(); scheduleSave();
+  track('color_changed', { generator: def.slug, theme: state.theme, color: k });
+}
+function colorRowHTML() {
+  const cs = def.themes[state.theme].colors;
+  if (!cs) return '';
+  const cur = colorKey();
+  return Object.entries(cs).map(([k, c]) => `<button type="button" data-color="${k}" class="color-dot${k === cur ? ' on' : ''}" aria-pressed="${k === cur}" aria-label="${esc(c.name)}" title="${esc(c.name)}"><i style="background:${c.dot}"></i><span>${esc(c.name)}</span></button>`).join('');
 }
 
 /* ---------- Undo / redo ---------- */
@@ -178,7 +208,7 @@ function buildControls() {
   const CHEV = '<svg class="w-4 h-4 text-zinc-500 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   /* Each section is a collapsible <details>; on phones only the ones marked "keep" start open. */
   const sec = (title, body, extra = '', keep = false) => `<details class="sec group" data-acc ${keep ? 'data-keep' : ''} open><summary class="flex justify-between items-center gap-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden"><h2 class="h2">${++n}. ${title}</h2><span class="flex items-center gap-3">${extra}${CHEV}</span></summary><div class="space-y-3 pt-3">${body}</div></details>`;
-  let html = sec((def.ui && def.ui.themeTitle) || 'Design', '<div id="style-grid" class="hidden lg:grid grid-cols-2 gap-2"></div><div id="style-strip" role="listbox" aria-label="Design"></div>',
+  let html = sec((def.ui && def.ui.themeTitle) || 'Design', '<div id="color-row" class="color-row" role="group" aria-label="Colors"></div><div id="style-grid" class="hidden lg:grid grid-cols-2 gap-2"></div><div id="style-strip" role="listbox" aria-label="Design"></div>',
     `<span class="text-[10px] text-zinc-500 font-mono">${Object.keys(def.themes).length} DESIGNS</span>`, true);
 
   for (const s of def.sections) html += sec(s.title, s.boxes.map(boxHTML).join(''), '', true);
@@ -270,6 +300,9 @@ function syncForm() {
     const cur = strip.querySelector('.on');                         // keep the chosen name in view without scrolling the page
     if (cur) { const l = cur.offsetLeft - strip.offsetLeft, r = l + cur.offsetWidth; if (l < strip.scrollLeft || r > strip.scrollLeft + strip.clientWidth) strip.scrollLeft = Math.max(0, l - 24); }
   }
+  const cr = $('color-row'), dc = $('design-colors'), row = colorRowHTML();
+  if (cr) { cr.innerHTML = row ? `<span class="color-lbl">Colors</span>${row}` : ''; cr.hidden = !row; }
+  if (dc) { dc.innerHTML = row; dc.hidden = !row; }
   const dt = $('design-title'); if (dt) dt.textContent = `${ids0.indexOf(state.theme) + 1} / ${ids0.length} · ${def.themes[state.theme].name}`;
   document.querySelectorAll('[data-f]').forEach(el => { el.value = nn(state.data[el.dataset.f], ''); });
   document.querySelectorAll('[data-m]').forEach(box => {
@@ -290,6 +323,10 @@ function syncForm() {
 }
 
 function setTheme(id) {
+  if (!def.themes[id]) {                                              // old design ids (links, saved looks) still work
+    const a = def.aliases && def.aliases[id]; if (!a) return;
+    id = a[0]; if (a[1]) state.colors = { ...(state.colors || {}), [a[0]]: a[1] };
+  }
   const th = def.themes[id], prev = def.themes[state.theme];
   if (prev && prev.toggles && prev !== th) {                            // leaving a design that switched extras off: switch them back on
     const base = { photo: true, ...(def.defaults.toggles || {}) };
@@ -341,10 +378,12 @@ export function renderCard() {
   state.page = Math.max(0, Math.min(state.page, n - 1));
   updatePager(n);
 
+  dv.color = colorKey();
+  const cc = th.colors ? th.colors[dv.color] : null, bg = (cc && cc.bg) || th.bg, fg = (cc && cc.fg) || th.fg;
   const pad = nn(th.pad, nn(def.pad, 40));
   const ch = def.chrome || {}, chromeFrame = ch.frame !== false, chromeCrop = ch.crop !== false;
   const el = $('card-target');
-  el.style.cssText = `width:${f.w}px;height:${f.h}px;padding:${pad}px;background:${th.bg};color:${th.fg};font-family:${FONTS[state.fontMode]};`;
+  el.style.cssText = `width:${f.w}px;height:${f.h}px;padding:${pad}px;background:${bg};color:${fg};font-family:${FONTS[state.fontMode]};`;
   const crop = chromeCrop && t.crop ? '<div class="crop-mark crop-tl"></div><div class="crop-mark crop-tr"></div><div class="crop-mark crop-bl"></div><div class="crop-mark crop-br"></div>' : '';
   const frame = chromeFrame && t.border && th.frame ? `<div style="position:absolute;top:16px;right:16px;bottom:16px;left:16px;border:${th.frame};pointer-events:none;z-index:5"></div>` : '';
   const dfn = def.decor && def.decor[state.theme], decor = nn(dfn ? dfn(t, f, e, dv, state.page) : '', '');
@@ -674,10 +713,10 @@ function bindEvents() {
     const name = $('tpl-name').value.trim();
     if (!name) { $('tpl-name').focus(); return; }
     const list = getTpls().filter(t => t.name !== name);
-    list.push({ name, theme: state.theme, format: state.format, fontMode: state.fontMode, photo: clone(state.photo), toggles: clone(state.toggles) });
+    list.push({ name, theme: state.theme, colors: clone(state.colors || {}), format: state.format, fontMode: state.fontMode, photo: clone(state.photo), toggles: clone(state.toggles) });
     setTpls(list); $('tpl-name').value = ''; renderTemplates();
   });
-  document.addEventListener('click', ev => { const ib = ev.target.closest('[data-idea]'); if (ib) giveIdea(ib.dataset.idea); });
+  document.addEventListener('click', ev => { const ib = ev.target.closest('[data-idea]'); if (ib) giveIdea(ib.dataset.idea); const cb = ev.target.closest('[data-color]'); if (cb) setColor(cb.dataset.color); });
   document.addEventListener('click', ev => {
     const go = ev.target.closest('[data-place-go]'), pick = ev.target.closest('[data-place-pick]');
     if (go) placeSearch(go.closest('[data-place]'));
@@ -692,7 +731,7 @@ function bindEvents() {
       const t = getTpls()[+load.dataset.tplLoad];
       if (!t || !def.themes[t.theme] || !def.formats[t.format]) return;
       const d = freshState();
-      Object.assign(state, { theme: t.theme, format: t.format, fontMode: FONTS[t.fontMode] ? t.fontMode : d.fontMode, photo: { ...d.photo, ...t.photo }, toggles: { ...d.toggles, ...t.toggles } });
+      Object.assign(state, { theme: t.theme, colors: { ...(state.colors || {}), ...(t.colors || {}) }, format: t.format, fontMode: FONTS[t.fontMode] ? t.fontMode : d.fontMode, photo: { ...d.photo, ...t.photo }, toggles: { ...d.toggles, ...t.toggles } });
       syncForm(); refresh(); scheduleSave();
     } else if (del) {
       const list = getTpls(), t = list[+del.dataset.tplDel];
@@ -710,7 +749,9 @@ export async function boot(definition) {
   /* Links can open a design and greeting directly, e.g. ?design=xmas_red&greeting=newyear (used by the holiday guide). */
   try {
     const q = new URLSearchParams(location.search), dz = q.get('design'), gr = q.get('greeting');
+    if (dz && !def.themes[dz] && applyAlias(dz)) { const th = def.themes[state.theme]; state.fontMode = th.font; if (def.photo) { if (th.shape) state.photo.shape = th.shape; if (th.filter) state.photo.filterMode = th.filter; } }
     if (dz && def.themes[dz]) { state.theme = dz; state.fontMode = def.themes[dz].font; if (def.photo) { const th = def.themes[dz]; if (th.shape) state.photo.shape = th.shape; if (th.filter) state.photo.filterMode = th.filter; } }
+    const cq = q.get('color'); if (cq && def.themes[state.theme].colors && def.themes[state.theme].colors[cq]) state.colors = { ...(state.colors || {}), [state.theme]: cq };
     if (gr && 'greeting' in state.data) state.data.greeting = gr;
   } catch (_) {}
   $('controls-inner').innerHTML = buildControls();

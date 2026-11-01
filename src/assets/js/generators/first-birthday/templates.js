@@ -35,14 +35,15 @@ const RB = { bg: '#f6eee4', ink: '#5a3a2a', soft: '#8a6f5d', accent: '#b9633f', 
   bands: ['#c46a46', '#e0a458', '#e7b9a5', '#d9c3a3', '#a7b494'], num: ['#e7b48f', '#d48a5f', '#b9633f'], edge: '#a4512f' };
 
 export const THEMES = {
-  ...Object.fromEntries(Object.entries(ANIMAL_PAL).map(([k, P]) => [`animals_${k}`, { name: `Party Animals · ${P.name}`, desc: 'Painted number & an animal in a party hat', bg: P.bg, fg: P.ink, font: 'playful', pad: 0, fonts: ['script'], shape: 'circle', filter: 'none', frame: '' }])),
+  animals: { name: 'Party Animals', desc: 'Painted number & an animal in a party hat', bg: '#fbf7f0', fg: '#6f5560', font: 'playful', pad: 0, fonts: ['script'], shape: 'circle', filter: 'none', frame: '',
+    colors: Object.fromEntries(Object.entries(ANIMAL_PAL).map(([k, P]) => [k, { name: P.name, dot: P.num[1], fg: P.ink }])) },
   balloons: { name: 'Balloon Party', desc: 'Watercolor balloons & a teddy', bg: BAL.bg, fg: BAL.ink, font: 'playful', pad: 0, fonts: ['script'], shape: 'circle', filter: 'none', frame: '' },
   cake:     { name: 'Birthday Cake', desc: 'Pastel cake with a number candle', bg: CAKE.bg, fg: CAKE.ink, font: 'playful', pad: 0, fonts: ['script'], shape: 'circle', filter: 'none', frame: '' },
   confetti: { name: 'Confetti Pop', desc: 'Bright letters & confetti', bg: POP.bg, fg: POP.ink, font: 'playful', pad: 0, fonts: ['script'], shape: 'circle', filter: 'none', frame: '' },
   rainbow:  { name: 'Boho Rainbow', desc: 'Terracotta rainbow & sprigs', bg: RB.bg, fg: RB.ink, font: 'serif', pad: 0, fonts: ['script'], shape: 'circle', filter: 'warm', frame: '' },
 };
-const PAL = id => id.startsWith('animals_') ? ANIMAL_PAL[id.slice(8)] : { balloons: BAL, cake: CAKE, confetti: POP, rainbow: RB }[id];
-const hasBunting = id => id.startsWith('animals_') || id === 'cake';
+const PAL = (id, dv) => id === 'animals' ? (ANIMAL_PAL[dv && dv.color] || ANIMAL_PAL.pink) : { balloons: BAL, cake: CAKE, confetti: POP, rainbow: RB }[id];
+const hasBunting = id => id === 'animals' || id === 'cake';
 
 /* ---------- Pictures. Each draws into a W×H box; `small` is the cut-down version that sits beside a photo. ---------- */
 function animalsScene(p, P, W, H, dv) {
@@ -103,16 +104,16 @@ const rainbowSmall = (p, P, s) => `<g transform="scale(${s})">${rainbowArch(p, 0
 
 /* The picture area: the design's scene, or the photo with a smaller version of the picture beside it. */
 function picture(id, P, f, t, dv, W, H, u) {
-  const p = `fb${id}`;
+  const p = `fb${id}${dv.color || ""}`;
   if (!t.photo) {
-    if (id.startsWith('animals_')) return animalsScene(p, P, W, H, dv);
+    if (id === 'animals') return animalsScene(p, P, W, H, dv);
     return { balloons: balloonsScene, cake: cakeScene, confetti: popScene, rainbow: rainbowScene }[id](p, P, W, H, dv, u);
   }
   const D = Math.round(Math.min(H * .92, W * .6)), cx = W / 2, top = (H - D) / 2;
   const ring = `border:${px(6 * u)} solid #fff;box-shadow:0 0 0 ${px(2 * u)} ${P.line},0 ${px(8 * u)} ${px(22 * u)} rgba(0,0,0,.08);`;
   const ph = `<div style="position:absolute;left:${px(cx - D / 2)};top:${px(top)};width:${D}px;z-index:1">${photoHTML(ring, D / (f.photoH || 360))}</div>`;
   let side = '';
-  if (id.startsWith('animals_')) side = svgBox(W, H, `<defs>${wcDefs(p)}</defs><g transform="translate(${(cx + D * .5).toFixed(1)} ${(top + D - 150 * D / 520).toFixed(1)})">${animalsSmall(p, P, D / 520, dv)}</g>`, 2);
+  if (id === 'animals') side = svgBox(W, H, `<defs>${wcDefs(p)}</defs><g transform="translate(${(cx + D * .5).toFixed(1)} ${(top + D - 150 * D / 520).toFixed(1)})">${animalsSmall(p, P, D / 520, dv)}</g>`, 2);
   else if (id === 'balloons') side = svgBox(W, H, `<defs>${wcDefs(p)}</defs><g transform="translate(${(cx - D * .66).toFixed(1)} ${(top + D * .98).toFixed(1)})">${balloonsSmall(p, P, D / 480, dv)}</g>`, 2);
   else if (id === 'cake') side = svgBox(W, H, `<g transform="translate(${(cx + D * .52).toFixed(1)} ${(top + D).toFixed(1)})">${cakeSmall(p, P, D / 640, dv)}</g>`, 2);
   else if (id === 'rainbow') side = svgBox(W, H, `<g transform="translate(${cx.toFixed(1)} ${(top + D * .62).toFixed(1)})">${rainbowSmall(p, P, D / 190)}</g>`, 0);
@@ -172,7 +173,7 @@ const WORDS = { invite: inviteWords, poster: posterWords, thanks: thanksWords };
 
 function template(id) {
   return (e, t, f, dv) => {
-    const P = PAL(id), u = U(f), side = 52 * u, topPad = (hasBunting(id) && t.accents ? 104 : 56) * u, botPad = 44 * u;
+    const P = PAL(id, dv), u = U(f), side = 52 * u, topPad = (hasBunting(id) && t.accents ? 104 : 56) * u, botPad = 44 * u;
     const w = (WORDS[dv.card] || inviteWords)(e, t, u, P, id), W = f.w - side * 2;
     const H = Math.round(f.h * w.k * (f.h / f.w > 1.2 ? 1 : .8));
     return `<div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column;padding:${px(topPad)} ${px(side)} ${px(botPad)}">
@@ -186,18 +187,18 @@ function template(id) {
 
 /* ---------- Backgrounds ---------- */
 function decor(id) {
-  return (t, f) => {
-    const P = PAL(id), u = U(f), p = `fbd${id}`;
+  return (t, f, e, dv) => {
+    const P = PAL(id, dv), u = U(f), p = `fbd${id}`;
     const border = t.border ? `<rect x="${(16 * u).toFixed(1)}" y="${(16 * u).toFixed(1)}" width="${(f.w - 32 * u).toFixed(1)}" height="${(f.h - 32 * u).toFixed(1)}" rx="${(14 * u).toFixed(1)}" fill="none" stroke="${P.line}" stroke-width="1.5" stroke-dasharray="${id === 'confetti' ? '' : '6 6'}"/>` : '';
     let art = '';
     if (t.accents) {
       if (hasBunting(id)) art += bunting(-10, 10 * u, f.w + 10, 10 * u, 62 * u, Math.max(9, Math.round(f.w / (64 * u))), 40 * u, P.flags);
-      if (id.startsWith('animals_') || id === 'balloons') {
+      if (id === 'animals' || id === 'balloons') {
         art += [[60, 300, .7], [f.w / u - 60, 340, .8], [80, 760, .5], [f.w / u - 70, 820, .6]].map(([x, y, s]) => spark(x * u, y * u, s * u, '#e8c46c')).join('');
         art += [[40, 520], [f.w / u - 40, 560], [150, 960], [f.w / u - 150, 980]].map(([x, y]) => dot(x * u, y * u, 2.6 * u, P.line)).join('');
       }
       if (id === 'balloons') art += cloud(f.w - 110 * u, 96 * u, .55 * u) + cloud(100 * u, 70 * u, .42 * u, .9);
-      if (id.startsWith('animals_') || id === 'cake') art += confetti(f.w, f.h, 26, P.conf, 5, [[90 * u, 0, f.w - 180 * u, f.h]], u);
+      if (id === 'animals' || id === 'cake') art += confetti(f.w, f.h, 26, P.conf, 5, [[90 * u, 0, f.w - 180 * u, f.h]], u);
       if (id === 'confetti') art += confetti(f.w, f.h, 120, POP.conf, 9, [[46 * u, 60 * u, f.w - 92 * u, f.h - 120 * u]], 1.4 * u) + confetti(f.w, f.h * .3, 14, POP.conf, 4, [[46 * u, 0, f.w - 92 * u, f.h]], 1.1 * u);
       if (id === 'rainbow') art += sprig(14 * u, f.h - 10 * u, .5 * u, 40, '#a4836a', '#b9a58c') + sprig(f.w - 14 * u, f.h - 10 * u, .5 * u, -40, '#a4836a', '#b9a58c')
         + [[70, 120], [f.w / u - 70, 140], [50, 520], [f.w / u - 50, 560]].map(([x, y]) => dot(x * u, y * u, 3 * u, '#e0a458', .7)).join('');

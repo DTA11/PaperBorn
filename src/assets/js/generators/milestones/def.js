@@ -38,7 +38,8 @@ export default {
   name: 'Milestone Cards',
   fileName: d => `${d.babyName || 'baby'}-milestone`,
   themes: THEMES,
-  defaultTheme: 'animals_blue',
+  defaultTheme: 'animals',
+  aliases: { animals_blue: ['animals', 'blue'], animals_pink: ['animals', 'pink'], animals_sage: ['animals', 'sage'], animals_sand: ['animals', 'sand'] },
   formats: {
     a5:       { label: 'A5 Card (148×210 mm)',  w: 559, h: 794,  mm: [148, 210],     photoH: 215, num: 120 },
     a4:       { label: 'A4 Poster (210×297 mm)', w: 794, h: 1123, mm: [210, 297],     photoH: 370, num: 200 },

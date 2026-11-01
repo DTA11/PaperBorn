@@ -30,7 +30,8 @@ export default {
   name: 'First Birthday',
   fileName: d => `${d.firstName || 'first'}-birthday-${d.card || 'invite'}`,
   themes: THEMES,
-  defaultTheme: 'animals_pink',
+  defaultTheme: 'animals',
+  aliases: { animals_pink: ['animals', 'pink'], animals_blue: ['animals', 'blue'], animals_sage: ['animals', 'sage'] },
   ui: { themeTitle: 'Design' },
   formats: {
     a5:       { label: 'A5 (148×210 mm)',          w: 559, h: 794,  mm: [148, 210],     photoH: 300 },

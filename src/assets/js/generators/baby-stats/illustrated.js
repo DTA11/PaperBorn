@@ -52,6 +52,8 @@ const dashedBorder = (f, c, u) => `<rect x="${(18 * u).toFixed(1)}" y="${(18 * u
 const LA = {
   blue: { accent: '#7f9cc2', wash: '#e3edf6', pill: '#eaf1f8', label: '#8aa6c8', ink: '#5b6676', soft: '#8f8476', flowers: '#f6c6cf' },
   pink: { accent: '#cf8799', wash: '#f9e7eb', pill: '#f9ecef', label: '#d495a5', ink: '#6f5560', soft: '#8f8476', flowers: '#f6c6cf' },
+  sage: { accent: '#7f9f71', wash: '#e9f1e2', pill: '#eef4e8', label: '#94ad86', ink: '#5d6656', soft: '#8f8476', flowers: '#f6d3c4' },
+  sand: { accent: '#b38c5c', wash: '#f5ebdb', pill: '#f7efe3', label: '#c3a072', ink: '#6b5a48', soft: '#8f8476', flowers: '#f6c6cf' },
 };
 function laScene(p, P, f, t, dv, u, W) {
   const ph = t.photo, D = Math.round(f.photoH * (ph ? .9 : .7)), an = animalOf(dv);
@@ -65,15 +67,15 @@ function laScene(p, P, f, t, dv, u, W) {
     ${ph ? `<div style="position:absolute;left:${(pcx - D / 2).toFixed(1)}px;top:${(gy - D - 4 * u).toFixed(1)}px;width:${D}px;z-index:1">${photoAt(f, D, `border:${(6 * u).toFixed(1)}px solid #fff;box-shadow:0 0 0 ${(2 * u).toFixed(1)}px ${P.accent}66,0 ${(8 * u).toFixed(1)}px ${(20 * u).toFixed(1)}px rgba(0,0,0,.08);`, 'padding-bottom:34%')}</div>` : ''}
     ${svgBox(W, Hs, front, 2)}</div>`;
 }
-const laTemplate = pal => (e, t, f, dv) => {
-  const P = LA[pal], u = U(f), W = f.w - 72 - (t.border ? 24 : 0), p = `bsla${pal}`;
+const laTemplate = (e, t, f, dv) => {
+  const pal = LA[dv.color] ? dv.color : 'blue', P = LA[pal], u = U(f), W = f.w - 72 - (t.border ? 24 : 0), p = `bsla${pal}`;
   return `${nameBlock(e, t, u, { kicker: 'Welcome to the world', kickColor: P.label, script: P.accent, last: P.ink, date: P.soft })}
     <div style="margin:auto 0;padding:${(10 * u).toFixed(1)}px 0">${laScene(p, P, f, t, dv, u, W)}</div>
     ${lowerBlock(e, t, u, { ...P, script: P.accent })}
     ${footer(e, t, 'Baby Card Printables · Little Animals', '#b8ad9e', u)}`;
 };
-const laDecor = pal => (t, f) => {
-  const P = LA[pal], u = U(f), p = `bsld${pal}`, S = v => v * u;
+const laDecor = (t, f, e, dv) => {
+  const pal = LA[dv.color] ? dv.color : 'blue', P = LA[pal], u = U(f), p = `bsld${pal}`, S = v => v * u;
   const sky = t.accents ? `${cloud(S(110), S(120), .9 * u)}${cloud(f.w - S(110), S(170), .62 * u)}${cloud(f.w * .55, S(70), .45 * u, .85)}
     ${crescent(f.w - S(96), S(86), 24 * u, '#f1d38e', `filter="url(#${p}w)"`)}
     ${[[70, 250, .8], [f.w / u - 60, 300, .7], [220, 80, .5], [f.w / u - 190, 64, .55], [60, 560, .5], [f.w / u - 50, 620, .6]].map(([x, y, s]) => spark(x * u, y * u, s * u, '#e8c46c')).join('')}
@@ -82,10 +84,17 @@ const laDecor = pal => (t, f) => {
 };
 
 /* ---------- Welcome Balloons ---------- */
-const BAL = { accent: '#6f8fb5', kraft: '#b08a62', pill: '#eef3f8', label: '#8aa3c2', ink: '#56606e', soft: '#8b8378',
-  colors: [['#c4d7ea', '#8fadd0'], ['#f6ead6', '#dcc6a2'], ['#f6d9de', '#e0a9b4'], ['#d9e6cf', '#a8c096'], ['#b9cde4', '#7f9fc6']] };
-function balloonScene(f, t, u, W) {
-  const p = 'bsbal', ph = t.photo, bear = ANIMALS.bear;
+const BALP = {
+  blue: { accent: '#6f8fb5', kraft: '#b08a62', pill: '#eef3f8', label: '#8aa3c2', ink: '#56606e', soft: '#8b8378', bg: '#fdfaf5', line: '#e6dccd', dot: '#cfdae7',
+    colors: [['#c4d7ea', '#8fadd0'], ['#f6ead6', '#dcc6a2'], ['#f6d9de', '#e0a9b4'], ['#d9e6cf', '#a8c096'], ['#b9cde4', '#7f9fc6']] },
+  pink: { accent: '#c9798d', kraft: '#b08a62', pill: '#f9ecef', label: '#d495a5', ink: '#6f5560', soft: '#8f8476', bg: '#fdf8f7', line: '#efd6dc', dot: '#f0d3da',
+    colors: [['#f6d3db', '#e0a3b2'], ['#f8e6d2', '#e2c4a0'], ['#ecc1cd', '#cf8799'], ['#f3e3ea', '#d9b3c2'], ['#f9d9cf', '#e6aa98']] },
+  neutral: { accent: '#9a7b5c', kraft: '#a3825f', pill: '#f3ede4', label: '#b39a7d', ink: '#5e5246', soft: '#8b8378', bg: '#fbf8f2', line: '#e4dacb', dot: '#e2d8c8',
+    colors: [['#efe4d2', '#d2bd9c'], ['#dfe6d6', '#aebf9d'], ['#f6efe4', '#ddd0bb'], ['#e6d6c2', '#c3a581'], ['#d8dfe3', '#a9b6be']] },
+};
+const balOf = dv => BALP[dv && dv.color] || BALP.blue;
+function balloonScene(f, t, u, W, BAL) {
+  const p = 'bsbal' + (BAL === BALP.blue ? '' : BAL.accent.slice(1)), ph = t.photo, bear = ANIMALS.bear;
   /* With a photo: balloons + teddy on the left, photo beside them on the right, nothing overlapping. */
   const gap = 18 * u, D = Math.round(ph ? Math.min(f.photoH * .84, (W - gap) / 1.7) : f.photoH * .6);
   const Lw = ph ? D * .7 : D * 1.6, x0 = ph ? (W - (Lw + gap + D)) / 2 : (W - Lw) / 2, cxL = x0 + Lw / 2;
@@ -105,30 +114,32 @@ function balloonScene(f, t, u, W) {
     ${ph ? `<div style="position:absolute;left:${(pcx - D / 2).toFixed(1)}px;top:${(gy - D - 6 * u).toFixed(1)}px;width:${D}px;z-index:1">${photoAt(f, D, `border:${(6 * u).toFixed(1)}px solid #fff;box-shadow:0 0 0 ${(1.5 * u).toFixed(1)}px ${BAL.kraft}88,0 ${(8 * u).toFixed(1)}px ${(22 * u).toFixed(1)}px rgba(0,0,0,.08);`)}</div>` : ''}
     ${svgBox(W, Hs, front, 2)}</div>`;
 }
-const balloonsTemplate = (e, t, f) => {
-  const u = U(f), W = f.w - 72 - (t.border ? 24 : 0);
+const balloonsTemplate = (e, t, f, dv) => {
+  const BAL = balOf(dv), u = U(f), W = f.w - 72 - (t.border ? 24 : 0);
   return `${nameBlock(e, t, u, { kicker: 'Hello, little one', kickColor: BAL.kraft, script: BAL.accent, last: BAL.ink, date: BAL.soft })}
-    <div style="margin:auto 0;padding:${(10 * u).toFixed(1)}px 0">${balloonScene(f, t, u, W)}</div>
+    <div style="margin:auto 0;padding:${(10 * u).toFixed(1)}px 0">${balloonScene(f, t, u, W, BAL)}</div>
     ${lowerBlock(e, t, u, { ...BAL, script: BAL.accent })}
-    ${footer(e, t, 'Baby Card Printables · Welcome Balloons', '#b9ae9f', u)}`;
+    ${footer(e, t, 'Baby Card Printables · Welcome Balloons', BAL.soft, u)}`;
 };
-const balloonsDecor = (t, f) => {
-  const u = U(f), p = 'bsbald';
-  return full(f, `<defs>${wcDefs(p)}</defs><rect width="${f.w}" height="${f.h}" fill="#fdfaf5"/>
-    ${t.border ? dashedBorder(f, '#e6dccd', u) : ''}
+const balloonsDecor = (t, f, e, dv) => {
+  const BAL = balOf(dv), u = U(f), p = 'bsbald';
+  return full(f, `<defs>${wcDefs(p)}</defs><rect width="${f.w}" height="${f.h}" fill="${BAL.bg}"/>
+    ${t.border ? dashedBorder(f, BAL.line, u) : ''}
     ${t.accents ? `${cloud(f.w - 120 * u, 110 * u, .55 * u)}${cloud(110 * u, 90 * u, .45 * u, .9)}
       ${[[80, 230, .7], [f.w / u - 70, 260, .8], [f.w / u - 210, 70, .5], [240, 60, .5], [60, 640, .5], [f.w / u - 60, 700, .6]].map(([x, y, s]) => spark(x * u, y * u, s * u, '#d9b56c')).join('')}
-      ${[[150, 200], [f.w / u - 150, 200], [40, 450], [f.w / u - 40, 500]].map(([x, y]) => dot(x * u, y * u, 2.4 * u, '#cfdae7')).join('')}` : ''}`);
+      ${[[150, 200], [f.w / u - 150, 200], [40, 450], [f.w / u - 40, 500]].map(([x, y]) => dot(x * u, y * u, 2.4 * u, BAL.dot)).join('')}` : ''}`);
 };
 
 /* ---------- Bow & Dots (blue / pink): scalloped oval on polka dots, with a ribbon ---------- */
 const BOW = {
   blue: { bg: '#e4eef8', dots: '#c9dcef', ribbon: ['#a9c5e3', '#7fa3cc'], ink: '#5c6f87', script: '#6f8fb8', line: '#b9cde4' },
   pink: { bg: '#f8e7eb', dots: '#f0cdd6', ribbon: ['#f2c1cc', '#d98ea0'], ink: '#86606b', script: '#c9798d', line: '#ecc3cd' },
+  sage: { bg: '#e9f1e3', dots: '#d1e1c7', ribbon: ['#bcd3ae', '#86a776'], ink: '#5d6b55', script: '#7c9c6e', line: '#c7d9bb' },
+  lavender: { bg: '#efeaf7', dots: '#ddd3ef', ribbon: ['#cdbde8', '#9a85c7'], ink: '#655a7a', script: '#8a76b8', line: '#d6cbec' },
 };
 const bowGeo = f => { const u = U(f), cx = f.w / 2, cy = f.h * .53, rx = f.w * .41, ry = Math.min(f.h * .42, f.h * .53 - 40 * u); return { u, cx, cy, rx, ry, s: Math.min(f.w / 794, f.h / 1000) * 1.4 }; };
-const bowTemplate = pal => (e, t, f) => {
-  const P = BOW[pal], g = bowGeo(f), u = g.u, top = g.cy - g.ry + 118 * g.s, bot = g.cy + g.ry - 78 * u, H = bot - top;
+const bowTemplate = (e, t, f, dv) => {
+  const pal = BOW[dv.color] ? dv.color : 'blue', P = BOW[pal], g = bowGeo(f), u = g.u, top = g.cy - g.ry + 118 * g.s, bot = g.cy + g.ry - 78 * u, H = bot - top;
   const first = nice(e.firstName), D = Math.round(Math.min(f.photoH * .56, H * .27));
   const s = statList(e, t).map(r => r[1]), pl = where(e, t);
   const rule = `<div style="width:${(120 * u).toFixed(1)}px;margin:${(10 * u).toFixed(1)}px auto;border-top:2px dotted ${P.line}"></div>`;
@@ -146,8 +157,8 @@ const bowTemplate = pal => (e, t, f) => {
   </div>
   ${(t.footer || (t.coords && e.coords)) ? `<div style="position:absolute;left:0;width:${f.w}px;top:${(f.h - 30 * u).toFixed(1)}px;text-align:center;font-size:${(9 * u).toFixed(1)}px;letter-spacing:.3em;text-transform:uppercase;color:${P.ink};opacity:.7">${[t.footer ? 'Baby Card Printables' : '', t.coords ? e.coords : ''].filter(Boolean).join(' · ')}</div>` : ''}`;
 };
-const bowDecor = pal => (t, f) => {
-  const P = BOW[pal], g = bowGeo(f), p = `bsbow${pal}`, step = 34 * g.u;
+const bowDecor = (t, f, e, dv) => {
+  const pal = BOW[dv.color] ? dv.color : 'blue', P = BOW[pal], g = bowGeo(f), p = `bsbow${pal}`, step = 34 * g.u;
   return full(f, `<defs>${wcDefs(p)}<pattern id="${p}pd" width="${step.toFixed(1)}" height="${step.toFixed(1)}" patternUnits="userSpaceOnUse">
       <circle cx="${(step / 4).toFixed(1)}" cy="${(step / 4).toFixed(1)}" r="${(4.2 * g.u).toFixed(1)}" fill="${P.dots}"/><circle cx="${(step * .75).toFixed(1)}" cy="${(step * .75).toFixed(1)}" r="${(4.2 * g.u).toFixed(1)}" fill="${P.dots}"/></pattern></defs>
     <rect width="${f.w}" height="${f.h}" fill="${P.bg}"/>${t.accents ? `<rect width="${f.w}" height="${f.h}" fill="url(#${p}pd)"/>` : ''}
@@ -158,52 +169,54 @@ const bowDecor = pal => (t, f) => {
 };
 
 /* ---------- Sweet Elephants ---------- */
-const EL = { accent: '#d9798f', pill: '#fbe1e6', label: '#d58ea0', ink: '#7a4f5a', soft: '#9a7b82', heart: '#f0a5b5' };
-function elephantScene(f, t, u, W) {
+const ELP = {
+  pink: { accent: '#d9798f', pill: '#fbe1e6', label: '#d58ea0', ink: '#7a4f5a', soft: '#9a7b82', heart: '#f0a5b5', bg: ['#fdf4f6', '#f8e3e8'], line: '#efc9d2', cl: ['#f2d3da', '#f3dfe4'], h2: '#f1b3c0', sp: '#e9b9a0', gr: '#f3d6dc', ft: '#c9a3ad', glow: '${EL.glow}' },
+  blue: { accent: '#6f93bf', pill: '#e3edf8', label: '#7f9fc7', ink: '#4f6078', soft: '#7d8796', heart: '#a9c3e2', bg: ['#f4f8fc', '#e3edf7'], line: '#c9d8ea', cl: ['#d3e0ee', '#e1e9f3'], h2: '#b8cde6', sp: '#e6c48a', gr: '#dbe6f2', ft: '#a3b3c9', glow: 'rgba(60,90,140,.12)' },
+  mint: { accent: '#5a9a87', pill: '#dff0ea', label: '#72a998', ink: '#466459', soft: '#7b8f88', heart: '#9fd3c2', bg: ['#f3faf7', '#e0f1ea'], line: '#bfe0d4', cl: ['#cde6dc', '#ddeee7'], h2: '#acdcca', sp: '#e6c48a', gr: '#d3eadf', ft: '#9cbdb1', glow: 'rgba(40,110,90,.12)' },
+};
+const elOf = dv => ELP[dv && dv.color] || ELP.pink;
+function elephantScene(f, t, u, W, EL) {
   const p = 'bsel', ph = t.photo, D = Math.round(f.photoH * (ph ? .72 : .58)), el = ANIMALS.elephant;
   const m = ph ? D / 280 : D / 190, Hs = ph ? D + 150 * m : 240 * m, gy = Hs - 12 * u;
   const mx = W / 2 - (ph ? D * .5 + 20 * m : 95 * m), bx = W / 2 + (ph ? D * .52 + 10 * m : 105 * m), bm = m * .66;
   const hearts = [[0, -.18, 1.2, -8], [.08, -.34, .9, 10], [-.06, -.48, .75, -14], [.05, -.6, .6, 6]].map(([dx, dy, s, r]) =>
     heart(W / 2 + dx * D, gy + dy * (ph ? Hs * .55 : Hs), s * 1.6 * m, EL.heart, .9, r)).join('');
-  const back = `<defs>${wcDefs(p)}</defs><ellipse cx="${(W / 2).toFixed(1)}" cy="${gy}" rx="${Math.min(W * .47, D * 1.25 + 80 * m).toFixed(1)}" ry="${(13 * u).toFixed(1)}" fill="#f3d6dc" filter="url(#${p}w)"/>${ph ? '' : hearts}`;
+  const back = `<defs>${wcDefs(p)}</defs><ellipse cx="${(W / 2).toFixed(1)}" cy="${gy}" rx="${Math.min(W * .47, D * 1.25 + 80 * m).toFixed(1)}" ry="${(13 * u).toFixed(1)}" fill="${EL.gr}" filter="url(#${p}w)"/>${ph ? '' : hearts}`;
   const front = `<g transform="translate(${mx.toFixed(1)} ${(gy - 150 * m).toFixed(1)}) scale(${m.toFixed(3)})">${el.svg(p + 'm')}</g>
     <g transform="translate(${bx.toFixed(1)} ${(gy - 150 * bm).toFixed(1)}) scale(${bm.toFixed(3)})">${el.svg(p + 'b')}</g>
     ${t.accents ? `${heart(bx + 34 * bm, gy - 214 * bm, 1.2 * bm * 1.5, EL.accent, .95, 14)}` : ''}${ph ? hearts.replace(/opacity="\.9"/g, 'opacity=".75"') : ''}`;
   return `<div style="position:relative;width:${W.toFixed(1)}px;height:${Hs.toFixed(1)}px;margin:0 auto">${svgBox(W, Hs, back)}
-    ${ph ? `<div style="position:absolute;left:${(W / 2 - D / 2).toFixed(1)}px;top:0;width:${D}px;z-index:1">${photoAt(f, D, `border:${(6 * u).toFixed(1)}px solid #fff;box-shadow:0 0 0 ${(2 * u).toFixed(1)}px ${EL.heart},0 ${(8 * u).toFixed(1)}px ${(20 * u).toFixed(1)}px rgba(160,60,90,.12);`)}</div>` : ''}
+    ${ph ? `<div style="position:absolute;left:${(W / 2 - D / 2).toFixed(1)}px;top:0;width:${D}px;z-index:1">${photoAt(f, D, `border:${(6 * u).toFixed(1)}px solid #fff;box-shadow:0 0 0 ${(2 * u).toFixed(1)}px ${EL.heart},0 ${(8 * u).toFixed(1)}px ${(20 * u).toFixed(1)}px ${EL.glow};`)}</div>` : ''}
     ${svgBox(W, Hs, front, 2)}</div>`;
 }
-const elephantsTemplate = (e, t, f) => {
-  const u = U(f), W = f.w - 72 - (t.border ? 24 : 0);
+const elephantsTemplate = (e, t, f, dv) => {
+  const EL = elOf(dv), u = U(f), W = f.w - 72 - (t.border ? 24 : 0);
   return `${nameBlock(e, t, u, { kicker: 'A sweet little one has arrived', kickColor: EL.label, script: EL.accent, last: EL.ink, date: EL.soft })}
-    <div style="margin:auto 0;padding:${(10 * u).toFixed(1)}px 0">${elephantScene(f, t, u, W)}</div>
+    <div style="margin:auto 0;padding:${(10 * u).toFixed(1)}px 0">${elephantScene(f, t, u, W, EL)}</div>
     ${lowerBlock(e, t, u, { ...EL, script: EL.accent })}
-    ${footer(e, t, 'Baby Card Printables · Sweet Elephants', '#c9a3ad', u)}`;
+    ${footer(e, t, 'Baby Card Printables · Sweet Elephants', EL.ft, u)}`;
 };
-const elephantsDecor = (t, f) => {
-  const u = U(f), p = 'bseld';
-  return full(f, `<defs>${wcDefs(p)}<radialGradient id="${p}g" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="#fdf4f6"/><stop offset="1" stop-color="#f8e3e8"/></radialGradient></defs>
+const elephantsDecor = (t, f, e, dv) => {
+  const EL = elOf(dv), u = U(f), p = 'bseld' + (dv && dv.color || '');
+  return full(f, `<defs>${wcDefs(p)}<radialGradient id="${p}g" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="${EL.bg[0]}"/><stop offset="1" stop-color="${EL.bg[1]}"/></radialGradient></defs>
     <rect width="${f.w}" height="${f.h}" fill="url(#${p}g)"/>
-    ${t.border ? dashedBorder(f, '#efc9d2', u) : ''}
-    ${t.accents ? `${cloud(110 * u, 120 * u, .8 * u, 1, '#fff', '#f2d3da', '#f3dfe4')}${cloud(f.w - 115 * u, 165 * u, .6 * u, 1, '#fff', '#f2d3da', '#f3dfe4')}
-      ${[[70, 260, .9, -10], [f.w / u - 70, 300, .7, 12], [f.w / u - 150, 420, .6, -6], [120, 470, .55, 8]].map(([x, y, s, r]) => heart(x * u, y * u, s * u * 1.4, '#f1b3c0', .8, r)).join('')}
-      ${[[150, 210, .6], [f.w / u - 140, 230, .7], [50, 520, .5], [f.w / u - 50, 560, .6]].map(([x, y, s]) => spark(x * u, y * u, s * u, '#e9b9a0')).join('')}` : ''}`);
+    ${t.border ? dashedBorder(f, EL.line, u) : ''}
+    ${t.accents ? `${cloud(110 * u, 120 * u, .8 * u, 1, '#fff', EL.cl[0], EL.cl[1])}${cloud(f.w - 115 * u, 165 * u, .6 * u, 1, '#fff', EL.cl[0], EL.cl[1])}
+      ${[[70, 260, .9, -10], [f.w / u - 70, 300, .7, 12], [f.w / u - 150, 420, .6, -6], [120, 470, .55, 8]].map(([x, y, s, r]) => heart(x * u, y * u, s * u * 1.4, EL.h2, .8, r)).join('')}
+      ${[[150, 210, .6], [f.w / u - 140, 230, .7], [50, 520, .5], [f.w / u - 50, 560, .6]].map(([x, y, s]) => spark(x * u, y * u, s * u, EL.sp)).join('')}` : ''}`);
 };
 
 export const NEW_THEMES = {
-  animals_blue: { name: 'Little Animals · Blue', desc: 'Clouds, watercolor wash & a cute animal', bg: '#fbf7f0', fg: '#6f655a', font: 'playful', shape: 'circle', filter: 'none', frame: '', pad: 36, fonts: ['script'] },
-  animals_pink: { name: 'Little Animals · Pink', desc: 'Clouds, watercolor wash & a cute animal', bg: '#fbf7f0', fg: '#6f655a', font: 'playful', shape: 'circle', filter: 'none', frame: '', pad: 36, fonts: ['script'] },
-  balloons:     { name: 'Welcome Balloons',      desc: 'A teddy holding a bunch of balloons',       bg: '#fdfaf5', fg: '#56606e', font: 'playful', shape: 'arch',   filter: 'none', frame: '', pad: 36, fonts: ['script'] },
-  bow_blue:     { name: 'Bow & Dots · Blue',     desc: 'Polka dots, scalloped frame & a ribbon',    bg: '#e4eef8', fg: '#5c6f87', font: 'serif',   shape: 'circle', filter: 'none', frame: '', pad: 0,  fonts: ['script'] },
-  bow_pink:     { name: 'Bow & Dots · Pink',     desc: 'Polka dots, scalloped frame & a ribbon',    bg: '#f8e7eb', fg: '#86606b', font: 'serif',   shape: 'circle', filter: 'none', frame: '', pad: 0,  fonts: ['script'] },
-  elephants:    { name: 'Sweet Elephants',       desc: 'Two elephants, hearts & pink clouds',       bg: '#fbeef0', fg: '#7a4f5a', font: 'playful', shape: 'circle', filter: 'none', frame: '', pad: 36, fonts: ['script'] },
+  animals:   { name: 'Little Animals', desc: 'Clouds, watercolor wash & a cute animal', bg: '#fbf7f0', fg: '#6f655a', font: 'playful', shape: 'circle', filter: 'none', frame: '', pad: 36, fonts: ['script'],
+    colors: { blue: { name: 'Blue', dot: '#94b3d6' }, pink: { name: 'Pink', dot: '#e3a5b4' }, sage: { name: 'Sage', dot: '#a5c296' }, sand: { name: 'Sand', dot: '#d7b98f' } } },
+  balloons:  { name: 'Welcome Balloons', desc: 'A teddy holding a bunch of balloons', bg: '#fdfaf5', fg: '#56606e', font: 'playful', shape: 'arch', filter: 'none', frame: '', pad: 36, fonts: ['script'],
+    colors: { blue: { name: 'Blue', dot: '#a9c1df' }, pink: { name: 'Pink', dot: '#ecc1cd', bg: '#fdf8f7' }, neutral: { name: 'Neutral', dot: '#d2bd9c', bg: '#fbf8f2' } } },
+  bow:       { name: 'Bow & Dots', desc: 'Polka dots, scalloped frame & a ribbon', bg: '#e4eef8', fg: '#5c6f87', font: 'serif', shape: 'circle', filter: 'none', frame: '', pad: 0, fonts: ['script'],
+    colors: { blue: { name: 'Blue', dot: '#a9c5e3', bg: '#e4eef8', fg: '#5c6f87' }, pink: { name: 'Pink', dot: '#f2c1cc', bg: '#f8e7eb', fg: '#86606b' },
+      sage: { name: 'Sage', dot: '#bcd3ae', bg: '#e9f1e3', fg: '#5d6b55' }, lavender: { name: 'Lavender', dot: '#cdbde8', bg: '#efeaf7', fg: '#655a7a' } } },
+  elephants: { name: 'Sweet Elephants', desc: 'Two elephants, hearts & clouds', bg: '#fbeef0', fg: '#7a4f5a', font: 'playful', shape: 'circle', filter: 'none', frame: '', pad: 36, fonts: ['script'],
+    colors: { pink: { name: 'Pink', dot: '#f0a5b5' }, blue: { name: 'Blue', dot: '#a9c3e2', bg: '#eef4fa', fg: '#4f6078' }, mint: { name: 'Mint', dot: '#9fd3c2', bg: '#eef8f4', fg: '#466459' } } },
 };
-export const NEW_TEMPLATES = {
-  animals_blue: laTemplate('blue'), animals_pink: laTemplate('pink'), balloons: balloonsTemplate,
-  bow_blue: bowTemplate('blue'), bow_pink: bowTemplate('pink'), elephants: elephantsTemplate,
-};
-export const NEW_DECOR = {
-  animals_blue: laDecor('blue'), animals_pink: laDecor('pink'), balloons: balloonsDecor,
-  bow_blue: bowDecor('blue'), bow_pink: bowDecor('pink'), elephants: elephantsDecor,
-};
-export { U, fit, nice, statList, where, photoAt, svgBox, full, footer, pills, lowerBlock, dashedBorder, animalOf };
+export const NEW_TEMPLATES = { animals: laTemplate, balloons: balloonsTemplate, bow: bowTemplate, elephants: elephantsTemplate };
+export const NEW_DECOR = { animals: laDecor, balloons: balloonsDecor, bow: bowDecor, elephants: elephantsDecor };
+export { U, fit, nice, statList, where, photoAt, svgBox, full, footer, pills, nameBlock, lowerBlock, dashedBorder, animalOf };

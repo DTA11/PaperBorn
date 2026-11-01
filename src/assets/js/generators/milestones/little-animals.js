@@ -123,9 +123,11 @@ function template(pal, e, t, f) {
   return `<div style="position:absolute;left:0;top:0;width:${f.w}px;height:${f.h}px">${parts.join('')}</div>`;
 }
 
-export const LA_THEMES = Object.fromEntries(Object.entries(PALETTES).map(([k, p]) => [`animals_${k}`, {
-  name: `Little Animals · ${p.name}`, desc: 'Watercolor number & a cute animal', bg: '#fbf7f0', fg: '#6f655a', font: 'playful',
+export const LA_THEMES = { animals: {
+  name: 'Little Animals', desc: 'Watercolor number & a cute animal', bg: '#fbf7f0', fg: '#6f655a', font: 'playful',
   shape: 'circle', filter: 'none', frame: '', pad: 0, fonts: ['script'], toggles: { photo: false, note: false, facts: false },
-}]));
-export const LA_TEMPLATES = Object.fromEntries(Object.keys(PALETTES).map(k => [`animals_${k}`, (e, t, f) => template(k, e, t, f)]));
-export const LA_DECOR = Object.fromEntries(Object.keys(PALETTES).map(k => [`animals_${k}`, (t, f, e, dv) => decor(k, t, f, e, dv)]));
+  colors: Object.fromEntries(Object.entries(PALETTES).map(([k, p]) => [k, { name: p.name, dot: p.num[1] }])),
+} };
+const palOf = dv => (PALETTES[dv && dv.color] ? dv.color : 'blue');
+export const LA_TEMPLATES = { animals: (e, t, f, dv) => template(palOf(dv), e, t, f) };
+export const LA_DECOR = { animals: (t, f, e, dv) => decor(palOf(dv), t, f, e, dv) };

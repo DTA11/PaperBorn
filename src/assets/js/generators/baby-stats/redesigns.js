@@ -1,9 +1,9 @@
-/* Redesigned birth card designs: Editorial (magazine cover), Victorian Gazette (The Daily Cuddle),
+/* Redesigned birth card designs: Editorial (magazine cover),
    Boho Botanical (watercolor rainbow), Cyber Tech Sheet (neon HUD). Same rules as illustrated.js:
    pictures are SVG, words are HTML, inline styles only, sizes scale with the paper (u = 1 on A4). */
 import { photoHTML } from '../../core/photo.js';
 import { barcode } from '../../core/svg.js';
-import { wcDefs, rainbowArch, pampas, sprig, dot, spark, newsprint } from '../../core/art.js';
+import { wcDefs, rainbowArch, pampas, sprig, dot, spark } from '../../core/art.js';
 
 const U = f => Math.min(f.w / 794, f.h / 1123);
 const n1 = v => v.toFixed(1);
@@ -79,64 +79,15 @@ const editorialDecor = (t, f) => {
     ${t.border ? `<rect x="12" y="12" width="${f.w - 24}" height="${f.h - 24}" fill="none" stroke="${ED.ink}" stroke-opacity=".5" stroke-width="1"/>` : ''}`);
 };
 
-/* ---------- Victorian Gazette: The Daily Cuddle ---------- */
-const VG = { ink: '#2b2118', soft: '#5a4a3a' };
-const leaderRow = (l, v, u) => v ? `<div style="display:flex;align-items:baseline;gap:4px;font-size:${n1(13 * u)}px;margin-top:${n1(5 * u)}px"><span style="text-transform:uppercase;letter-spacing:.08em">${l}</span><span style="flex:1;border-bottom:1px dotted ${VG.ink};opacity:.6"></span><b>${v}</b></div>` : '';
-const vintage = (e, t, f) => {
-  const u = U(f), W = contentW(f, t, 40), gap = 18 * u, c1 = (W - gap) * 1.25 / 2.25, c2 = W - gap - c1, D = Math.round(f.photoH * .72);
-  const ear = (h, b) => `<div style="flex:none;width:${n1(W * .2)}px;border:1px solid ${VG.ink};padding:${n1(4 * u)}px ${n1(6 * u)}px;font-size:${n1(9.5 * u)}px;line-height:1.3;text-align:center"><b style="letter-spacing:.15em">${h}</b><br><i>${b}</i></div>`;
-  const nm = fullName(e);
-  return `
-    <div style="text-align:center;color:${VG.ink}">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:${n1(10 * u)}px">
-        ${ear('WEATHER', 'Sunny, with a chance of naps')}
-        <div style="min-width:0">
-          <div style="font-weight:700;font-size:${n1(W * .56 / 13)}px;line-height:1;letter-spacing:.01em;white-space:nowrap">The Daily Cuddle</div>
-          <div style="font-style:italic;font-size:${n1(11 * u)}px;margin-top:${n1(4 * u)}px">“All the news that’s fit to cuddle” · Est. ${e.dateISO ? e.dateISO.slice(0, 4) : 'today'}</div>
-        </div>
-        ${ear('PRICE', 'One big cuddle')}
-      </div>
-      <div style="display:flex;justify-content:space-between;border-top:3px double ${VG.ink};border-bottom:1px solid ${VG.ink};margin-top:${n1(8 * u)}px;padding:${n1(3 * u)}px ${n1(4 * u)}px;font-size:${n1(9.5 * u)}px;letter-spacing:.16em;text-transform:uppercase">
-        <span>Vol. I</span><span>${t.location && e.city ? e.city : 'Home Edition'}</span><span>${t.date ? e.date : ''}</span><span>Special Birth Edition</span></div>
-      <div style="font-size:${n1(10 * u)}px;letter-spacing:.4em;text-transform:uppercase;margin-top:${n1(10 * u)}px">✦ Extra! Extra! ✦</div>
-      <div style="font-weight:700;text-transform:uppercase;font-size:${n1(fit('A STAR IS BORN!', 60 * u, 15))}px;line-height:1.05">A Star Is Born!</div>
-      ${t.name && nm ? `<div style="font-style:italic;font-size:${n1(fit(nm, 21 * u, 22))}px;margin-top:${n1(2 * u)}px">${nice(e.firstName)} ${nice(e.lastName)} arrives; family overjoyed</div>` : ''}
-      <div style="font-size:${n1(9 * u)}px;letter-spacing:.25em;text-transform:uppercase;margin-top:${n1(4 * u)}px;opacity:.75">By our nursery correspondent</div>
-    </div>
-    <div style="display:flex;gap:${n1(gap)}px;align-items:flex-start;margin:${n1(10 * u)}px 0;color:${VG.ink};border-top:1px solid ${VG.ink};padding-top:${n1(10 * u)}px">
-      <div style="width:${n1(c1)}px;flex:none">
-        ${t.photo ? `<div style="border:3px double ${VG.ink};padding:${n1(4 * u)}px">${photoAt(f, D)}</div>
-          <div style="font-style:italic;font-size:${n1(11 * u)}px;text-align:center;margin-top:${n1(4 * u)}px">Our newest reader${t.time && e.time ? `, pictured shortly after ${e.time}` : ''}.</div>` : ''}
-        <div style="margin-top:${n1(8 * u)}px">${newsprint(c1, t.photo ? 9 : 20, VG.ink, 9 * u)}</div>
-      </div>
-      <div style="width:${n1(c2)}px;flex:none;border-left:1px solid ${VG.ink};padding-left:${n1(gap * .8)}px;box-sizing:border-box">
-        <div style="font-weight:700;font-size:${n1(13 * u)}px;letter-spacing:.2em;text-transform:uppercase;border-bottom:2px solid ${VG.ink};padding-bottom:${n1(2 * u)}px">Vital Statistics</div>
-        ${leaderRow('Arrived', t.time && e.time, u)}${leaderRow('Weight', t.weight && e.weight, u)}${leaderRow('Length', t.height && e.height, u)}${leaderRow('Sign', t.zodiac && e.zodiac, u)}${leaderRow('Place', t.location && e.location, u)}
-        ${t.parents && e.parents ? `<p style="font-size:${n1(12.5 * u)}px;font-style:italic;line-height:1.35;margin-top:${n1(8 * u)}px">Proud parents ${e.parents} report that mother and baby are in excellent spirits.</p>` : ''}
-        ${t.accents ? `<div style="border:2px solid ${VG.ink};text-align:center;padding:${n1(6 * u)}px;margin-top:${n1(10 * u)}px">
-          <div style="font-weight:700;letter-spacing:.3em;font-size:${n1(14 * u)}px">WANTED</div>
-          <div style="font-size:${n1(11.5 * u)}px;line-height:1.35">Sleep, in any amount.<br><i>Reward: endless hugs.</i></div></div>` : ''}
-        <div style="margin-top:${n1(8 * u)}px">${newsprint(c2 - gap * .8, 11, VG.ink, 9 * u)}</div>
-      </div>
-    </div>
-    ${t.quote && e.quote ? `<div style="border:4px double ${VG.ink};text-align:center;font-style:italic;padding:${n1(6 * u)}px ${n1(12 * u)}px;font-size:${n1(15 * u)}px;color:${VG.ink}">“${e.quote}”</div>` : ''}
-    ${footer(e, t, 'Baby Card Printables · The Daily Cuddle', VG.soft, u)}`;
-};
-const flourish = c => `<g fill="none" stroke="${c}" stroke-width="2.4" stroke-linecap="round"><path d="M0 70V14Q0 0 14 0H70"/><path d="M10 52V20Q10 10 20 10H52"/><path d="M20 38Q20 20 38 20"/><circle cx="6" cy="6" r="3" fill="${c}"/></g>`;
-const vintageDecor = (t, f) => {
-  const p = 'bsvg', m = 24;
-  const corners = [[m, m, 1, 1], [f.w - m, m, -1, 1], [m, f.h - m, 1, -1], [f.w - m, f.h - m, -1, -1]].map(([x, y, sx, sy]) => `<g transform="translate(${x} ${y}) scale(${sx * .5} ${sy * .5})">${flourish(VG.ink)}</g>`).join('');
-  return full(f, `<defs>${wcDefs(p)}<radialGradient id="${p}v" cx="50%" cy="50%" r="72%"><stop offset="55%" stop-color="#8a5a1a" stop-opacity="0"/><stop offset="100%" stop-color="#8a5a1a" stop-opacity=".38"/></radialGradient></defs>
-    <rect width="${f.w}" height="${f.h}" fill="#f1e6cc"/><rect width="${f.w}" height="${f.h}" fill="url(#${p}v)"/>
-    <line x1="0" y1="${f.h * .5}" x2="${f.w}" y2="${f.h * .5}" stroke="#8a5a1a" stroke-opacity=".08" stroke-width="2"/>
-    ${t.accents ? `      <circle cx="${f.w * .15}" cy="${f.h * .12}" r="${f.w * .05}" fill="#8a5a1a" opacity=".05" filter="url(#${p}w)"/>${corners}` : ''}
-    ${t.border ? `<rect x="10" y="10" width="${f.w - 20}" height="${f.h - 20}" fill="none" stroke="${VG.ink}" stroke-width="3"/><rect x="16" y="16" width="${f.w - 32}" height="${f.h - 32}" fill="none" stroke="${VG.ink}" stroke-width="1"/>` : ''}`);
-};
-
 /* ---------- Boho Botanical: watercolor rainbow, pampas and sprigs ---------- */
-const BH = { terra: '#c2724f', sage: '#8a9d74', sand: '#e3c9a8', blush: '#e8b4a0', mustard: '#d9a54a', brown: '#5a3a2a', bg: '#f6eee4' };
-const boho = (e, t, f) => {
-  const u = U(f), W = contentW(f, t, 36), p = 'bsbh', D = f.photoH * .95;
+const BHP = {
+  terracotta: { terra: '#c2724f', sage: '#8a9d74', sand: '#e3c9a8', blush: '#e8b4a0', mustard: '#d9a54a', brown: '#5a3a2a', bg: '#f6eee4' },
+  sage:       { terra: '#6f8f63', sage: '#9fb08f', sand: '#e6dcc4', blush: '#d9c8ae', mustard: '#c8b06e', brown: '#3f4a38', bg: '#f1f1e7' },
+  blush:      { terra: '#c9787f', sage: '#b4bfa1', sand: '#f0dccf', blush: '#f0c4bd', mustard: '#e6b48c', brown: '#6a4448', bg: '#fbf0ec' },
+};
+const boho = (e, t, f, dv) => {
+  const BH = BHP[dv && dv.color] || BHP.terracotta;
+  const u = U(f), W = contentW(f, t, 36), p = 'bsbh' + (dv && dv.color || ''), D = f.photoH * .95;
   const r = Math.min(W * .43, D * 1.02), band = r * .1, Hs = r + 26 * u, base = Hs - 14 * u;
   const PH = Math.round(r - band * 5.2) * 2 * .98;
   const first = nice(e.firstName), pl = where(e, t);
@@ -161,9 +112,10 @@ const boho = (e, t, f) => {
       ${t.parents && e.parents ? `<div style="font-family:'Dancing Script',cursive;font-weight:600;font-size:${n1(34 * u)}px;line-height:1.2;color:${BH.terra}">with love, ${nice(e.parents)}</div>` : ''}
       ${t.quote && e.quote ? `<div style="font-style:italic;font-size:${n1(17 * u)}px">“${e.quote}”</div>` : ''}
     </div>
-    ${footer(e, t, 'Baby Card Printables · Boho Botanical', '#c49a82', u)}`;
+    ${footer(e, t, 'Baby Card Printables · Boho Botanical', BH.blush, u)}`;
 };
-const bohoDecor = (t, f) => {
+const bohoDecor = (t, f, e, dv) => {
+  const BH = BHP[dv && dv.color] || BHP.terracotta;
   const u = U(f), p = 'bsbhd', S = v => v * u;
   return full(f, `<defs>${wcDefs(p)}</defs><rect width="${f.w}" height="${f.h}" fill="${BH.bg}"/>
     ${t.border ? `<rect x="${S(18)}" y="${S(18)}" width="${f.w - S(36)}" height="${f.h - S(36)}" rx="${S(10)}" fill="none" stroke="${BH.terra}" stroke-opacity=".55" stroke-width="1.2" stroke-dasharray="5 5"/>` : ''}
@@ -244,9 +196,9 @@ const cyberDecor = (t, f) => {
 
 export const REDESIGN_THEMES = {
   editorial: { name: 'Editorial Cover', desc: 'Fashion-magazine cover: giant name & red panels', bg: '#f3ede4', fg: '#2a1d1d', font: 'serif', shape: 'rectangle', filter: 'none', frame: '', pad: 0 },
-  vintage:   { name: 'Victorian Gazette', desc: 'The Daily Cuddle: headlines & columns', bg: '#f1e6cc', fg: '#2b2118', font: 'vintage', shape: 'rectangle', filter: 'sepia', frame: '', pad: 40 },
-  boho:      { name: 'Boho Botanical', desc: 'Watercolor rainbow, pampas & terracotta', bg: '#f6eee4', fg: '#5a3a2a', font: 'playful', shape: 'arch', filter: 'warm', frame: '', pad: 36, fonts: ['script'] },
+  boho:      { name: 'Boho Botanical', desc: 'Rainbow, pampas & sprigs', bg: '#f6eee4', fg: '#5a3a2a', font: 'playful', shape: 'arch', filter: 'warm', frame: '', pad: 36, fonts: ['script'],
+    colors: { terracotta: { name: 'Terracotta', dot: '#c2724f' }, sage: { name: 'Sage', dot: '#8faa80', bg: '#f1f1e7', fg: '#3f4a38' }, blush: { name: 'Blush', dot: '#e3a4a4', bg: '#fbf0ec', fg: '#6a4448' } } },
   cyber:     { name: 'Cyber Tech Sheet', desc: 'Neon HUD, data tiles & grid floor', bg: '#04070f', fg: '#c8fff4', font: 'mono', shape: 'hexagon', filter: 'cool', frame: '', pad: 40 },
 };
-export const REDESIGN_TEMPLATES = { editorial, vintage, boho, cyber };
-export const REDESIGN_DECOR = { editorial: editorialDecor, vintage: vintageDecor, boho: bohoDecor, cyber: cyberDecor };
+export const REDESIGN_TEMPLATES = { editorial, boho, cyber };
+export const REDESIGN_DECOR = { editorial: editorialDecor, boho: bohoDecor, cyber: cyberDecor };

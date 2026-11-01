@@ -12,17 +12,17 @@ OUT = os.path.join(os.path.dirname(__file__), '..', 'src', 'assets', 'img', 'og'
 # page -> (headline, sub line, background, text colour, [(generator, design, extra JS before the shot)])
 PICS = {
     'home': ('Free printable baby cards', 'Birth cards · milestone cards · flashcards · shower games', '#f6efe6', '#3b2f52',
-             [('baby-stats', 'animals_blue', ''), ('milestones', 'animals_pink', ''), ('shower-games', 'blossom', '')]),
-    'baby-stats': ('Baby stats card maker', '20 designs · add a photo · free PDF & PNG', '#f4eee6', '#3b3552',
-                   [('baby-stats', 'animals_blue', ''), ('baby-stats', 'bow_pink', ''), ('baby-stats', 'elephants', '')]),
+             [('baby-stats', 'animals', ''), ('milestones', 'animals', "document.querySelector('[data-color=pink]').click()"), ('shower-games', 'blossom', '')]),
+    'baby-stats': ('Baby stats card maker', '20 designs in many colors · free PDF & PNG', '#f4eee6', '#3b3552',
+                   [('baby-stats', 'scandi', ''), ('baby-stats', 'stork', "document.querySelector('[data-color=pink]').click()"), ('baby-stats', 'clothesline', '')]),
     'milestones': ('Monthly milestone cards', 'Newborn to 3 years · cute animals · free printable', '#f6f0e8', '#3e4a63',
-                   [('milestones', 'animals_blue', "sel('#f-milestone','1')"), ('milestones', 'animals_pink', "sel('#f-milestone','3')"), ('milestones', 'animals_sage', "sel('#f-milestone','6')")]),
+                   [('milestones', 'animals', "sel('#f-milestone','1');document.querySelector('[data-color=blue]').click()"), ('milestones', 'animals', "sel('#f-milestone','3');document.querySelector('[data-color=pink]').click()"), ('milestones', 'animals', "sel('#f-milestone','6');document.querySelector('[data-color=sage]').click()")]),
     'flashcards': ('High-contrast baby flashcards', 'Black & white and red · free printable PDF', '#f1f1f1', '#111111',
                    [('flashcards', 'bw', ''), ('flashcards', 'rw', '')]),
     'shower-games': ('Baby shower games', 'Bingo with unique boards · predictions · advice cards', '#f7eef0', '#5a3b4b',
                      [('shower-games', 'blossom', ''), ('shower-games', 'blossom', "sel('#f-game','predictions')")]),
     'first-birthday': ('First birthday invitations', 'Invitations · one year poster · thank-you cards · free', '#fbf1ec', '#5b3d4a',
-                       [('first-birthday', 'animals_pink', ''), ('first-birthday', 'cake', "sel('#f-card','poster')"), ('first-birthday', 'balloons', "sel('#f-card','thanks')")]),
+                       [('first-birthday', 'animals', ''), ('first-birthday', 'cake', "sel('#f-card','poster')"), ('first-birthday', 'balloons', "sel('#f-card','thanks')")]),
     'christmas': ("Baby's first Christmas cards", 'Christmas & New Year · free printable', '#7a1424', '#fbefdc',
                   [('baby-stats', 'xmas_animals', "sel('#f-greeting','first')"), ('baby-stats', 'xmas_red', "sel('#f-greeting','merry')"), ('baby-stats', 'newyear', "sel('#f-greeting','newyear')")]),
 }
