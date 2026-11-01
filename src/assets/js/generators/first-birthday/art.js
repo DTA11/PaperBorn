@@ -2,6 +2,7 @@
    Same rules as core/art.js: plain SVG strings, sizes in the caller's units, ids prefixed so several cards can share a page. */
 import { DIGITS } from '../milestones/numerals.js';
 import { prng } from '../../core/util.js';
+import { styledNumber } from '../../core/numbers.js';
 
 /* Striped cone hat with a pompom. Drawn for the animals' shared pose box (head centre at 0,0, head about 115 wide). */
 export const partyHat = (p, c1, c2, pom = '#fff6d8', rot = 14) => `<g transform="translate(10 -46) rotate(${rot})">
@@ -41,28 +42,25 @@ export function confetti(w, h, n, colors, seed = 7, keep = [], s = 1) {
   return out;
 }
 
-/* Painted number (Fredoka outlines) with a soft watercolor fill and a clean, smooth edge (no wobble, no inner seam). Returns { svg, w } for a number whose baseline
+/* Painted number (Fredoka outlines) in the chosen Number style (smooth by default: soft shading, clean edge). Returns { svg, w } for a number whose baseline
    sits at (x, y) and whose cap height is about `H`. `wf` is the watercolor filter id. */
-export function paintedNumber(p, str, x, y, H, cols, edge, wf) {
+export function paintedNumber(p, str, x, y, H, cols, edge, wf, style = 'smooth') {
   const ds = String(str).split('').map(c => DIGITS[c]).filter(Boolean);
   const F = H / .7, em = ds.reduce((a, d) => a + d.w, 0) / 1000, w = em * F;
   let xx = x;
   const paths = ds.map(d => { const o = `<path transform="translate(${xx.toFixed(1)} ${y.toFixed(1)}) scale(${(F / 1000).toFixed(4)})" d="${d.d}"/>`; xx += d.w / 1000 * F; return o; }).join('');
-  const svg = `<defs><clipPath id="${p}nc">${paths}</clipPath>
-    <linearGradient id="${p}ng" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="${cols[0]}"/><stop offset=".55" stop-color="${cols[1]}"/><stop offset="1" stop-color="${cols[2]}"/></linearGradient>
+  const inner = `<defs><linearGradient id="${p}ng" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="${cols[0]}"/><stop offset=".55" stop-color="${cols[1]}"/><stop offset="1" stop-color="${cols[2]}"/></linearGradient>
     <filter id="${p}nb" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="${(H * .03).toFixed(1)}"/></filter></defs>
-    <g fill="${edge}" stroke="${edge}" stroke-width="${(H * .035).toFixed(1)}" stroke-linejoin="round" opacity=".28">${paths}</g>
-    <g><g clip-path="url(#${p}nc)">
-      <rect x="${(x - 10).toFixed(1)}" y="${(y - H * 1.1).toFixed(1)}" width="${(w + 20).toFixed(1)}" height="${(H * 1.2).toFixed(1)}" fill="url(#${p}ng)"/>
-      <g filter="url(#${p}nb)" opacity=".6"><ellipse cx="${(x + w * .4).toFixed(1)}" cy="${(y - H * .75).toFixed(1)}" rx="${(w * .35).toFixed(1)}" ry="${(H * .12).toFixed(1)}" fill="${cols[0]}"/>
-        <ellipse cx="${(x + w * .6).toFixed(1)}" cy="${(y - H * .3).toFixed(1)}" rx="${(w * .3).toFixed(1)}" ry="${(H * .15).toFixed(1)}" fill="${cols[2]}"/></g>
-    </g></g>`;
+    <rect x="${(x - 10).toFixed(1)}" y="${(y - H * 1.1).toFixed(1)}" width="${(w + 20).toFixed(1)}" height="${(H * 1.2).toFixed(1)}" fill="url(#${p}ng)"/>
+    <g filter="url(#${p}nb)" opacity=".6"><ellipse cx="${(x + w * .4).toFixed(1)}" cy="${(y - H * .75).toFixed(1)}" rx="${(w * .35).toFixed(1)}" ry="${(H * .12).toFixed(1)}" fill="${cols[0]}"/>
+      <ellipse cx="${(x + w * .6).toFixed(1)}" cy="${(y - H * .3).toFixed(1)}" rx="${(w * .3).toFixed(1)}" ry="${(H * .15).toFixed(1)}" fill="${cols[2]}"/></g>`;
+  const svg = styledNumber({ id: p, paths, inner, edge, sw: H * .035, solid: cols[2], light: cols[0], style, wobble: wf });
   return { svg, w };
 }
 
 /* Two-tier cake on a stand with drips, sprinkles and a number candle. Origin at the bottom centre of the stand;
    about 300 wide and 330 tall at s = 1 (candle included). */
-export function cake(p, s, P, number = '1') {
+export function cake(p, s, P, number = '1', style = 'smooth') {
   const sp = prng(11), sprinkles = Array.from({ length: 26 }, (_, i) => {
     const tier = i % 2, x = (tier ? -70 : -110) + sp() * (tier ? 140 : 220), y = tier ? -200 + sp() * 50 : -110 + sp() * 60;
     return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="7" height="2.6" rx="1.3" fill="${P.sprinkles[i % P.sprinkles.length]}" transform="rotate(${Math.round(sp() * 180)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;
@@ -81,7 +79,7 @@ export function cake(p, s, P, number = '1') {
     <rect x="-80" y="-212" width="160" height="78" rx="12" fill="url(#${p}c2)"/>
     <path d="${drips(-80, 80, -200, 6)}" fill="${P.icing}"/><rect x="-84" y="-218" width="168" height="20" rx="10" fill="${P.icing}"/>
     ${sprinkles}
-    <g transform="translate(${(-cw / 2).toFixed(1)} -214) scale(.09)"><path d="${D.d}" fill="${P.candle}" stroke="#fff" stroke-width="30" stroke-linejoin="round" paint-order="stroke"/></g>
+    <g transform="translate(${(-cw / 2).toFixed(1)} -214) scale(.09)"><path d="${D.d}" fill="${style === 'outline' ? '#fff' : P.candle}" stroke="${style === 'outline' ? P.candle : '#fff'}" stroke-width="${style === 'outline' ? 44 : 30}" stroke-linejoin="round" paint-order="stroke"/></g>
     <line x1="0" y1="-280" x2="0" y2="-292" stroke="#6b5a4a" stroke-width="2.4" stroke-linecap="round"/>
     <ellipse cx="0" cy="-306" rx="16" ry="24" fill="url(#${p}fl)"/><path d="M0 -322 C8 -310 8 -298 0 -292 C-8 -298 -8 -310 0 -322Z" fill="#ffb347"/><path d="M0 -312 C4 -306 4 -300 0 -296 C-4 -300 -4 -306 0 -312Z" fill="#fff4c2"/>
   </g>`;

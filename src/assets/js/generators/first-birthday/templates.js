@@ -5,6 +5,7 @@ import { ANIMALS } from '../../core/animals.js';
 import { wcDefs, cloud, spark, dot, balloon, rainbowArch, ground, sprig } from '../../core/art.js';
 import { photoHTML } from '../../core/photo.js';
 import { partyHat, bunting, confetti, paintedNumber, cake } from './art.js';
+import { numStyle } from '../../core/numbers.js';
 
 const U = f => Math.min(f.w / 794, f.h / 1123);
 const px = v => v.toFixed(1) + 'px';
@@ -48,7 +49,7 @@ const hasBunting = id => id === 'animals' || id === 'cake';
 /* ---------- Pictures. Each draws into a W×H box; `small` is the cut-down version that sits beside a photo. ---------- */
 function animalsScene(p, P, W, H, dv) {
   const BW = 520, BH = 400, k = Math.min(W / BW, H / BH), ox = (W - BW * k) / 2, oy = H - BH * k;
-  const an = ANIMALS[dv.animal] || ANIMALS.elephant, num = paintedNumber(p + 'n', dv.ageNum, 0, 0, 300, P.num, P.edge, p + 'w');
+  const an = ANIMALS[dv.animal] || ANIMALS.elephant, num = paintedNumber(p + 'n', dv.ageNum, 0, 0, 300, P.num, P.edge, p + 'w', numStyle(dv, 'smooth'));
   const nx = Math.max(20, 312 - num.w);
   const art = `<defs>${wcDefs(p)}<radialGradient id="${p}wa" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${P.wash}"/><stop offset=".7" stop-color="${P.wash}" stop-opacity=".7"/><stop offset="1" stop-color="${P.wash}" stop-opacity="0"/></radialGradient></defs>
     <g transform="translate(${ox.toFixed(1)} ${oy.toFixed(1)}) scale(${k.toFixed(4)})">
@@ -60,11 +61,11 @@ function animalsScene(p, P, W, H, dv) {
 }
 const animalsSmall = (p, P, s, dv) => `<g transform="scale(${s})">${(ANIMALS[dv.animal] || ANIMALS.elephant).svg(p + 'a')}${partyHat(p + 'h', P.hat[0], P.hat[1])}</g>`;
 
-function balloonsSet(p, cx, top, R, numStr, bear, bearS, gy) {
+function balloonsSet(p, cx, top, R, numStr, bear, bearS, gy, style = 'smooth') {
   const spots = [[-1.25, .55, .9], [-.45, .1, 1.05], [.55, 0, 1.25], [1.3, .5, .92], [.1, .95, .85]];
   const hand = bear ? [cx + 46 * bearS, gy - 150 * bearS + 88 * bearS] : [cx, top + R * 5];
   const bs = spots.map(([nx, ny, k], i) => balloon(p, i, cx + nx * R * 1.15, top + R * k + ny * R, R * k, ...BAL.colors[i]));
-  const big = bs[2], D = numStr ? paintedNumber(p + 'bn', numStr, 0, 0, R * 1.05, ['#ffffff', '#f7faff', '#eef3fb'], '#6f93bf', p + 'w') : null;
+  const big = bs[2], D = numStr ? paintedNumber(p + 'bn', numStr, 0, 0, R * 1.05, ['#ffffff', '#f7faff', '#eef3fb'], '#6f93bf', p + 'w', style) : null;
   const strings = bs.map(b => `<path d="M${b.knot[0].toFixed(1)} ${b.knot[1].toFixed(1)} C${(b.knot[0] + 8).toFixed(1)} ${((b.knot[1] + hand[1]) / 2).toFixed(1)} ${(hand[0] - 12).toFixed(1)} ${(hand[1] - 30).toFixed(1)} ${hand[0].toFixed(1)} ${hand[1].toFixed(1)}" fill="none" stroke="#a89b8a" stroke-width="1.3"/>`).join('');
   const bx = spots[2][0] * R * 1.15 + cx, by = top + R * 1.25;
   /* The balloon with the number is drawn last, so no other balloon covers the number */
@@ -78,15 +79,15 @@ function balloonsScene(p, P, W, H, dv) {
   const BW = 520, BH = 420, k = Math.min(W / BW, H / BH), ox = (W - BW * k) / 2, oy = H - BH * k;
   return svgBox(W, H, `<defs>${wcDefs(p)}</defs><g transform="translate(${ox.toFixed(1)} ${oy.toFixed(1)}) scale(${k.toFixed(4)})">
     <ellipse cx="260" cy="404" rx="190" ry="13" fill="#eee6da" filter="url(#${p}w)"/>
-    ${balloonsSet(p, 260, 10, 62, dv.ageNum, true, 1.05, 402)}</g>`);
+    ${balloonsSet(p, 260, 10, 62, dv.ageNum, true, 1.05, 402, numStyle(dv, 'smooth'))}</g>`);
 }
-const balloonsSmall = (p, P, s, dv) => `<g transform="scale(${s})">${balloonsSet(p, 0, -330, 50, dv.ageNum, false, 1, 0)}</g>`;
+const balloonsSmall = (p, P, s, dv) => `<g transform="scale(${s})">${balloonsSet(p, 0, -330, 50, dv.ageNum, false, 1, 0, numStyle(dv, 'smooth'))}</g>`;
 
 function cakeScene(p, P, W, H, dv) {
   const s = Math.min(W / 330, H / 345);
-  return svgBox(W, H, `<g transform="translate(${(W / 2).toFixed(1)} ${(H - 4).toFixed(1)})">${cake(p, s, CAKE, dv.ageNum)}</g>`);
+  return svgBox(W, H, `<g transform="translate(${(W / 2).toFixed(1)} ${(H - 4).toFixed(1)})">${cake(p, s, CAKE, dv.ageNum, numStyle(dv, 'smooth'))}</g>`);
 }
-const cakeSmall = (p, P, s, dv) => cake(p, s, CAKE, dv.ageNum);
+const cakeSmall = (p, P, s, dv) => cake(p, s, CAKE, dv.ageNum, numStyle(dv, 'smooth'));
 
 function popScene(p, P, W, H, dv, u) {
   const word = dv.ageWord.toUpperCase(), fs = Math.min(H * .9, W / (word.length * .74));
@@ -96,7 +97,7 @@ function popScene(p, P, W, H, dv, u) {
 
 function rainbowScene(p, P, W, H, dv) {
   const BW = 520, BH = 330, k = Math.min(W / BW, H / BH), ox = (W - BW * k) / 2, oy = H - BH * k;
-  const num = paintedNumber(p + 'n', dv.ageNum, 0, 0, 84, RB.num, RB.edge, p + 'w');
+  const num = paintedNumber(p + 'n', dv.ageNum, 0, 0, 84, RB.num, RB.edge, p + 'w', numStyle(dv, 'smooth'));
   return svgBox(W, H, `<defs>${wcDefs(p)}</defs><g transform="translate(${ox.toFixed(1)} ${oy.toFixed(1)}) scale(${k.toFixed(4)})">
     ${rainbowArch(p, 260, 316, 240, 30, RB.bands)}
     <g transform="translate(${(260 - num.w / 2).toFixed(1)} 306)">${num.svg}</g>

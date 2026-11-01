@@ -1,6 +1,7 @@
 /* Monthly milestone card generator definition */
 import { TEMPLATES, DECOR } from './templates.js';
 import { LA_THEMES, LA_TEMPLATES, LA_DECOR } from './little-animals.js';
+import { NUM_STYLES } from '../../core/numbers.js';
 import { ANIMALS, ANIMAL_ORDER } from '../../core/animals.js';
 
 const THEMES = {
@@ -51,7 +52,7 @@ export default {
   photo: true,
   defaults: {
     toggles: { name: true, date: true, weight: true, height: true, note: true, facts: true },
-    data: { milestone: '3', date: '2026-10-10', animal: 'auto' },
+    data: { milestone: '3', date: '2026-10-10', animal: 'auto', numStyle: 'auto' },
     sample: { babyName: 'Aurelia', customBig: '100', customSmall: 'DAYS', weightG: '5800', heightCm: '61',
               note: 'Smiles at everyone and loves bath time!', loves: 'Bath time & lullabies', skill: 'Rolling over', fun: 'Giggles at the dog' },
     sampleGroups: [['customBig', 'customSmall'], ['weightG', 'heightCm'], ['loves', 'skill', 'fun']],
@@ -65,6 +66,7 @@ export default {
       { cols: 2, fields: [
         { key: 'milestone', type: 'select', label: 'Milestone', span: 2, options: MILESTONES },
         { key: 'animal', type: 'select', label: 'Animal (Little Animals designs)', span: 2, options: [['auto', 'A different one each month'], ...ANIMAL_ORDER.map(k => [k, ANIMALS[k].name])] },
+        { key: 'numStyle', type: 'select', label: 'Number style (Little Animals design)', span: 2, options: NUM_STYLES },
         { key: 'customBig', type: 'text', label: 'Your big text', ph: '100', maxlength: 6 },
         { key: 'customSmall', type: 'text', label: 'Your small text', ph: 'DAYS', maxlength: 14 } ] },
       { toggles: [['date', 'Date'], ['weight', 'Weight']], cols: 2, fields: [

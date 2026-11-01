@@ -6,6 +6,7 @@ import { photoHTML } from '../../core/photo.js';
 import { br } from '../../core/util.js';
 import { DIGITS } from './numerals.js';
 import { ANIMALS, animalFor } from '../../core/animals.js';
+import { styledNumber, numStyle } from '../../core/numbers.js';
 
 export const PALETTES = {
   blue: { name: 'Blue', num: ['#b9cfe6', '#94b3d6', '#7f9fc6'], spots: ['#cfe0f0', '#a7c1df', '#7f9fc7'], edge: '#6f93bf', wash: '#e3edf6', word: '#7f9cc2' },
@@ -74,16 +75,12 @@ function decor(pal, t, f, e, dv) {
     <use href="#${id}tf" transform="translate(118 566)"/><use href="#${id}tf" transform="translate(212 568) scale(.8)"/><use href="#${id}tf" transform="translate(330 566) scale(.9)"/><use href="#${id}tf" transform="translate(482 568) scale(.85)"/>
     <use href="#${id}lf" transform="translate(92 568) rotate(-20)"/><use href="#${id}lf" transform="translate(470 566) scale(-1 1) rotate(-15)"/><use href="#${id}lf" transform="translate(236 570) rotate(-35) scale(.8)"/>
     <use href="#${id}fl" transform="translate(104 540)"/><use href="#${id}fl" transform="translate(222 548) scale(.8)"/><use href="#${id}fl" transform="translate(518 546) scale(.9)"/>` : ''}`;
-  const number = big ? `
-    <clipPath id="${id}nc">${big.paths}</clipPath>
-    <g filter="url(#${id}wc)"><g clip-path="url(#${id}nc)">
-      <linearGradient id="${id}ng" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="${P.num[0]}"/><stop offset=".55" stop-color="${P.num[1]}"/><stop offset="1" stop-color="${P.num[2]}"/></linearGradient>
+  const number = big ? styledNumber({ id, paths: big.paths, style: numStyle(dv, 'watercolor'), wobble: `${id}wc`, edge: P.edge, sw: 12, solid: P.num[2], light: P.num[0],
+    inner: `<linearGradient id="${id}ng" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="${P.num[0]}"/><stop offset=".55" stop-color="${P.num[1]}"/><stop offset="1" stop-color="${P.num[2]}"/></linearGradient>
       <rect x="20" y="150" width="520" height="420" fill="url(#${id}ng)"/>
       <g filter="url(#${id}bl)" transform="translate(${(ncx - 252).toFixed(1)} 0)">
         <ellipse cx="190" cy="250" rx="70" ry="40" fill="${P.spots[0]}" opacity=".75"/><ellipse cx="320" cy="300" rx="60" ry="80" fill="${P.spots[1]}" opacity=".55"/>
-        <ellipse cx="230" cy="430" rx="80" ry="45" fill="${P.spots[0]}" opacity=".6"/><ellipse cx="330" cy="500" rx="70" ry="40" fill="${P.spots[2]}" opacity=".45"/><ellipse cx="150" cy="470" rx="50" ry="30" fill="${P.spots[2]}" opacity=".5"/></g>
-      <g fill="none" stroke="${P.edge}" stroke-width="9" opacity=".35" filter="url(#${id}b2)">${big.paths}</g>
-    </g></g>` : '';
+        <ellipse cx="230" cy="430" rx="80" ry="45" fill="${P.spots[0]}" opacity=".6"/><ellipse cx="330" cy="500" rx="70" ry="40" fill="${P.spots[2]}" opacity=".45"/><ellipse cx="150" cy="470" rx="50" ry="30" fill="${P.spots[2]}" opacity=".5"/></g>` }) : '';
   const scene = `<g transform="translate(${CX} ${L.sceneBot}) scale(${L.k.toFixed(4)}) translate(${-CX} ${-SCENE_BOT})">
     <radialGradient id="${id}wa" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${P.wash}"/><stop offset=".75" stop-color="${P.wash}" stop-opacity=".7"/><stop offset="1" stop-color="#f6f2ea" stop-opacity="0"/></radialGradient>
     <ellipse cx="${(ncx + 23).toFixed(1)}" cy="372" rx="215" ry="205" fill="url(#${id}wa)" filter="url(#${id}wc)"/>

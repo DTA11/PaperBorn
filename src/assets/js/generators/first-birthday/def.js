@@ -1,6 +1,7 @@
 /* First birthday maker: party invitation, "one year" poster and thank-you card (also for birthdays 2 to 5). */
 import { THEMES, TEMPLATES, DECOR } from './templates.js';
 import { ANIMALS, ANIMAL_ORDER } from '../../core/animals.js';
+import { NUM_STYLES } from '../../core/numbers.js';
 
 const AGES = { 1: ['one', 'First', '1st'], 2: ['two', 'Second', '2nd'], 3: ['three', 'Third', '3rd'], 4: ['four', 'Fourth', '4th'], 5: ['five', 'Fifth', '5th'] };
 
@@ -44,7 +45,7 @@ export default {
   photo: true,
   defaults: {
     toggles: { photo: false, stats: true, facts: true, border: false },
-    data: { card: 'invite', age: '1', animal: 'elephant', partyDate: '2026-03-14', birthDate: '2025-03-10' },
+    data: { card: 'invite', age: '1', numStyle: 'auto', animal: 'elephant', partyDate: '2026-03-14', birthDate: '2025-03-10' },
     sample: { firstName: 'Mila', inviteTop: 'Please join us to celebrate', partyTime: '3 – 6 pm', place: 'Our home', address: '12 Garden Street, Your City',
       rsvp: 'RSVP to Emma by 1 March', birthW: '3450', birthL: '51', nowW: '9800', nowL: '75', firstWord: 'Mama', food: 'Banana', toy: 'Little bunny',
       song: 'Twinkle Twinkle', teeth: '6', cando: 'Clap, wave and walk', message: 'Thank you for celebrating with us and for the lovely gift!', from: 'Emma & Mark' },
@@ -58,6 +59,7 @@ export default {
         { key: 'firstName', type: 'text', label: 'Child’s first name', maxlength: 24 },
         { key: 'age', type: 'select', label: 'Turning', options: Object.entries(AGES).map(([k, v]) => [k, `${k} (${v[1].toLowerCase()} birthday)`]) } ] },
       { fields: [{ key: 'animal', type: 'select', label: 'Animal (Party Animals designs)', options: ANIMAL_ORDER.map(k => [k, ANIMALS[k].name]) }] },
+      { fields: [{ key: 'numStyle', type: 'select', label: 'Number style', options: NUM_STYLES }] },
     ],
   }, {
     title: 'Invitation',
