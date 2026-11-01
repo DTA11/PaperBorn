@@ -41,7 +41,7 @@ export function confetti(w, h, n, colors, seed = 7, keep = [], s = 1) {
   return out;
 }
 
-/* Painted number (Fredoka outlines) with a soft watercolor fill. Returns { svg, w } for a number whose baseline
+/* Painted number (Fredoka outlines) with a soft watercolor fill and a clean, smooth edge (no wobble, no inner seam). Returns { svg, w } for a number whose baseline
    sits at (x, y) and whose cap height is about `H`. `wf` is the watercolor filter id. */
 export function paintedNumber(p, str, x, y, H, cols, edge, wf) {
   const ds = String(str).split('').map(c => DIGITS[c]).filter(Boolean);
@@ -51,11 +51,11 @@ export function paintedNumber(p, str, x, y, H, cols, edge, wf) {
   const svg = `<defs><clipPath id="${p}nc">${paths}</clipPath>
     <linearGradient id="${p}ng" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="${cols[0]}"/><stop offset=".55" stop-color="${cols[1]}"/><stop offset="1" stop-color="${cols[2]}"/></linearGradient>
     <filter id="${p}nb" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="${(H * .03).toFixed(1)}"/></filter></defs>
-    <g filter="url(#${wf})"><g clip-path="url(#${p}nc)">
+    <g fill="${edge}" stroke="${edge}" stroke-width="${(H * .035).toFixed(1)}" stroke-linejoin="round" opacity=".28">${paths}</g>
+    <g><g clip-path="url(#${p}nc)">
       <rect x="${(x - 10).toFixed(1)}" y="${(y - H * 1.1).toFixed(1)}" width="${(w + 20).toFixed(1)}" height="${(H * 1.2).toFixed(1)}" fill="url(#${p}ng)"/>
       <g filter="url(#${p}nb)" opacity=".6"><ellipse cx="${(x + w * .4).toFixed(1)}" cy="${(y - H * .75).toFixed(1)}" rx="${(w * .35).toFixed(1)}" ry="${(H * .12).toFixed(1)}" fill="${cols[0]}"/>
         <ellipse cx="${(x + w * .6).toFixed(1)}" cy="${(y - H * .3).toFixed(1)}" rx="${(w * .3).toFixed(1)}" ry="${(H * .15).toFixed(1)}" fill="${cols[2]}"/></g>
-      <g fill="none" stroke="${edge}" stroke-width="${(H * .025).toFixed(1)}" opacity=".35">${paths}</g>
     </g></g>`;
   return { svg, w };
 }
@@ -81,7 +81,7 @@ export function cake(p, s, P, number = '1') {
     <rect x="-80" y="-212" width="160" height="78" rx="12" fill="url(#${p}c2)"/>
     <path d="${drips(-80, 80, -200, 6)}" fill="${P.icing}"/><rect x="-84" y="-218" width="168" height="20" rx="10" fill="${P.icing}"/>
     ${sprinkles}
-    <g transform="translate(${(-cw / 2).toFixed(1)} -214) scale(.09)"><path d="${D.d}" fill="${P.candle}" stroke="#fff" stroke-width="30"/></g>
+    <g transform="translate(${(-cw / 2).toFixed(1)} -214) scale(.09)"><path d="${D.d}" fill="${P.candle}" stroke="#fff" stroke-width="30" stroke-linejoin="round" paint-order="stroke"/></g>
     <line x1="0" y1="-280" x2="0" y2="-292" stroke="#6b5a4a" stroke-width="2.4" stroke-linecap="round"/>
     <ellipse cx="0" cy="-306" rx="16" ry="24" fill="url(#${p}fl)"/><path d="M0 -322 C8 -310 8 -298 0 -292 C-8 -298 -8 -310 0 -322Z" fill="#ffb347"/><path d="M0 -312 C4 -306 4 -300 0 -296 C-4 -300 -4 -306 0 -312Z" fill="#fff4c2"/>
   </g>`;
