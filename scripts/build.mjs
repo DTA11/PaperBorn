@@ -117,6 +117,11 @@ for (const file of walk(pagesDir)) {
       ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${cfg.ads.adsenseClient}" crossorigin="anonymous"></script>` : '',
     ogImage: cfg.siteUrl + (meta.ogImage || '/assets/img/og-default.png'),
   };
+  /* Share row under the content: not on legal pages, the 404 page or noindex pages. Link parts are URL-encoded here. */
+  const shareOff = meta.noindex || meta.noShare || /^\/(privacy|terms|contact)\/?$/.test(urlPath || '') || /404/.test(outRel);
+  vars.shareUrl = encodeURIComponent(vars.canonical); vars.shareImg = encodeURIComponent(vars.ogImage);
+  vars.shareText = encodeURIComponent(meta.fullTitle || meta.title || cfg.siteName);
+  vars.shareBar = shareOff ? '' : expand(partial('share'), vars);
   vars.jsonld = jsonLd(meta, urlPath, vars);
   // page content first (it may use {{h1}} etc.), then wrap in the layout
   vars.content = expand(src, { ...vars, content: '' });
