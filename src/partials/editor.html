@@ -56,9 +56,34 @@
       </button>
       <button type="button" data-dl="fold" hidden class="w-full text-left rounded-lg border border-zinc-700 hover:border-indigo-400 hover:bg-zinc-900 p-4">
         <span class="block font-bold text-white">Folded greeting card <span class="font-normal text-zinc-400">(PDF, <span id="fold-size">A4</span> sheet)</span></span>
-        <span class="block text-xs text-zinc-400 mt-1">Your design on the front, a matching back and a message inside. Print on both sides (flip on the short edge) and fold in half.</span>
+        <span class="block text-xs text-zinc-400 mt-1">Your design on the front, a matching back and a message inside. Print on both sides with <b>flip on short edge</b>, then fold in half.</span>
       </button>
       <button type="button" data-dl-cancel class="w-full text-center text-xs text-zinc-400 hover:text-white py-2">Cancel</button>
+    </div>
+  </dialog>
+  <dialog id="fold-help" class="rounded-xl border border-zinc-700 bg-zinc-950 text-zinc-200 p-0 w-[calc(100%-2rem)] max-w-md backdrop:bg-black/70">
+    <div class="p-5 space-y-3">
+      <h2 class="text-sm font-bold uppercase tracking-widest text-white">How to print your folded card</h2>
+      <svg viewBox="0 0 330 92" width="100%" aria-hidden="true" style="display:block;margin:2px 0 6px">
+        <g font-family="system-ui,sans-serif" font-size="10" fill="#a1a1aa" text-anchor="middle">
+          <rect x="8" y="14" width="84" height="56" rx="3" fill="#27272a" stroke="#71717a"/><line x1="50" y1="14" x2="50" y2="70" stroke="#52525b" stroke-dasharray="3 3"/>
+          <path d="M22 80 C36 88 64 88 78 80" fill="none" stroke="#818cf8" stroke-width="2"/><path d="M74 76 L79 81 L72 83" fill="none" stroke="#818cf8" stroke-width="2"/>
+          <text x="50" y="10">1 · both sides</text>
+          <rect x="122" y="14" width="84" height="56" rx="3" fill="#27272a" stroke="#71717a"/><path d="M164 14 V70" stroke="#818cf8" stroke-width="2"/>
+          <path d="M206 42 C222 42 222 24 206 20" fill="none" stroke="#818cf8" stroke-width="2"/><text x="164" y="10">2 · fold in half</text>
+          <rect x="250" y="14" width="44" height="60" rx="3" fill="#27272a" stroke="#71717a"/><rect x="246" y="18" width="44" height="60" rx="3" fill="#3f3f46" stroke="#a1a1aa"/>
+          <path d="M268 40 c-4 -5 -12 -2 -8 5 l8 8 l8 -8 c4 -7 -4 -10 -8 -5z" fill="#f472b6"/><text x="270" y="10">3 · your card</text></g></svg>
+      <ol class="fold-steps">
+        <li>Open the PDF and choose <b>Print</b>. Paper: <b><span data-fold-sheet>A4</span></b>, landscape.</li>
+        <li>Turn on <b>two-sided printing</b> and choose <b>flip on short edge</b>. With “long edge” the inside comes out upside down.</li>
+        <li>Set the size to <b>100% / Actual size</b> (use “Fit” only if your paper is a different size).</li>
+        <li>Fold along the small marks at the top and bottom edge, design facing out.</li>
+      </ol>
+      <p class="text-xs text-zinc-400">No two-sided printing? Print page 1, put the sheet back in the tray (test once on plain paper which way up it goes), then print page 2. Best paper: 200–250 gsm card stock.</p>
+      <label class="chk text-xs"><input type="checkbox" id="fold-help-hide" class="rounded">Don’t show this again</label>
+      <button type="button" id="fold-help-go" class="btn w-full bg-indigo-600 hover:bg-indigo-500 text-white">Download the PDF</button>
+      <a href="/print-tips/#folded" class="block text-center text-xs text-zinc-300" style="text-decoration:underline;text-underline-offset:3px" target="_blank" rel="noopener">More printing tips</a>
+      <button type="button" data-fold-cancel class="w-full text-center text-xs text-zinc-400 hover:text-white py-2">Cancel</button>
     </div>
   </dialog>
   <dialog id="ready-dialog" data-html2canvas-ignore="true" class="rounded-xl border border-zinc-700 bg-zinc-950 text-zinc-200 p-0 w-[calc(100%-2rem)] max-w-md backdrop:bg-black/70">

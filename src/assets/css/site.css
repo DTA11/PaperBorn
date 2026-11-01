@@ -170,3 +170,8 @@ dialog.dlg-fallback { position: fixed; left: 50%; top: 50%; transform: translate
 #design-nav .color-dot { width: auto; height: auto; background: transparent; border: 2px solid transparent; border-radius: 999px; font-size: 13px; padding: 2px; }
 #design-nav .color-dot.on { border-color: #818cf8; background: transparent; }
 @media (max-width: 1023px) { #color-row { display: none !important; } }
+
+/* Folded card print steps */
+.fold-steps { margin: 0; padding-left: 20px; list-style: decimal; font-size: 13px; line-height: 1.45; color: #d4d4d8; }
+.fold-steps li { margin-bottom: 6px; }
+.fold-steps b { color: #fff; }

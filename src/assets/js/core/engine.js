@@ -743,7 +743,23 @@ function bindEvents() {
     openDlg(dlg);
   });
   dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-dl-cancel]')) closeDlg(dlg); });
-  dlg.querySelectorAll('[data-dl]').forEach(b => b.addEventListener('click', () => { const kind = b.dataset.dl; closeDlg(dlg); runDownload(kind); }));
+  /* Folded card: show how to print it first (short-edge flip matters), unless the visitor chose not to see it again */
+  const fh = $('fold-help'), seenFold = () => { try { return localStorage.getItem('paperborn:foldhelp') === '1'; } catch (_) { return false; } };
+  dlg.querySelectorAll('[data-dl]').forEach(b => b.addEventListener('click', () => {
+    const kind = b.dataset.dl; closeDlg(dlg);
+    if (kind === 'fold' && fh && !seenFold()) {
+      fh.querySelectorAll('[data-fold-sheet]').forEach(n => { n.textContent = sheetFor(state.format) === 'letter' ? 'US Letter' : 'A4'; });
+      openDlg(fh); return;
+    }
+    runDownload(kind);
+  }));
+  if (fh) {
+    $('fold-help-go').addEventListener('click', () => {
+      if ($('fold-help-hide').checked) { try { localStorage.setItem('paperborn:foldhelp', '1'); } catch (_) {} }
+      closeDlg(fh); runDownload('fold');
+    });
+    fh.addEventListener('click', e => { if (e.target === fh || e.target.closest('[data-fold-cancel]')) closeDlg(fh); });
+  }
   if (def.photo) {
     initPhotoDrag($('card-target'), () => { scheduleSave(); });
     $('card-target').addEventListener('click', e => { if (e.target.closest('[data-add-photo]')) $('photo-file').click(); });
