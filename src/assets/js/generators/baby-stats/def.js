@@ -104,6 +104,25 @@ export default {
     options: Object.entries(ALL_THEMES).map(([id, th]) => [id, th.name]),
     apply(state, id) { const th = ALL_THEMES[id]; state.theme = id; state.fontMode = th.font; state.photo.shape = th.shape; state.photo.filterMode = th.filter; },
   },
+  /* "Give me an idea" for the short message: Christmas and New Year lines on the holiday designs */
+  ideas: {
+    quote: (dv, theme) => theme === 'newyear' ? [
+      'A brand new year with our brand new baby.', 'New year, new love, new little one.', 'Our first new year as a family.',
+      'Cheers to {firstName} and the year ahead!', 'The best thing about this year? Meeting you.', 'Here’s to a year of firsts.',
+      'Small baby, big dreams, happy new year!', 'Our wish for the new year came true.',
+    ] : /^xmas/.test(theme) ? [
+      'Our greatest gift this Christmas.', 'All we wanted for Christmas was you.', 'The best present arrived early this year.',
+      'Tiny toes, twinkling lights and so much love.', 'Merry Christmas from our little one.', 'Our first Christmas as a family.',
+      'Peace, love and very little sleep.', 'Baby’s first Christmas, and our hearts are full.', 'Wishing you a merry little Christmas.',
+      '{firstName}’s first Christmas, and the best one yet.', 'Love, joy and a brand new baby.',
+    ] : [
+      'Little miracle, endless love.', 'Welcome to the world, {firstName}.', 'Small in size, big in love.', 'Our hearts just grew a little bigger.',
+      'The best things come in small packages.', 'Ten little fingers, ten little toes.', 'We waited, we wished, and now you are here.',
+      'Love at first sight, all over again.', 'Our little star has landed.', 'Our greatest adventure begins.', 'Hello, world!',
+      'Worth every minute of the wait.', 'A new chapter, a tiny new hero.', 'Sleep: cancelled until further notice.',
+      'Officially outnumbered.', 'Fresh out of the oven and perfectly baked.', 'From our arms to your heart.', 'Our duo is now a trio.',
+    ],
+  },
   derive: derived,
   /* Hospital name and city are separate switches; the designs only know one "location" switch, so adapt here:
      whichever of the two is switched on takes the place the design reserves for the hospital (Playful only has a city slot). */

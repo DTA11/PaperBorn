@@ -10,13 +10,18 @@ function fmtDate(iso, weekday) {
   return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]))
     .toLocaleDateString('en-GB', { ...(weekday ? { weekday: 'long' } : {}), day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 }
+function rsvpBy(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  if (!m) return '';
+  return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3] - 14)).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+}
 const grams = v => { const g = parseFloat(v); return g > 0 ? `${Math.round(g)} g` : ''; };
 const cm = v => { const c = parseFloat(v); return c > 0 ? `${+c.toFixed(1)} cm` : ''; };
 
 function derive(d) {
   const a = AGES[d.age] ? String(d.age) : '1', [word, ord, short] = AGES[a];
   return { ...d, ageNum: a, ageWord: word, ordWord: ord, ordShort: short,
-    partyDate: fmtDate(d.partyDate, true), born: d.birthDate ? `Born ${fmtDate(d.birthDate)}` : '',
+    partyDate: fmtDate(d.partyDate, true), rsvpBy: rsvpBy(d.partyDate), born: d.birthDate ? `Born ${fmtDate(d.birthDate)}` : '',
     birthW: grams(d.birthW), birthL: cm(d.birthL), nowW: grams(d.nowW), nowL: cm(d.nowL) };
 }
 
@@ -95,6 +100,18 @@ export default {
     button: 'Download all designs (PDF)',
     options: Object.entries(THEMES).map(([id, th]) => [id, th.name]),
     apply(state, id) { const th = THEMES[id]; state.theme = id; state.fontMode = th.font; },
+  },
+  /* "Give me an idea" wording. {rsvpBy} is two weeks before the party. */
+  ideas: {
+    inviteTop: () => ['Please join us to celebrate', 'You are invited to', 'Come and celebrate', 'Help us celebrate', 'Join the fun for',
+      'Let’s party for', 'Grab a cupcake and celebrate', 'Come party with us for', 'Join us for a little party for', 'Save the date for'],
+    rsvp: () => ['RSVP to {from} by {rsvpBy}', 'Please let us know by {rsvpBy}', 'RSVP by {rsvpBy} · No gifts, please', 'RSVP by {rsvpBy} · Your presence is our present',
+      'Kindly reply by {rsvpBy}', 'RSVP to {from} · Little ones welcome', 'Let us know if you can come by {rsvpBy}'],
+    message: () => ['Thank you for celebrating with us and for the lovely gift!', 'Thank you for making {firstName}’s birthday so special. We loved having you there!',
+      'Thank you for the beautiful gift and for being part of our little one’s first year.', 'Your gift made {firstName} smile. Thank you for celebrating with us!',
+      'Thank you for coming! {firstName} had the best day.', 'We are so grateful for you. Thank you for the lovely present and all the love.',
+      'Thank you for helping us celebrate one amazing year!', 'Big thanks for the party fun and the thoughtful gift!',
+      'Thank you for being part of {firstName}’s story. We hope to see you again soon.'],
   },
   derive,
   templates: TEMPLATES,

@@ -148,3 +148,8 @@ dialog.dlg-fallback { position: fixed; left: 50%; top: 50%; transform: translate
 .pin-it, .prose-pb .seasonal-cards a.pin-it { position: absolute; width: auto; white-space: nowrap; margin: 0; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 4px; padding: 8px 12px; border-radius: 999px; background: #e60023; color: #fff; font: 700 12px/1 system-ui, -apple-system, sans-serif; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,.3); opacity: .92; }
 .pin-it:hover { opacity: 1; }
 @media (hover: hover) { .pin-it { opacity: 0; transition: opacity .15s; } .pin-wrap:hover .pin-it, .pin-it:focus-visible { opacity: 1; } }
+
+/* "Give me an idea" under message fields */
+.idea-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: 7px 12px; min-height: 34px; border-radius: 999px; border: 1px solid #4338ca; background: rgba(79,70,229,.14); color: #c7d2fe; font-size: 12px; font-weight: 700; cursor: pointer; }
+.idea-btn:hover { background: rgba(79,70,229,.3); color: #fff; }
+.idea-btn:focus-visible { outline: 2px solid #818cf8; outline-offset: 2px; }

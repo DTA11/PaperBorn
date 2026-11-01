@@ -75,6 +75,10 @@ export default {
     apply(state, id) { state.theme = id; },
   },
   pageCount: (dv) => Math.max(1, Math.min(60, Math.round(+dv.cardCount) || 1)),
+  ideas: {
+    advicePrompt: () => ['My advice for the parents-to-be:', 'Words of wisdom for Mom & Dad:', 'The best tip I can give you:', 'Something I wish I’d known:',
+      'When it all gets too much, remember:', 'My wish for your little one:', 'Best advice for the first year:', 'A little secret for sleepy nights:', 'Never forget:'],
+  },
   derive,
   templates: TEMPLATES,
   decor: DECOR,

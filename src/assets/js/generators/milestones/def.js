@@ -84,6 +84,18 @@ export default {
     options: MILESTONES.filter(m => m[0] !== 'custom' && +m[0] <= 12).map(([v, l]) => [v, l]),
     apply(state, id) { state.data.milestone = id; },
   },
+  /* "Give me an idea" for the note, matched to the baby's age */
+  ideas: {
+    note: dv => {
+      const m = +dv.milestone;
+      if (dv.milestone === '0') return ['Sleeps a lot and loves cuddles.', 'Brand new and already so loved.', 'Hello, world! I love being held.', 'Tiny, sleepy and perfect.', 'Loves milk, naps and snuggles.'];
+      if (m <= 3) return ['Smiles at everyone and loves bath time!', 'My first real smile!', 'I can hold my head up all by myself.', 'Loves tummy time (sometimes).', 'Coos and gurgles all day long.', 'Found my hands and I love them.', 'Starting to sleep longer at night.', 'Follows faces and toys with my eyes.'];
+      if (m <= 6) return ['Rolled over for the first time!', 'Giggles at peekaboo.', 'Discovered my toes!', 'Tried my first food: banana!', 'Grabs everything and puts it in my mouth.', 'Laughing out loud!', 'Sitting up with a little help.', 'Blowing raspberries all day.'];
+      if (m <= 9) return ['Sitting up all by myself!', 'First tooth is here!', 'On the move: crawling everywhere!', 'Loves clapping and waving bye-bye.', 'Says “mama” and “dada”.', 'Pulling myself up to stand.', 'Loves splashing in the bath.', 'Exploring every cupboard.'];
+      if (m <= 12) return ['Took my first steps!', 'Cruising along the furniture.', 'Loves books and turning pages.', 'Says my first words.', 'Happy first birthday to me!', 'Feeding myself (messily!).', 'Dancing to every song.', 'Waves hello to everyone.'];
+      return ['Running everywhere!', 'Loves stacking blocks and knocking them down.', 'Learning new words every day.', 'Favorite word: “no”!', 'Big helper around the house.', 'Loves the park and the swings.', 'Can name all the animals in my book.', 'Climbing on everything.'];
+    },
+  },
   derive,
   templates: { ...LA_TEMPLATES, ...TEMPLATES },
   decor: { ...LA_DECOR, ...DECOR },

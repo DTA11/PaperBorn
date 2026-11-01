@@ -3,6 +3,7 @@
    renders the live card, and provides undo/redo, saved looks, multi-page output, packs and PNG/PDF export. */
 import { $, esc, clone, track } from './util.js';
 import { fixGap } from './compat.js';
+import { nextIdea, IDEA_ICON } from './ideas.js';
 import { state, ctx, fmt } from './state.js';
 import { FONTS, FONT_LABELS, loadFonts } from './fonts.js';
 import { photo, setPhotoSource, clearPhoto, syncPhotoURL, bakeFrames, initPhotoDrag, SHAPE_LABELS, FILTER_LABELS } from './photo.js';
@@ -143,7 +144,22 @@ function fieldHTML(fd) {
       ctl = `<input type="${fd.type || 'text'}" ${common} ${ph} ${attrs} ${mode} ${fd.maxlength ? `maxlength="${fd.maxlength}"` : ''}>`;
     }
   }
-  return `<div class="${span} min-w-0">${lab}${ctl}</div>`;
+  const idea = def.ideas && def.ideas[fd.key] ? `<button type="button" class="idea-btn" data-idea="${fd.key}">${IDEA_ICON}<span>Give me an idea</span></button>` : '';
+  return `<div class="${span} min-w-0">${lab}${ctl}${idea}</div>`;
+}
+
+/* "Give me an idea": fill the field with the next suggestion for this card, as if it had been typed. */
+function giveIdea(key) {
+  const { dv } = derive(), el = document.querySelector(`[data-f="${key}"]`);
+  if (!el) return;
+  const list = def.ideas[key](dv, state.theme) || [], shown = el.value || el.placeholder;
+  let text = nextIdea(key, list, dv);
+  if (text === shown) text = nextIdea(key, list, dv);                  // don't "suggest" what is already on the card
+  if (!text) return;
+  if (key in state.toggles && !state.toggles[key]) { state.toggles[key] = true; syncForm(); }
+  el.value = text;
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+  track('idea', { generator: def.slug, field: key });
 }
 
 function boxHTML(b) {
@@ -661,6 +677,7 @@ function bindEvents() {
     list.push({ name, theme: state.theme, format: state.format, fontMode: state.fontMode, photo: clone(state.photo), toggles: clone(state.toggles) });
     setTpls(list); $('tpl-name').value = ''; renderTemplates();
   });
+  document.addEventListener('click', ev => { const ib = ev.target.closest('[data-idea]'); if (ib) giveIdea(ib.dataset.idea); });
   document.addEventListener('click', ev => {
     const go = ev.target.closest('[data-place-go]'), pick = ev.target.closest('[data-place-pick]');
     if (go) placeSearch(go.closest('[data-place]'));
