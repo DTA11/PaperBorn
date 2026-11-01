@@ -64,11 +64,13 @@ function balloonsSet(p, cx, top, R, numStr, bear, bearS, gy) {
   const spots = [[-1.25, .55, .9], [-.45, .1, 1.05], [.55, 0, 1.25], [1.3, .5, .92], [.1, .95, .85]];
   const hand = bear ? [cx + 46 * bearS, gy - 150 * bearS + 88 * bearS] : [cx, top + R * 5];
   const bs = spots.map(([nx, ny, k], i) => balloon(p, i, cx + nx * R * 1.15, top + R * k + ny * R, R * k, ...BAL.colors[i]));
-  const big = bs[2], D = numStr ? paintedNumber(p + 'bn', numStr, 0, 0, R * .95, ['#ffffff', '#f4f8fd', '#e8f0fa'], '#ffffff', p + 'w') : null;
+  const big = bs[2], D = numStr ? paintedNumber(p + 'bn', numStr, 0, 0, R * 1.05, ['#ffffff', '#f7faff', '#eef3fb'], '#6f93bf', p + 'w') : null;
   const strings = bs.map(b => `<path d="M${b.knot[0].toFixed(1)} ${b.knot[1].toFixed(1)} C${(b.knot[0] + 8).toFixed(1)} ${((b.knot[1] + hand[1]) / 2).toFixed(1)} ${(hand[0] - 12).toFixed(1)} ${(hand[1] - 30).toFixed(1)} ${hand[0].toFixed(1)} ${hand[1].toFixed(1)}" fill="none" stroke="#a89b8a" stroke-width="1.3"/>`).join('');
   const bx = spots[2][0] * R * 1.15 + cx, by = top + R * 1.25;
-  return `<defs>${bs.map(b => b.defs).join('')}</defs>${strings}${bs.map(b => b.svg).join('')}
-    ${D ? `<g opacity=".92" transform="translate(${(bx - D.w / 2).toFixed(1)} ${(by + R * .42).toFixed(1)})">${D.svg}</g>` : ''}
+  /* The balloon with the number is drawn last, so no other balloon covers the number */
+  const order = [0, 1, 3, 4, 2].map(i => bs[i].svg).join('');
+  return `<defs>${bs.map(b => b.defs).join('')}</defs>${strings}${order}
+    ${D ? `<g opacity=".95" transform="translate(${(bx - D.w / 2).toFixed(1)} ${(by + R * .5).toFixed(1)})">${D.svg}</g>` : ''}
     ${bear ? `<g transform="translate(${cx.toFixed(1)} ${(gy - 150 * bearS).toFixed(1)}) scale(${bearS.toFixed(3)})">${ANIMALS.bear.svg(p + 'a')}</g>
       <circle cx="${hand[0].toFixed(1)}" cy="${hand[1].toFixed(1)}" r="${(9 * bearS).toFixed(1)}" fill="#c69a6e" stroke="#9c7350" stroke-width="1.2"/>` : ''}`;
 }

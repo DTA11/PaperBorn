@@ -45,10 +45,10 @@ export const ground = (p, cx, y, w, { flowers = '#f6c6cf', wash = '#e9e1d2' } = 
   ${flower(X(-196), y - 26 * k, k, flowers)}${flower(X(-78), y - 18 * k, .8 * k, flowers)}${flower(X(206), y - 20 * k, .9 * k, flowers)}`;
 };
 
-/* Balloon with highlight and knot; returns { defs, svg, knot:[x,y] } so strings can be drawn to it */
+/* Balloon with highlight and knot, clean smooth edge; returns { defs, svg, knot:[x,y] } so strings can be drawn to it */
 export const balloon = (p, i, x, y, r, c1, c2) => ({
   defs: `<radialGradient id="${p}bl${i}" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient>`,
-  svg: `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><ellipse rx="${(r * .86).toFixed(1)}" ry="${r}" fill="url(#${p}bl${i})" filter="url(#${p}w)"/>
+  svg: `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><ellipse rx="${(r * .86).toFixed(1)}" ry="${r}" fill="url(#${p}bl${i})"/>
     <ellipse cx="${(-r * .32).toFixed(1)}" cy="${(-r * .4).toFixed(1)}" rx="${(r * .16).toFixed(1)}" ry="${(r * .26).toFixed(1)}" transform="rotate(25 ${(-r * .32).toFixed(1)} ${(-r * .4).toFixed(1)})" fill="#fff" opacity=".45"/>
     <path d="M${(-r * .1).toFixed(1)} ${(r + 6).toFixed(1)} L0 ${(r - 2).toFixed(1)} L${(r * .1).toFixed(1)} ${(r + 6).toFixed(1)}Z" fill="${c2}"/></g>`,
   knot: [x, y + r + 6],
