@@ -4,6 +4,7 @@
 import { $, esc, clone, track } from './util.js';
 import { fixGap } from './compat.js';
 import { nextIdea, IDEA_ICON } from './ideas.js';
+import { foldedPages, sheetFor } from './fold.js';
 import { state, ctx, fmt } from './state.js';
 import { FONTS, FONT_LABELS, loadFonts } from './fonts.js';
 import { photo, setPhotoSource, clearPhoto, syncPhotoURL, bakeFrames, initPhotoDrag, SHAPE_LABELS, FILTER_LABELS } from './photo.js';
@@ -534,6 +535,23 @@ async function exportPDF(kind = 'print') {
   track('export', { generator: def.slug, format: 'pdf', kind, pages: n, theme: state.theme });
 }
 
+/* Folded greeting card: the design (as an A5 front) on one landscape sheet, plus a back and an inside with the message. */
+async function exportFold() {
+  const keep = state.format;
+  if (def.formats.a5) state.format = 'a5';
+  let front;
+  try { front = await capturePage(state.page, { scale: 2.5, bleed: false }); } finally { state.format = keep; }
+  const { dv } = derive(); dv.color = colorKey();
+  const th = def.themes[state.theme], cc = th.colors ? th.colors[dv.color] : null, sheet = sheetFor(state.format);
+  await loadFonts('script');
+  const { pages, mm } = foldedPages(front, { sheet, bg: (cc && cc.bg) || th.bg, ink: (cc && cc.fg) || th.fg, body: FONTS[state.fontMode], script: FONTS.script,
+    inside: def.fold.inside(dv, state.theme, state.toggles), brand: !!state.toggles.footer });
+  const pdf = newPDF(mm[0], mm[1]);
+  addPageToPDF(pdf, pages[0], mm[0], mm[1], true, 0.92); addPageToPDF(pdf, pages[1], mm[0], mm[1], false, 0.92);
+  deliver(pdf.output('blob'), `babycardprintables-${slug()}-folded.pdf`, 'pdf');
+  track('export', { generator: def.slug, format: 'pdf', kind: 'folded', sheet, theme: state.theme });
+}
+
 async function exportPNG() {
   const c = await capturePage(state.page);
   const blob = await new Promise(res => c.toBlob(res, 'image/png'));
@@ -690,8 +708,14 @@ function bindEvents() {
   });
 
   const dlg = $('dl-dialog'), dlBtn = $('btn-download');
-  const runDownload = kind => withBusy(dlBtn, 'Preparing…', () => kind === 'png' ? exportPNG() : exportPDF(kind));
-  dlBtn.addEventListener('click', () => { $('dl-note').classList.toggle('hidden', !(def.photo && state.toggles.photo && !photo.source)); openDlg(dlg); });
+  const runDownload = kind => withBusy(dlBtn, 'Preparing…', () => kind === 'png' ? exportPNG() : kind === 'fold' ? exportFold() : exportPDF(kind));
+  dlBtn.addEventListener('click', () => {
+    $('dl-note').classList.toggle('hidden', !(def.photo && state.toggles.photo && !photo.source));
+    const fb = dlg.querySelector('[data-dl="fold"]');                // folded card only where the maker offers it (not for posters or game sheets)
+    if (fb) { const ok = !!(def.fold && def.fold.on(derive().dv)); fb.hidden = !ok; fb.style.display = ok ? '' : 'none';
+      const sz = $('fold-size'); if (sz) sz.textContent = sheetFor(state.format) === 'letter' ? 'US Letter' : 'A4'; }
+    openDlg(dlg);
+  });
   dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-dl-cancel]')) closeDlg(dlg); });
   dlg.querySelectorAll('[data-dl]').forEach(b => b.addEventListener('click', () => { const kind = b.dataset.dl; closeDlg(dlg); runDownload(kind); }));
   if (def.photo) {

@@ -116,6 +116,15 @@ export default {
       'Thank you for helping us celebrate one amazing year!', 'Big thanks for the party fun and the thoughtful gift!',
       'Thank you for being part of {firstName}’s story. We hope to see you again soon.'],
   },
+  /* Folded card for the invitation and the thank-you card (not the poster) */
+  fold: {
+    on: dv => dv.card !== 'poster',
+    inside(dv) {
+      const from = String(dv.from || '').trim();
+      if (dv.card === 'thanks') return { heading: 'Thank you!', text: '', sign: from ? `Love, ${from}` : '' };
+      return { heading: 'We can’t wait to celebrate with you!', text: [dv.rsvp].filter(Boolean).join('\n'), sign: from ? `Love, ${from}` : '' };
+    },
+  },
   derive,
   templates: TEMPLATES,
   decor: DECOR,

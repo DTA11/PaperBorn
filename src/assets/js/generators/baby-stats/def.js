@@ -129,6 +129,16 @@ export default {
       'Officially outnumbered.', 'Fresh out of the oven and perfectly baked.', 'From our arms to your heart.', 'Our duo is now a trio.',
     ],
   },
+  /* Folded card: what goes inside (the front is the design itself) */
+  fold: {
+    on: () => true,
+    inside(dv, theme, t = {}) {
+      const cap = v => String(v || '').trim().toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
+      const first = cap(dv.firstName), parents = cap(dv.parents);
+      const g = theme === 'newyear' ? 'Happy New Year!' : /^xmas/.test(theme) ? 'Merry Christmas!' : first ? `Welcome, ${first}!` : 'Welcome, little one!';
+      return { heading: g, text: t.quote === false ? '' : dv.quote || '', sign: parents && t.parents !== false ? `with love, ${parents}` : '' };
+    },
+  },
   derive: derived,
   /* Hospital name and city are separate switches; the designs only know one "location" switch, so adapt here:
      whichever of the two is switched on takes the place the design reserves for the hospital (Playful only has a city slot). */
