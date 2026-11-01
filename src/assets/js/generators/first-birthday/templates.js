@@ -56,10 +56,10 @@ function animalsScene(p, P, W, H, dv) {
       <ellipse cx="270" cy="230" rx="230" ry="190" fill="url(#${p}wa)" filter="url(#${p}w)"/>
       <g transform="translate(${nx.toFixed(1)} 382)">${num.svg}</g>
       ${ground(p, 270, 384, 440, { flowers: P.flags[0] })}
-      <g transform="translate(392 228) scale(1.12)">${an.svg(p + 'a')}${partyHat(p + 'h', P.hat[0], P.hat[1])}</g></g>`;
+      <g transform="translate(392 228) scale(1.12)">${an.svg(p + 'a')}<g transform="${an.hatAt || 'translate(0 8)'}">${partyHat(p + 'h', P.hat[0], P.hat[1])}</g></g></g>`;
   return svgBox(W, H, art);
 }
-const animalsSmall = (p, P, s, dv) => `<g transform="scale(${s})">${(ANIMALS[dv.animal] || ANIMALS.elephant).svg(p + 'a')}${partyHat(p + 'h', P.hat[0], P.hat[1])}</g>`;
+const animalsSmall = (p, P, s, dv) => { const an = ANIMALS[dv.animal] || ANIMALS.elephant; return `<g transform="scale(${s})">${an.svg(p + 'a')}<g transform="${an.hatAt || 'translate(0 8)'}">${partyHat(p + 'h', P.hat[0], P.hat[1])}</g></g>`; };
 
 function balloonsSet(p, cx, top, R, numStr, bear, bearS, gy, style = 'smooth') {
   const spots = [[-1.25, .55, .9], [-.45, .1, 1.05], [.55, 0, 1.25], [1.3, .5, .92], [.1, .95, .85]];

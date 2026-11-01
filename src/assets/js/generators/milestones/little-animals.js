@@ -62,7 +62,7 @@ function decor(pal, t, f, e, dv) {
   const ncx = big ? big.cx : 210;
   const animal = ANIMALS[animalFor(dv.animal, dv.milestone)];
   const sky = t.accents ? `
-    ${t.photo ? '' : `<g transform="translate(452 96)"><path d="M0 -26 A26 26 0 1 0 22 14 A20 20 0 1 1 0 -26Z" fill="#f1d38e" filter="url(#${id}wc)"/></g>`}
+    ${t.photo ? '' : `<g transform="translate(452 96)"><path d="M0 -26 A26 26 0 1 0 22 14 A20 20 0 1 1 0 -26Z" fill="#f1d38e"/></g>`}
     <use href="#${id}cl" transform="translate(${t.photo ? 92 : 128} ${t.photo ? 110 : 132}) scale(${t.photo ? .7 : .9})"/>
     <use href="#${id}cl" transform="translate(${t.photo ? 478 : 470} ${t.photo ? 170 : 150}) scale(.62)"/>
     ${t.photo ? '' : `<use href="#${id}cl" transform="translate(300 76) scale(.45)" opacity=".85"/>`}

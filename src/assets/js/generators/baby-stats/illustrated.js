@@ -77,7 +77,7 @@ const laTemplate = (e, t, f, dv) => {
 const laDecor = (t, f, e, dv) => {
   const pal = LA[dv.color] ? dv.color : 'blue', P = LA[pal], u = U(f), p = `bsld${pal}`, S = v => v * u;
   const sky = t.accents ? `${cloud(S(110), S(120), .9 * u)}${cloud(f.w - S(110), S(170), .62 * u)}${cloud(f.w * .55, S(70), .45 * u, .85)}
-    ${crescent(f.w - S(96), S(86), 24 * u, '#f1d38e', `filter="url(#${p}w)"`)}
+    ${crescent(f.w - S(96), S(86), 24 * u, '#f1d38e')}
     ${[[70, 250, .8], [f.w / u - 60, 300, .7], [220, 80, .5], [f.w / u - 190, 64, .55], [60, 560, .5], [f.w / u - 50, 620, .6]].map(([x, y, s]) => spark(x * u, y * u, s * u, '#e8c46c')).join('')}
     ${[[160, 210], [f.w / u - 150, 240], [50, 420], [f.w / u - 40, 470]].map(([x, y]) => dot(x * u, y * u, 2.4 * u, '#c9d8e8')).join('')}` : '';
   return full(f, `<defs>${wcDefs(p)}</defs><rect width="${f.w}" height="${f.h}" fill="#fbf7f0"/>${t.border ? dashedBorder(f, '#e4dccf', u) : ''}${sky}`);

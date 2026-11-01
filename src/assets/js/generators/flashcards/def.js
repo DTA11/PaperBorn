@@ -19,14 +19,19 @@ function template(e, t, f, dv, page) {
   const sel = (dv.patterns || []).filter(id => PATTERNS[id]);
   const cards = chunk(sel, cols * rows)[page] || [];
   if (!sel.length) return `<div class="m-auto text-center text-xl font-bold">Choose at least one pattern in the sidebar.</div>`;
-  const cut = t.crop ? `outline:2px dashed ${th.bg === '#000000' ? '#888' : '#9a9a9a'};outline-offset:-1px;` : '';
+  /* Cut lines as one SVG over the grid: html2canvas (PDF/PNG export) ignores CSS outline, but draws SVG exactly. */
+  const lc = th.bg === '#000000' ? '#888' : '#9a9a9a';
+  const lines = [];
+  for (let c = 0; c <= cols; c++) lines.push(`<line x1="${c * 100 / cols}%" y1="0" x2="${c * 100 / cols}%" y2="100%"/>`);
+  for (let r = 0; r <= rows; r++) lines.push(`<line x1="0" y1="${r * 100 / rows}%" x2="100%" y2="${r * 100 / rows}%"/>`);
+  const cutSvg = t.crop ? `<svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="${lc}" stroke-width="1.5" stroke-dasharray="7 5">${lines.join('')}</g></svg>` : '';
   const cells = Array.from({ length: cols * rows }, (_, i) => {
     const id = cards[i];
     if (!id) return `<div></div>`;
     const lab = t.footer ? `<div style="text-align:center;font-size:${cols === 1 ? 22 : 13}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding-top:6px;height:${cols === 1 ? 40 : 26}px;box-sizing:border-box">${PATTERNS[id][0]}</div>` : '';
-    return `<div style="${cut}display:flex;flex-direction:column;padding:${cols === 1 ? 28 : 16}px;box-sizing:border-box;min-height:0;min-width:0"><div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center"><div class="ar-box" style="aspect-ratio:1/1;height:100%;max-width:100%">${patternSVG(id, th.fg, th.acc, th.bg)}</div></div>${lab}</div>`;
+    return `<div style="display:flex;flex-direction:column;padding:${cols === 1 ? 28 : 16}px;box-sizing:border-box;min-height:0;min-width:0"><div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center"><div class="ar-box" style="aspect-ratio:1/1;height:100%;max-width:100%">${patternSVG(id, th.fg, th.acc, th.bg)}</div></div>${lab}</div>`;
   }).join('');
-  return `<div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));grid-template-rows:repeat(${rows},minmax(0,1fr));gap:${t.crop ? 0 : 8}px">${cells}</div>`;
+  return `<div style="flex:1;min-height:0;position:relative;display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));grid-template-rows:repeat(${rows},minmax(0,1fr));gap:${t.crop ? 0 : 8}px">${cells}${cutSvg}</div>`;
 }
 
 export default {

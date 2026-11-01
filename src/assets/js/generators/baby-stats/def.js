@@ -4,7 +4,7 @@ import { TEMPLATES, DECOR } from './templates.js';
 import { NEW_THEMES, NEW_TEMPLATES, NEW_DECOR } from './illustrated.js';
 import { REDESIGN_THEMES, REDESIGN_TEMPLATES, REDESIGN_DECOR } from './redesigns.js';
 import { HOLIDAY_THEMES, HOLIDAY_TEMPLATES, HOLIDAY_DECOR, GREETINGS } from './holiday.js';
-import { ANIMALS, ANIMAL_ORDER } from '../../core/animals.js';
+import { ANIMALS, ANIMAL_ORDER, XMAS_ORDER } from '../../core/animals.js';
 import { STORY_THEMES, STORY_TEMPLATES, STORY_DECOR, HEADLINES, CHARACTERS } from './storybook.js';
 
 /* New illustrated designs first, then the originals (four of them redesigned, same ids so saved cards keep working). */
@@ -14,7 +14,7 @@ const ALL_THEMES = { ...NEW_THEMES, ...STORY_THEMES, ...HOLIDAY_THEMES, ...Objec
 const LA_LIST = ANIMAL_ORDER.map(k => [k, ANIMALS[k].name]);
 const ANIMAL_CHOICES = {
   animals: LA_LIST,
-  xmas_animals: [['elf', 'Little elf'], ...LA_LIST],
+  xmas_animals: [...XMAS_ORDER, ...ANIMAL_ORDER.filter(k => !XMAS_ORDER.includes(k))].map(k => [k, ANIMALS[k].name]),
   scandi: CHARACTERS.filter(c => c[0] !== 'auto'),
   line: [['bunny', 'Bunny'], ['bear', 'Bear'], ...CHARACTERS.filter(c => !['auto', 'bunny', 'bear'].includes(c[0]))],
 };
