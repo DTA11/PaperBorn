@@ -15,7 +15,7 @@ const where = (e, t) => t.location ? [e.location, e.city].filter(Boolean).join('
 const photoAt = (f, size, style = '', empty = '') => photoHTML(style, size / (f.photoH || 360), empty);       // '' when the photo is switched off
 const svgBox = (w, h, inner, z = 0) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w.toFixed(1)} ${h.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" style="position:absolute;left:0;top:0;pointer-events:none;z-index:${z}">${inner}</svg>`;
 const full = (f, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${f.w} ${f.h}" width="${f.w}" height="${f.h}" style="position:absolute;left:0;top:0;pointer-events:none">${inner}</svg>`;
-const animalOf = dv => ANIMALS[dv.animal] || ANIMALS.elephant;
+const animalOf = dv => (dv.animal !== 'elf' && ANIMALS[dv.animal]) || ANIMALS.elephant;
 
 function footer(e, t, label, color, u) {
   if (!(t.footer || (t.coords && e.coords))) return '';

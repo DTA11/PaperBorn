@@ -58,8 +58,8 @@ export default {
         { key: 'card', type: 'select', label: 'What are you making?', span: 2, options: [['invite', 'Party invitation'], ['poster', 'One year poster (then and now)'], ['thanks', 'Thank-you card']] },
         { key: 'firstName', type: 'text', label: 'Child’s first name', maxlength: 24 },
         { key: 'age', type: 'select', label: 'Turning', options: Object.entries(AGES).map(([k, v]) => [k, `${k} (${v[1].toLowerCase()} birthday)`]) } ] },
-      { fields: [{ key: 'animal', type: 'select', label: 'Animal (Party Animals designs)', options: ANIMAL_ORDER.map(k => [k, ANIMALS[k].name]) }] },
-      { fields: [{ key: 'numStyle', type: 'select', label: 'Number style', options: NUM_STYLES }] },
+      { fields: [{ key: 'animal', type: 'select', label: 'Animal', show: id => id === 'animals', options: ANIMAL_ORDER.map(k => [k, ANIMALS[k].name]) }] },
+      { fields: [{ key: 'numStyle', type: 'select', label: 'Number style', show: id => id !== 'confetti', options: NUM_STYLES }] },
     ],
   }, {
     title: 'Invitation',

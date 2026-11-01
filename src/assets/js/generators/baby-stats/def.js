@@ -10,6 +10,15 @@ import { STORY_THEMES, STORY_TEMPLATES, STORY_DECOR, HEADLINES, CHARACTERS } fro
 /* New illustrated designs first, then the originals (four of them redesigned, same ids so saved cards keep working). */
 const ALL_THEMES = { ...NEW_THEMES, ...STORY_THEMES, ...HOLIDAY_THEMES, ...Object.fromEntries(Object.entries(THEMES).map(([k, v]) => [k, REDESIGN_THEMES[k] || v])) };
 
+/* Which animals each design can draw; the first one is the design's own (used when nothing else is picked) */
+const LA_LIST = ANIMAL_ORDER.map(k => [k, ANIMALS[k].name]);
+const ANIMAL_CHOICES = {
+  animals: LA_LIST,
+  xmas_animals: [['elf', 'Little elf'], ...LA_LIST],
+  scandi: CHARACTERS.filter(c => c[0] !== 'auto'),
+  line: [['bunny', 'Bunny'], ['bear', 'Bear'], ...CHARACTERS.filter(c => !['auto', 'bunny', 'bear'].includes(c[0]))],
+};
+
 /* ---------- Derived values: calendar date, grams, cm, zodiac ---------- */
 function fmtDate(iso) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
@@ -43,6 +52,7 @@ export default {
   fileName: d => d.firstName || 'baby-stats',
   themes: ALL_THEMES,
   defaultTheme: 'animals',
+  resetOnDesign: ['animal'],
   /* Old design ids in saved cards, links and pins: the design they now belong to, and its color */
   aliases: { animals_blue: ['animals', 'blue'], animals_pink: ['animals', 'pink'], bow_blue: ['bow', 'blue'], bow_pink: ['bow', 'pink'],
     vintage: ['editorial'], minimalist: ['editorial'], luxury: ['celestial'], retro: ['playful'] },
@@ -57,7 +67,7 @@ export default {
   photo: true,
   defaults: {
     toggles: { name: true, monogram: true, date: true, time: true, weight: true, height: true, location: true, city: true, coords: true, parents: true, zodiac: true, moon: true, quote: true },
-    data: { monogram: '', date: '2026-10-10', time: '08:42', animal: 'elephant', greeting: 'auto', headline: 'auto', character: 'auto' },
+    data: { monogram: '', date: '2026-10-10', time: '08:42', animal: 'auto', greeting: 'auto', headline: 'auto' },
     sample: { firstName: 'AURELIA', lastName: 'VALENTINE', weightG: '3450', heightCm: '51', location: 'City General Hospital', city: 'Your City, Country',
               coords: '45.0000° N, 15.0000° E', mother: 'EMMA', father: 'MARK', quote: 'Little miracle, endless love.' },
     sampleGroups: [['firstName', 'lastName'], ['mother', 'father'], ['weightG', 'heightCm'], ['location', 'city', 'coords']],
@@ -94,10 +104,10 @@ export default {
       { toggles: [['parents', 'Parents']], cols: 2, fields: [
         { key: 'mother', type: 'text', label: 'Mother', maxlength: 24 },
         { key: 'father', type: 'text', label: 'Father', maxlength: 24 } ] },
-      { fields: [{ key: 'animal', type: 'select', label: 'Animal (Little Animals and Christmas designs)', options: ANIMAL_ORDER.map(k => [k, ANIMALS[k].name]) }] },
-      { fields: [{ key: 'character', type: 'select', label: 'Animal (Scandi Doodle and Line Friends designs)', options: CHARACTERS }] },
-      { fields: [{ key: 'headline', type: 'select', label: 'Headline (Stork, Lettering, Line Friends and Clothesline designs)', options: HEADLINES }] },
-      { fields: [{ key: 'greeting', type: 'select', label: 'Greeting (Christmas and New Year designs)', options: GREETINGS }] },
+      /* One Animal choice: its list follows the design, and it only shows on designs that have an animal */
+      { fields: [{ key: 'animal', type: 'select', label: 'Animal', show: id => id in ANIMAL_CHOICES, optionsFor: id => ANIMAL_CHOICES[id] || ANIMAL_CHOICES.animals }] },
+      { fields: [{ key: 'headline', type: 'select', label: 'Headline', show: id => ['stork', 'lettering', 'line', 'clothesline'].includes(id), options: HEADLINES }] },
+      { fields: [{ key: 'greeting', type: 'select', label: 'Greeting', show: id => ['xmas_animals', 'xmas_red', 'newyear'].includes(id), options: GREETINGS }] },
       { toggles: [['zodiac', 'Star sign']], fields: [
         { key: 'zodiac', type: 'readout', label: 'Star sign (filled in for you)', empty: 'Pick a birth date' } ] },
       { toggles: [['quote', 'Short message']], fields: [ { key: 'quote', type: 'text', ph: 'Little miracle, endless love.', maxlength: 90 } ] },

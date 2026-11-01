@@ -156,7 +156,7 @@ function fieldHTML(fd) {
   let ctl;
   switch (fd.type) {
     case 'textarea': ctl = `<textarea ${common} rows="${fd.rows || 4}" ${ph} maxlength="${fd.max || 3000}"></textarea>`; break;
-    case 'select': ctl = `<select ${common}>${fd.options.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('')}</select>`; break;
+    case 'select': ctl = `<select ${common}>${optionsHTML(fd.optionsFor ? fd.optionsFor(state.theme) : fd.options)}</select>`; break;
     case 'readout': ctl = `<div class="inp text-zinc-300" data-readout="${fd.key}" data-empty="${esc(fd.empty || '—')}">—</div>`; break;
     case 'multicheck':
       ctl = `<div data-m="${fd.key}" class="grid grid-cols-2 gap-x-3 gap-y-1.5 max-h-56 overflow-y-auto pr-1">` +
@@ -176,7 +176,31 @@ function fieldHTML(fd) {
     }
   }
   const idea = def.ideas && def.ideas[fd.key] ? `<button type="button" class="idea-btn" data-idea="${fd.key}">${IDEA_ICON}<span>Give me an idea</span></button>` : '';
-  return `<div class="${span} min-w-0">${lab}${ctl}${idea}</div>`;
+  if (fd.show || fd.optionsFor) ADAPT.push(fd);
+  return `<div class="${span} min-w-0" data-fwrap="${fd.key}">${lab}${ctl}${idea}</div>`;
+}
+const optionsHTML = opts => opts.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('');
+
+/* Fields that only matter for some designs (fd.show), or whose choices depend on the design (fd.optionsFor):
+   shown, hidden and refilled whenever the design changes, so the sidebar only lists what the current design uses. */
+const ADAPT = [];
+function adaptFields() {
+  for (const fd of ADAPT) {
+    const wrap = document.querySelector(`[data-fwrap="${fd.key}"]`), el = $(`f-${fd.key}`);
+    if (!wrap || !el) continue;
+    if (fd.show) wrap.style.display = fd.show(state.theme) ? '' : 'none';
+    if (fd.optionsFor) {
+      const opts = fd.optionsFor(state.theme), sig = opts.map(o => o[0]).join('|');
+      if (el.dataset.sig !== sig) { el.innerHTML = optionsHTML(opts); el.dataset.sig = sig; }
+      const v = nn(state.data[fd.key], '');
+      el.value = opts.some(o => o[0] === v) ? v : opts[0][0];
+    }
+    const box = wrap.closest('.box');
+    if (box && !box.querySelector('[data-t]')) {
+      const all = [...box.querySelectorAll('[data-fwrap]')];
+      box.style.display = all.length && all.every(w => w.style.display === 'none') ? 'none' : '';
+    }
+  }
 }
 
 /* "Give me an idea": fill the field with the next suggestion for this card, as if it had been typed. */
@@ -306,6 +330,7 @@ function syncForm() {
   if (dc) { dc.innerHTML = row; dc.hidden = !row; }
   const dt = $('design-title'); if (dt) dt.textContent = `${ids0.indexOf(state.theme) + 1} / ${ids0.length} · ${def.themes[state.theme].name}`;
   document.querySelectorAll('[data-f]').forEach(el => { el.value = nn(state.data[el.dataset.f], ''); });
+  adaptFields();
   document.querySelectorAll('[data-m]').forEach(box => {
     const sel = state.data[box.dataset.m] || [];
     box.querySelectorAll('[data-mv]').forEach(i => { i.checked = sel.includes(i.dataset.mv); });
@@ -333,6 +358,7 @@ function setTheme(id) {
     const base = { photo: true, ...(def.defaults.toggles || {}) };
     for (const k of Object.keys(prev.toggles)) if (k in base) state.toggles[k] = base[k];
   }
+  if (id !== state.theme) for (const k of def.resetOnDesign || []) state.data[k] = nn((def.defaults.data || {})[k], '');   // e.g. each design starts with its own animal
   state.theme = id; state.fontMode = th.font;
   if (th.toggles) Object.assign(state.toggles, th.toggles);      // a design can switch extras off that it is not built around
   if (def.photo) { if (th.shape) state.photo.shape = th.shape; if (th.filter) state.photo.filterMode = th.filter; }

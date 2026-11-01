@@ -54,16 +54,18 @@ export const balloon = (p, i, x, y, r, c1, c2) => ({
   knot: [x, y + r + 6],
 });
 
-/* Ribbon bow centred on (x,y); width about 150*s */
-export const bow = (p, x, y, s, c1, c2) => `<defs><linearGradient id="${p}bw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs>
-  <g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s})" filter="url(#${p}w)" stroke="${c2}" stroke-width="1.5" stroke-linejoin="round">
-    <path d="M-4 6 C-14 30 -26 52 -40 74 L-26 72 L-20 86 C-8 60 0 34 4 10Z" fill="url(#${p}bw)"/>
-    <path d="M4 6 C14 30 26 52 40 74 L26 72 L20 86 C8 60 0 34 -4 10Z" fill="url(#${p}bw)"/>
-    <path d="M0 0 C-22 -32 -72 -34 -74 -6 C-76 20 -34 22 0 4Z" fill="url(#${p}bw)"/>
-    <path d="M0 0 C22 -32 72 -34 74 -6 C76 20 34 22 0 4Z" fill="url(#${p}bw)"/>
-    <path d="M-10 -2 C-28 -16 -52 -16 -58 -4" fill="none" stroke="${c2}" stroke-width="1.2" opacity=".6"/>
-    <path d="M10 -2 C28 -16 52 -16 58 -4" fill="none" stroke="${c2}" stroke-width="1.2" opacity=".6"/>
-    <ellipse cx="0" cy="2" rx="12" ry="11" fill="${c1}"/></g>`;
+/* Ribbon bow centred on (x,y); width about 150*s. Clean, symmetric loops with a soft fold, a rounded knot and notched tails. */
+export const bow = (p, x, y, s, c1, c2) => {
+  const loop = m => `<path transform="scale(${m} 1)" d="M-2 0 C-12 -24 -42 -40 -64 -32 C-82 -25 -82 2 -66 12 C-48 22 -18 12 -2 4Z" fill="url(#${p}bw)"/>
+    <path transform="scale(${m} 1)" d="M-8 -2 C-22 -18 -44 -26 -58 -20" fill="none" stroke="${c2}" stroke-width="1.3" opacity=".55" stroke-linecap="round"/>
+    <path transform="scale(${m} 1)" d="M-10 3 C-26 10 -46 12 -60 6" fill="none" stroke="#fff" stroke-width="2.2" opacity=".35" stroke-linecap="round"/>`;
+  const tail = m => `<path transform="scale(${m} 1)" d="M-4 8 C-10 30 -20 52 -34 76 L-20 71 L-12 86 C-2 62 4 36 6 12Z" fill="url(#${p}bw)"/>`;
+  return `<defs><linearGradient id="${p}bw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs>
+  <g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s})" stroke="${c2}" stroke-width="1.5" stroke-linejoin="round">
+    ${tail(1)}${tail(-1)}${loop(1)}${loop(-1)}
+    <rect x="-11" y="-11" width="22" height="22" rx="8" fill="${c1}"/>
+    <path d="M-5 -5 C-2 -7 3 -7 5 -5" fill="none" stroke="#fff" stroke-width="1.6" opacity=".45" stroke-linecap="round"/></g>`;
+};
 
 /* Scalloped oval outline (cx, cy, rx, ry) as a path */
 export function scallopPath(cx, cy, rx, ry, n = 44) {

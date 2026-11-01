@@ -25,6 +25,11 @@ const headline = (dv, auto) => HEAD[dv.headline] || HEAD[auto];
 export const CHARACTERS = [['auto', 'Matches the design'], ['elephant', 'Elephant'], ['whale', 'Whale'], ['fox', 'Fox'], ['bunny', 'Bunny'], ['bear', 'Bear']];
 const eyes = (x1, x2, y, c, w = 9) => `<path d="M${x1 - w} ${y} Q${x1} ${y + 7} ${x1 + w} ${y} M${x2 - w} ${y} Q${x2} ${y + 7} ${x2 + w} ${y}" fill="none" stroke="${c.D}" stroke-width="3" stroke-linecap="round"/>`;
 const cheeks = (x1, x2, y, c, r = 8) => `<g fill="${c.P}" opacity=".75"><ellipse cx="${x1}" cy="${y}" rx="${r}" ry="${r * .7}"/><ellipse cx="${x2}" cy="${y}" rx="${r}" ry="${r * .7}"/></g>`;
+/* A little bow tie centred at (x, y), worn at the neck */
+const bowTie = (x, y, c) => `<g transform="translate(${x} ${y})">
+  <path d="M-3 0 C-10 -8 -22 -14 -26 -9 C-29 -4 -29 4 -26 9 C-22 14 -10 8 -3 0Z" fill="${c.A}" ${c.S}/>
+  <path d="M3 0 C10 -8 22 -14 26 -9 C29 -4 29 4 26 9 C22 14 10 8 3 0Z" fill="${c.A}" ${c.S}/>
+  <rect x="-6" y="-7" width="12" height="14" rx="4" fill="${c.A}" ${c.S}/></g>`;
 const DRAW = {
   elephant: c => `
     <path d="M58 -40 C82 -40 90 -24 82 -14" fill="none" stroke="${c.line ? c.D : c.B2}" stroke-width="5" stroke-linecap="round"/>
@@ -70,7 +75,7 @@ const DRAW = {
     <circle cx="0" cy="-150" r="52" fill="${c.B}" ${c.S}/>
     <path d="M-6 -136 L6 -136 L0 -128Z" fill="${c.P}"/><path d="M0 -128 C-4 -120 -12 -120 -14 -124 M0 -128 C4 -120 12 -120 14 -124" fill="none" stroke="${c.D}" stroke-width="2" stroke-linecap="round"/>
     ${eyes(-22, 22, -152, c, 8)}${cheeks(-32, 32, -134, c, 8)}
-    <g transform="translate(-26 -196) rotate(-18)"><path d="M0 0 C-16 -14 -30 -4 -26 8 C-22 18 -8 10 0 0 C8 10 22 18 26 8 C30 -4 16 -14 0 0Z" fill="${c.A}" ${c.S}/><circle r="5" fill="${c.A}" ${c.S}/></g>`,
+    ${c.tie ? bowTie(0, -99, c) : `<g transform="translate(-26 -196) rotate(-18)"><path d="M0 0 C-16 -14 -30 -4 -26 8 C-22 18 -8 10 0 0 C8 10 22 18 26 8 C30 -4 16 -14 0 0Z" fill="${c.A}" ${c.S}/><circle r="5" fill="${c.A}" ${c.S}/></g>`}`,
   bear: c => `
     <circle cx="-42" cy="-196" r="20" fill="${c.B}" ${c.S}/><circle cx="42" cy="-196" r="20" fill="${c.B}" ${c.S}/>
     <circle cx="-42" cy="-196" r="10" fill="${c.L}"/><circle cx="42" cy="-196" r="10" fill="${c.L}"/>
@@ -81,14 +86,16 @@ const DRAW = {
     <circle cx="0" cy="-150" r="56" fill="${c.B}" ${c.S}/>
     <ellipse cx="0" cy="-130" rx="26" ry="19" fill="${c.L}" ${c.S}/>
     <ellipse cx="0" cy="-138" rx="9" ry="6.5" fill="${c.D}"/><path d="M0 -132 V-124 M0 -124 C-5 -118 -11 -119 -13 -122 M0 -124 C5 -118 11 -119 13 -122" fill="none" stroke="${c.D}" stroke-width="2" stroke-linecap="round"/>
-    ${eyes(-22, 22, -160, c, 8)}${cheeks(-36, 36, -138, c, 8)}`,
+    ${eyes(-22, 22, -160, c, 8)}${cheeks(-36, 36, -138, c, 8)}${c.tie ? bowTie(0, -95, c) : ''}`,
 };
 const FLAT = { elephant: ['#c4c7cf', '#a9adb8', '#eef0f3'], whale: ['#8fb3d3', '#6e95ba', '#e3eef7'], fox: ['#e98d4e', '#b9612b', '#fff6ec'], bunny: ['#efe5d8', '#d9c9b4', '#fffaf3'], bear: ['#cb9c6e', '#a9774c', '#efd9bd'] };
-export function character(kind, mode, A, P = '#f4a3b4') {
+/* tie = true: a bow tie at the neck instead of a bow on the head (used for the blue colors) */
+export function character(kind, mode, A, P = '#f4a3b4', tie = false) {
   const k = DRAW[kind] ? kind : 'elephant';
   const c = mode === 'line'
     ? { B: '#fff', B2: '#fff', L: '#fff', A, P, D: '#222', S: 'stroke="#222" stroke-width="3" stroke-linejoin="round"', line: true }
     : { B: FLAT[k][0], B2: FLAT[k][1], L: FLAT[k][2], A, P, D: '#3b3a45', S: '', line: false };
+  c.tie = tie;
   return DRAW[k](c);
 }
 
@@ -115,8 +122,8 @@ const scandiTemplate = (e, t, f, dv) => {
   const D = Math.round(f.photoH * .8), s = (t.photo ? .85 : 1.55) * f.photoH / 440, Hs = (t.photo ? D : 262 * s) + 10 * u;
   const pic = t.photo
     ? `<div style="position:relative;width:${px(W)};height:${px(Hs)};margin:0 auto"><div style="position:absolute;left:${px(W / 2 - D / 2 - 40 * u)};top:0;width:${D}px">${photoAt(f, D, `border:${px(6 * u)} solid #fff;box-shadow:0 0 0 ${px(2 * u)} ${P.accent};`)}</div>
-        ${svgBox(W, Hs, `<g transform="translate(${n1(W / 2 + D * .4)} ${n1(Hs - 4 * u)}) scale(${s.toFixed(3)})">${character(dv.character, 'flat', P.accent)}</g>`, 2)}</div>`
-    : `<div style="position:relative;width:${px(W)};height:${px(Hs)};margin:0 auto">${svgBox(W, Hs, `<g transform="translate(${n1(W / 2)} ${n1(Hs - 4 * u)}) scale(${s.toFixed(3)})">${character(dv.character, 'flat', P.accent)}</g>`)}</div>`;
+        ${svgBox(W, Hs, `<g transform="translate(${n1(W / 2 + D * .4)} ${n1(Hs - 4 * u)}) scale(${s.toFixed(3)})">${character(dv.animal, 'flat', P.accent, undefined, dv.color === 'blue')}</g>`, 2)}</div>`
+    : `<div style="position:relative;width:${px(W)};height:${px(Hs)};margin:0 auto">${svgBox(W, Hs, `<g transform="translate(${n1(W / 2)} ${n1(Hs - 4 * u)}) scale(${s.toFixed(3)})">${character(dv.animal, 'flat', P.accent, undefined, dv.color === 'blue')}</g>`)}</div>`;
   const stats = statList(e, t).map(r => r[1]);
   return `<div style="text-align:center;color:${P.ink}">${t.date && e.date ? `<div style="font-size:${px(14 * u)};letter-spacing:.34em;text-transform:uppercase;color:${P.soft}">${e.date}</div>` : ''}</div>
     <div style="margin:auto 0;padding-top:${px(8 * u)}">${pic}</div>
@@ -243,7 +250,7 @@ const lineTemplate = (e, t, f, dv) => {
   const tall = (txt, size, color, weight) => `<div style="font-family:'Inter',sans-serif;font-weight:${weight};font-size:${px(size)};line-height:1;letter-spacing:.02em;text-transform:uppercase;color:${color};transform:scaleY(1.45);transform-origin:left top;margin-bottom:${px(size * .5)}">${txt}</div>`;
   const pic = `<div style="position:relative;width:${px(W)};height:${px(t.photo ? Math.max(D, Hs) : Hs)};margin:0 auto">
     ${t.photo ? `<div style="position:absolute;left:${px(W * .1)};top:0;width:${D}px">${photoAt(f, D, `border:${px(3 * u)} solid ${P.ink};`)}</div>` : ''}
-    ${svgBox(W, t.photo ? Math.max(D, Hs) : Hs, `<g transform="translate(${n1(t.photo ? W * .78 : W / 2)} ${n1((t.photo ? Math.max(D, Hs) : Hs) - 2)}) scale(${s.toFixed(3)})">${character(!dv.character || dv.character === 'auto' ? 'bunny' : dv.character, 'line', P.accent, P.cheek)}</g>`, 2)}</div>`;
+    ${svgBox(W, t.photo ? Math.max(D, Hs) : Hs, `<g transform="translate(${n1(t.photo ? W * .78 : W / 2)} ${n1((t.photo ? Math.max(D, Hs) : Hs) - 2)}) scale(${s.toFixed(3)})">${character(['bunny', 'bear', 'elephant', 'whale', 'fox'].includes(dv.animal) ? dv.animal : 'bunny', 'line', P.accent, P.cheek, dv.color === 'navy')}</g>`, 2)}</div>`;
   return `<div style="padding:${px(14 * u)} ${px(10 * u)} 0">${tall(h1, fit(h1, 46 * u, 10), P.ink, 300)}${tall(h2, fit(h2, 92 * u, 6), P.accent, 600)}</div>
     <div style="margin:auto 0">${pic}</div>
     <div style="text-align:center;color:${P.ink};border-top:1.5px solid ${P.ink};padding-top:${px(14 * u)}">

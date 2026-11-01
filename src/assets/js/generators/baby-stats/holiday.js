@@ -4,6 +4,7 @@
 import { U, fit, nice, photoAt, svgBox, full, footer, lowerBlock, animalOf } from './illustrated.js';
 import { wcDefs, spark, dot, snowflake, xmasTree, gift, santaHat, wreath, burst, bow } from '../../core/art.js';
 import { DIGITS } from '../milestones/numerals.js';
+import { ANIMALS } from '../../core/animals.js';
 
 export const GREETINGS = [['auto', 'Matches the design'], ['first', 'Baby’s First Christmas'], ['merry', 'Merry Christmas'],
   ['newyear', 'Happy New Year'], ['both', 'Merry Christmas & Happy New Year'], ['season', 'Season’s Greetings']];
@@ -42,14 +43,14 @@ const snowField = (f, u, c, op, seed = 3) => {
 /* ---------- Christmas · Little Animals ---------- */
 const XA = { kick: '#a8464e', script: '#b8343e', name: '#5b4b44', soft: '#8f8476', pill: '#f3ebe3', label: '#b26a6f', ink: '#5b4b44', accent: '#b8343e' };
 function xaScene(f, t, dv, u, W) {
-  const p = 'bsxa', ph = t.photo, D = Math.round(f.photoH * (ph ? .86 : .68)), an = animalOf(dv);
+  const p = 'bsxa', ph = t.photo, D = Math.round(f.photoH * (ph ? .86 : .68)), an = ANIMALS[dv.animal] ? ANIMALS[dv.animal] : ANIMALS.elf;   // the little elf unless an animal was picked
   const sc = ph ? D / 330 : D / 200, Hs = (ph ? D : 260 * sc) + 40 * u, gy = Hs - 14 * u;
   const pcx = ph ? W / 2 - D * .1 : W / 2, ax = ph ? pcx + D / 2 + 6 * sc : W / 2 + 18 * sc, ay = gy - 150 * sc;
   const tx = ph ? pcx - D / 2 - 16 * sc : W / 2 - 150 * sc;
   const back = `<defs>${wcDefs(p)}<radialGradient id="${p}s" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e3edf4"/></radialGradient></defs>
     ${t.accents ? xmasTree(tx, gy - 6 * u, sc * 1.25) : ''}
     <ellipse cx="${(W / 2).toFixed(1)}" cy="${(gy + 2 * u).toFixed(1)}" rx="${Math.min(W * .48, D * 1.15 + 90 * sc).toFixed(1)}" ry="${(18 * u).toFixed(1)}" fill="url(#${p}s)" stroke="#d7e3ec" stroke-width="1.5" filter="url(#${p}w)"/>`;
-  const front = `<g transform="translate(${ax.toFixed(1)} ${ay.toFixed(1)}) scale(${sc.toFixed(3)})">${an.svg(p + 'a')}${santaHat(-12)}</g>
+  const front = `<g transform="translate(${ax.toFixed(1)} ${ay.toFixed(1)}) scale(${sc.toFixed(3)})">${an.svg(p + 'a')}${an === ANIMALS.elf ? '' : santaHat(-12)}</g>
     ${t.accents ? `${gift(ax + 82 * sc, gy + 4 * u, sc * 1.1, '#d9534f', '#f6e7b4')}${gift(ax + 122 * sc, gy + 4 * u, sc * .8, '#5f8f6b', '#f6e7b4', 34, 26)}` : ''}`;
   return `<div style="position:relative;width:${W.toFixed(1)}px;height:${Hs.toFixed(1)}px;margin:0 auto">${svgBox(W, Hs, back)}
     ${ph ? `<div style="position:absolute;left:${(pcx - D / 2).toFixed(1)}px;top:${(gy - D - 6 * u).toFixed(1)}px;width:${D}px;z-index:1">${photoAt(f, D, frame(D, u, '#fff', '#b8343e55'), 'padding-bottom:34%')}</div>` : ''}

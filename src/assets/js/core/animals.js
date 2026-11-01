@@ -132,6 +132,23 @@ export const ANIMALS = {
       ${face({ ey: -8, cy: 12, cx: 38, cheek: '#f2a39a', smile: 'M-16 22 C-8 32 8 32 16 22', line: '#5f8155' })}
       <g fill="#6f9364"><ellipse cx="-6" cy="8" rx="2" ry="1.5"/><ellipse cx="6" cy="8" rx="2" ry="1.5"/></g>`,
   },
+  /* Christmas only (not in ANIMAL_ORDER): a little elf in a green suit, pointy hat with a bell and pointy ears */
+  elf: {
+    name: 'Little elf',
+    svg: p => `<defs>${grad(p + 'k', '#ffe8d6', '#f9d2b6', '#efbd9b')}${grad(p + 'g', '#7cbf7f', '#57a05f', '#448a4d')}${grad(p + 'h', '#6fb873', '#4c9a55', '#3c8045')}</defs>
+      ${body(`url(#${p}g)`, '#3d7a46', '#9fd3a0', '#a0673f')}
+      <path d="M-30 96 H30" stroke="#3d2b1f" stroke-width="7" stroke-linecap="round"/><rect x="-8" y="90" width="16" height="12" rx="2" fill="#f2c94c" stroke="#b8902e" stroke-width="1.4"/>
+      <path d="M-44 34 L-34 48 L-22 36 L-10 50 L0 38 L10 50 L22 36 L34 48 L44 34 Z" fill="#d64545" stroke="#a83232" stroke-width="1.4" stroke-linejoin="round"/>
+      <path d="M-50 -12 C-70 -18 -92 -32 -106 -52 C-100 -22 -80 4 -50 16Z" fill="url(#${p}k)" stroke="#d9a07c" ${OUT}/>
+      <path d="M50 -12 C70 -18 92 -32 106 -52 C100 -22 80 4 50 16Z" fill="url(#${p}k)" stroke="#d9a07c" ${OUT}/>
+      <ellipse cx="0" cy="0" rx="56" ry="54" fill="url(#${p}k)" stroke="#d9a07c" ${OUT}/>
+      <path d="M-40 -34 C-30 -24 -16 -22 -8 -30 C0 -22 12 -22 20 -30" fill="none" stroke="#b07a52" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+      ${face({ cheek: '#f39aa8', line: '#9a6a4f', smile: 'M-10 22 C-5 29 5 29 10 22' })}
+      <path d="M-58 -30 C-46 -86 6 -122 58 -112 C80 -108 96 -94 102 -78 C88 -88 72 -90 60 -84 C42 -74 32 -54 58 -32 Z" fill="url(#${p}h)" stroke="#3d7a46" ${OUT}/>
+      <path d="M-40 -60 C-24 -88 8 -104 40 -102" stroke="#9fd3a0" stroke-width="4" fill="none" stroke-linecap="round" opacity=".55"/>
+      <rect x="-64" y="-42" width="126" height="18" rx="9" fill="#d64545" stroke="#a83232" stroke-width="1.4"/>
+      <circle cx="104" cy="-74" r="10" fill="#f2c94c" stroke="#b8902e" stroke-width="1.4"/><path d="M98 -72 H110" stroke="#b8902e" stroke-width="1.6"/>`,
+  },
 };
 
 export const ANIMAL_ORDER = ['elephant', 'bunny', 'bear', 'giraffe', 'lion', 'fox', 'dino'];

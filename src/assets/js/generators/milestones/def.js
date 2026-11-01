@@ -65,8 +65,8 @@ export default {
       { toggles: [['name', 'Baby name']], fields: [{ key: 'babyName', type: 'text', ph: 'Baby name', maxlength: 30 }] },
       { cols: 2, fields: [
         { key: 'milestone', type: 'select', label: 'Milestone', span: 2, options: MILESTONES },
-        { key: 'animal', type: 'select', label: 'Animal (Little Animals designs)', span: 2, options: [['auto', 'A different one each month'], ...ANIMAL_ORDER.map(k => [k, ANIMALS[k].name])] },
-        { key: 'numStyle', type: 'select', label: 'Number style (Little Animals design)', span: 2, options: NUM_STYLES },
+        { key: 'animal', type: 'select', label: 'Animal', span: 2, show: id => id === 'animals', options: [['auto', 'A different one each month'], ...ANIMAL_ORDER.map(k => [k, ANIMALS[k].name])] },
+        { key: 'numStyle', type: 'select', label: 'Number style', span: 2, show: id => id === 'animals', options: NUM_STYLES },
         { key: 'customBig', type: 'text', label: 'Your big text', ph: '100', maxlength: 6 },
         { key: 'customSmall', type: 'text', label: 'Your small text', ph: 'DAYS', maxlength: 14 } ] },
       { toggles: [['date', 'Date'], ['weight', 'Weight']], cols: 2, fields: [
